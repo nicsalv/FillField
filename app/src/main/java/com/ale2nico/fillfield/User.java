@@ -1,3 +1,5 @@
+package com.ale2nico.fillfield;
+
 /**
  * Rappresentazione dell'oggeto utente all'interno dell'applicazione.
  */

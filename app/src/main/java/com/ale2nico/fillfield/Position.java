@@ -1,3 +1,5 @@
+package com.ale2nico.fillfield;
+
 /**
  * Rappresentazione di una posizione geografica.
  */
