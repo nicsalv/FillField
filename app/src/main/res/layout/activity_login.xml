@@ -3,7 +3,7 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_100"
+    android:background="@color/white"
     android:orientation="vertical"
     android:weightSum="4">
 
@@ -15,24 +15,35 @@
         android:orientation="vertical">
 
         <ImageView
-            style="@style/ThemeOverlay.FirebaseIcon"
             android:id="@+id/google_icon"
-            android:contentDescription="@string/desc_firebase_lockup"
+            style="@style/ThemeOverlay.FirebaseIcon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/desc_firebase_lockup" />
+
+        <TextView
+            android:id="@+id/upper_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/title_bottom_margin"
+            android:fontFamily="@font/seasrn__"
+            android:text="@string/title_text"
+            android:theme="@style/ThemeOverlay.MyUpperTitleText" />
 
         <TextView
             android:id="@+id/title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/title_bottom_margin"
+            android:layout_marginBottom="@dimen/title_bottom_margin_from_name_app"
             android:text="@string/google_title_text"
-            android:theme="@style/ThemeOverlay.MyTitleText" />
+            android:theme="@style/ThemeOverlay.MyTitleText"
+            android:fontFamily="@font/amaticsc_regular"/>
 
         <TextView
             android:id="@+id/status"
             style="@style/ThemeOverlay.MyTextDetail"
-            android:text="@string/signed_out" />
+            android:text="@string/signed_out"
+            android:fontFamily="@font/walkway_oblique" />
 
         <TextView
             android:id="@+id/detail"
@@ -46,7 +57,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/grey_300">
+        android:background="@color/white">
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/sign_in_button"
@@ -54,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:visibility="visible"
-            tools:visibility="gone" />
+            tools:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/sign_out_and_disconnect"
