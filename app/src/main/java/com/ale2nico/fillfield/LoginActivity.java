@@ -59,6 +59,8 @@ public class LoginActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Log.d(TAG, "LoginActivity created.");
+
         // Views
         mStatusTextView = findViewById(R.id.status);
         mDetailTextView = findViewById(R.id.detail);
@@ -84,19 +86,15 @@ public class LoginActivity extends Activity implements
     }
 
     // [START on_start_check_user]
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
+
     // [END on_start_check_user]
 
     // [START onactivityresult]
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult started.");
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
@@ -131,7 +129,10 @@ public class LoginActivity extends Activity implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                            setResult(RESULT_OK, mainIntent);
+                            finish();
+                            return;
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -142,11 +143,6 @@ public class LoginActivity extends Activity implements
                         // [START_EXCLUDE]
                         //hideProgressDialog();
                         // [END_EXCLUDE]
-
-                        // Return to MainActivity
-                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-                        setResult(RESULT_OK, mainIntent);
-                        finish();
                     }
                 });
     }

@@ -104,25 +104,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        // [START Check sign-in and execute it if needed]
-        // Get currently signed-in user
-        user = mAuth.getCurrentUser();
-        if (user == null) {
-            // Start LoginActivity to sign-in the user
-            Intent loginIntent = new Intent(this, LoginActivity.class);
-            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         // Get currently signed-in user
         if (resultCode == RESULT_OK) {
             user = mAuth.getCurrentUser();
+            finishActivity(REQUEST_USER_LOGIN);
         }
     }
 
