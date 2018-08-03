@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     // Firebase User
     FirebaseUser user;
 
-
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
             = new FirebaseAuth.AuthStateListener() {
@@ -41,32 +40,32 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private TextView mTextMessage;
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            // Replacing current fragment with selected fragment
+            // Replace the current fragment with the selected fragment
+            FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction();
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.current_fragment, new HomeFragment())
-                    .addToBackStack(null)
-                    .commit();
-                    return true;
+                    transaction.replace(R.id.fragment_container, new HomeFragment());
+                    break;
                 case R.id.navigation_search_fields:
-                    mTextMessage.setText(R.string.title_search_fields);
-                    return true;
+                    transaction.replace(R.id.fragment_container, new SearchFragment());
+                    break;
                 case R.id.navigation_favourites_fields:
-                    mTextMessage.setText(R.string.title_favourites_fields);
-                    return true;
+                    transaction.replace(R.id.fragment_container, new FavouritesFragment());
+                    break;
                 case R.id.navigation_profile:
-                    mTextMessage.setText(R.string.title_profile);
-                    return true;
+                    transaction.replace(R.id.fragment_container, new ProfileFragment());
+                    break;
+                default:
+                    return false;
             }
-            return false;
+            transaction.commit();
+            return true;
         }
     };
 
@@ -75,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -83,6 +81,26 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(mAuthListener);
 
+        // Place the initial fragment into the activity (the HomeFragment).
+        // Check that the activity is using the layout version with
+        // the fragment_container FrameLayout
+        if (findViewById(R.id.fragment_container) != null) {
+
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            // Create a new HomeFragment to be placed in the activity layout
+            HomeFragment firstFragment = new HomeFragment();
+
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, firstFragment).commit();
+
+        }
     }
 
     @Override
