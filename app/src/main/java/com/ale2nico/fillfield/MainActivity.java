@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Firebase User
     FirebaseUser user;
+
 
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
@@ -45,9 +48,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            // Replacing current fragment with selected fragment
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                    getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.current_fragment, new HomeFragment())
+                    .addToBackStack(null)
+                    .commit();
                     return true;
                 case R.id.navigation_search_fields:
                     mTextMessage.setText(R.string.title_search_fields);
@@ -75,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         // Get Firebase Authentication and set listener on it
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(mAuthListener);
+
     }
 
     @Override
@@ -99,4 +107,5 @@ public class MainActivity extends AppCompatActivity {
             user = mAuth.getCurrentUser();
         }
     }
+
 }

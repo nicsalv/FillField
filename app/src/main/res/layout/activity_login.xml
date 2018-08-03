@@ -26,7 +26,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/title_bottom_margin"
-            android:fontFamily="@font/seasrn__"
             android:text="@string/title_text"
             android:theme="@style/ThemeOverlay.MyUpperTitleText" />
 
@@ -36,14 +35,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/title_bottom_margin_from_name_app"
             android:text="@string/google_title_text"
-            android:theme="@style/ThemeOverlay.MyTitleText"
-            android:fontFamily="@font/amaticsc_regular"/>
+            android:theme="@style/ThemeOverlay.MyTitleText" />
 
         <TextView
             android:id="@+id/status"
             style="@style/ThemeOverlay.MyTextDetail"
             android:text="@string/signed_out"
-            android:fontFamily="@font/walkway_oblique" />
+            />
 
         <TextView
             android:id="@+id/detail"
