@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             = new FirebaseAuth.AuthStateListener() {
         @Override
         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-            // Check whether the user is signed-in
+            // Check whether the user is signed-in or not
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
                 // Sign-in through the LoginActivity
                 Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
@@ -105,11 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        // Get currently signed-in user
+        // Get the user that just signed-in
         if (resultCode == RESULT_OK) {
             user = mAuth.getCurrentUser();
-            finishActivity(REQUEST_USER_LOGIN);
         }
     }
 
