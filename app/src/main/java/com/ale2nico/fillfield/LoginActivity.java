@@ -132,10 +132,6 @@ public class LoginActivity extends Activity implements
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                            // Passaggio alla MainActivity
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -146,6 +142,11 @@ public class LoginActivity extends Activity implements
                         // [START_EXCLUDE]
                         //hideProgressDialog();
                         // [END_EXCLUDE]
+
+                        // Return to MainActivity
+                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                        setResult(RESULT_OK, mainIntent);
+                        finish();
                     }
                 });
     }
