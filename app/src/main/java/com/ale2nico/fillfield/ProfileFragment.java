@@ -2,35 +2,39 @@ package com.ale2nico.fillfield;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupWindow;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Objects;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class ProfileFragment extends Fragment implements View.OnClickListener {
+public class ProfileFragment extends Fragment implements View.OnClickListener, Spinner.OnItemSelectedListener {
 
     // [START declare_auth]
     private FirebaseAuth mAuth;
     // [END declare_auth]
 
     private FirebaseUser user;
-    private TextView signOutTextView;
+    private Button signOutButton;
     private TextView nameSurname;
     private CircleImageView profileImage;
+    private Spinner homeSpinner;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +55,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
 
         // Sign out text view and its listener
-        signOutTextView = (TextView) getView().findViewById(R.id.sign_out);
-        signOutTextView.setOnClickListener(this);
+        signOutButton = (Button) getView().findViewById(R.id.sign_out);
+        signOutButton.setOnClickListener(this);
 
         //Get user's name, surname and profile picture;
         nameSurname = (TextView) getView().findViewById((R.id.name_surname));
@@ -64,6 +68,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         profileImage.setImageURI(uri);
         Log.d("Photourl", user.getPhotoUrl().toString());
         */
+
+       //Set spinner for preference
+       homeSpinner = (Spinner) getView().findViewById(R.id.home_screen_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                Objects.requireNonNull(getActivity()), R.array.home_screen_preference, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        homeSpinner.setAdapter(adapter);
+        homeSpinner.setOnItemSelectedListener(this);
+
     }
 
     @Override
@@ -93,11 +106,20 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
-               /* mAuth.signOut();
-                Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
-                startActivity(loginIntent);
-                */
                break;
         }
+    }
+
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String selectedItem = (String) homeSpinner.getItemAtPosition(position);
+        Toast.makeText(getContext(), "Selected:" + selectedItem, Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

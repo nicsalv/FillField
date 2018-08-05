@@ -106,4 +106,10 @@
     <string name="sign_out_confirm">Sign out</string>
     <string name="cancel">Cancel</string>
     <string name="placeholder">Placeholder</string>
+    <string name="home_screen">Home Screen:</string>
+    <string name="home_screen_tooltip">Select the default home screen</string>
+    <string-array name="home_screen_preference">
+        <item>Home</item>
+        <item>Favourites</item>
+    </string-array>
 </resources>
