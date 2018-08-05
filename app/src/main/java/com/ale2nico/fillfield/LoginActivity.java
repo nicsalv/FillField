@@ -205,8 +205,8 @@ public class LoginActivity extends Activity implements
         } else if (i == R.id.disconnect_button) {
             revokeAccess();
         }else if( i == R.id.facebook_login_button){
-            Intent intent = new Intent(this, FacebookLoginActivity.class);
-            startActivity(intent);
+//            Intent intent = new Intent(this, FacebookLoginActivity.class);
+//            startActivity(intent);
         }
     }
 }

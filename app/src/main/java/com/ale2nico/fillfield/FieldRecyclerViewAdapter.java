@@ -4,6 +4,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.HomeFragment.OnListFragmentInteractionListener;
@@ -40,11 +42,21 @@ public class FieldRecyclerViewAdapter extends RecyclerView.Adapter<FieldRecycler
     public void onBindViewHolder(final ViewHolder holder, int position) {
         // Set the content inside the ViewHolder
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.fieldPositionTextView.setText(mValues.get(position).id);
+        holder.fieldTitleTextView.setText(mValues.get(position).content);
 
-        // Set the listener
-        holder.mView.setOnClickListener(new View.OnClickListener() {
+        // Set the listeners to the action buttons
+        holder.action1Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been selected.
+                    mListener.onListFragmentInteraction(holder.mItem);
+                }
+            }
+        });
+        holder.action2Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
@@ -62,22 +74,35 @@ public class FieldRecyclerViewAdapter extends RecyclerView.Adapter<FieldRecycler
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
+
+        // Card
+        public final View fieldView;
+
+        // Elements of the card
+        public final ImageButton favoriteImageButton;
+        public final TextView fieldPositionTextView;
+        public final TextView fieldTitleTextView;
+        // TODO: rename these buttons
+        public final Button action1Button;
+        public final Button action2Button;
+
+        // Contains the data that will fill the view
         public DummyItem mItem;
 
         public ViewHolder(View view) {
             super(view);
             // Get references of the 'view' so as to edit their contents later
-            mView = view;
-            mIdView = (TextView) view.findViewById(R.id.item_number);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            fieldView = view;
+            favoriteImageButton = (ImageButton) view.findViewById(R.id.favourite_button);
+            fieldPositionTextView = (TextView) view.findViewById(R.id.card_field_position);
+            fieldTitleTextView = (TextView) view.findViewById(R.id.card_field_title);
+            action1Button = (Button) view.findViewById(R.id.action_1_button);
+            action2Button = (Button) view.findViewById(R.id.action_2_button);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + fieldTitleTextView.getText() + "'";
         }
     }
 }

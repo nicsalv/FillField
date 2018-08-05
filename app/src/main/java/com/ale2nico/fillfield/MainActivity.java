@@ -12,10 +12,12 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ale2nico.fillfield.dummy.DummyContent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements HomeFragment.OnListFragmentInteractionListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -111,4 +113,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+        Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+    }
 }

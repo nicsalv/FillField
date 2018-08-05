@@ -53,17 +53,17 @@
 
         <Button
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:id="@+id/action_1"
+            android:id="@+id/action_1_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/card_field_title"
-            android:layout_toStartOf="@id/action_2"
+            android:layout_toStartOf="@id/action_2_button"
             android:text="@string/card_action_1"
             />
 
         <Button
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:id="@+id/action_2"
+            android:id="@+id/action_2_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/card_field_title"
