@@ -67,6 +67,7 @@ public class LoginActivity extends Activity implements
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
         findViewById(R.id.disconnect_button).setOnClickListener(this);
+        findViewById(R.id.facebook_login_button).setOnClickListener(this);
 
         // [START config_signin]
         // Configure Google Sign In
@@ -213,6 +214,9 @@ public class LoginActivity extends Activity implements
             signOut();
         } else if (i == R.id.disconnect_button) {
             revokeAccess();
+        }else if( i == R.id.facebook_login_button){
+            Intent intent = new Intent(this, FacebookLoginActivity.class);
+            startActivity(intent);
         }
     }
 }
