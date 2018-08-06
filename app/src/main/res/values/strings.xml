@@ -107,9 +107,11 @@
     <string name="cancel">Cancel</string>
     <string name="placeholder">Placeholder</string>
     <string name="home_screen">Home Screen:</string>
-    <string name="home_screen_tooltip">Select the default home screen</string>
+    <string name="contact_us">Do you want to add your soccer field? <a href="mailto:fillfield@gmail.com">Contact us!</a></string>
+    <string name="profile_picture">Profile picture</string>
     <string-array name="home_screen_preference">
         <item>Home</item>
+        <item>Search</item>
         <item>Favourites</item>
     </string-array>
 </resources>

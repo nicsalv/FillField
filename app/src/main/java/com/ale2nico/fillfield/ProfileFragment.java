@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.w3c.dom.Text;
 
 import java.util.Objects;
 
@@ -46,20 +49,20 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     private CircleImageView profileImage;
     private Spinner homeSpinner;
     private SharedPreferences savedValues;
-
+    private TextView contactUs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
-        //savedValues = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        savedValues = getActivity().getSharedPreferences("pref", MODE_PRIVATE);
+        savedValues = PreferenceManager.getDefaultSharedPreferences(getActivity());
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        super.onCreateView(inflater,container, savedInstanceState);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
@@ -77,11 +80,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         nameSurname.setText(user.getDisplayName());
         profileImage = (CircleImageView) getView().findViewById(R.id.profile_image);
 
-       //CANNOT RETRIEVE PROFILE PIC?!
-        /*Uri uri = Uri.parse(user.getPhotoUrl());
-        profileImage.setImageURI(uri);
-        Log.d("Photourl", user.getPhotoUrl().toString());
-        */
+        //Contact us
+        contactUs = (TextView) getView().findViewById(R.id.contact_us);
+        contactUs.setMovementMethod(LinkMovementMethod.getInstance());
+
         //User's image for profile pic
         Glide.with(this)
                 .load(mAuth.getCurrentUser().getPhotoUrl())
@@ -96,16 +98,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
                 Objects.requireNonNull(getActivity()), R.array.home_screen_preference, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         homeSpinner.setAdapter(adapter);
-        homeSpinner.setOnItemSelectedListener(this);
         String choosen = savedValues.getString("home_spinner", "none");
 
-        if(choosen.equals("home") || choosen.equals("none"))
+        if(choosen.equals("Home") || choosen.equals("none"))
+            homeSpinner.setSelection(0);
+        if (choosen.equals("Search"))
             homeSpinner.setSelection(1);
-        else
+        if (choosen.equals("Favourites"))
             homeSpinner.setSelection(2);
 
-        Toast.makeText(getContext(), "Choose:" + choosen, Toast.LENGTH_SHORT).show();
-
+        homeSpinner.setOnItemSelectedListener(this);
     }
 
     @Override

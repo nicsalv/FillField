@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
     // Firebase User
     FirebaseUser user;
 
+    //BottomNavigation
+    BottomNavigationView navigation;
+
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
             = new FirebaseAuth.AuthStateListener() {
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         // Get Firebase Authentication and set listener on it
@@ -95,16 +98,30 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            // Create a new HomeFragment to be placed in the activity layout
-            HomeFragment firstFragment = new HomeFragment();
-
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
-
-            //SharedPreferences to load correct fragment
+            // SharedPreferences to load correct fragment
+            // Then add the fragment to the "fragment_container" FrameLayout
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String choosen = prefs.getString("home_spinner", "none");
+            switch (choosen) {
+                case "Home":
+                    HomeFragment homeFragment = new HomeFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, homeFragment).commit();
+                    navigation.setSelectedItemId(R.id.navigation_home);
+                    break;
+                case "Search":
+                    SearchFragment searchFragment = new SearchFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, searchFragment).commit();
+                    navigation.setSelectedItemId(R.id.navigation_search_fields);
+                    break;
+                case "Favourites":
+                    FavouritesFragment favouritesFragment = new FavouritesFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, favouritesFragment).commit();
+                    navigation.setSelectedItemId(R.id.navigation_favourites_fields);
+                    break;
+            }
             Toast.makeText(this, "Pref:" + choosen , Toast.LENGTH_SHORT).show();
         }
     }
