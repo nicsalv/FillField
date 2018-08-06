@@ -8,4 +8,13 @@
     <dimen name="title_bottom_margin">30dp</dimen>
     <dimen name="title_bottom_margin_from_name_app">0dp</dimen>
     <dimen name="field_width_standard">160dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+
+    <!-- CardView miscellaneous dimensions -->
+    <dimen name="card_margin">5dp</dimen>
+    <dimen name="card_image_height">180dp</dimen>
+    <dimen name="card_text_left_margin">15dp</dimen>
+    <dimen name="card_position_top_margin">10dp</dimen>
+    <dimen name="card_element_top_margin">10dp</dimen>
+
 </resources>

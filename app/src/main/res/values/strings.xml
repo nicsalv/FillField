@@ -101,4 +101,11 @@
     <string name="search_fragment">Search fragment</string>
     <string name="favourite_fragment">Favourite fragment</string>
     <string name="profile_fragment">Profile fragment</string>
+
+    <!-- Sample text of the cards-->
+    <string name="card_image_description">Picture of the field</string>
+    <string name="card_field_position">Location of the field</string>
+    <string name="card_field_title">Title of the field</string>
+    <string name="card_action_1">Action 1</string>
+    <string name="card_action_2">Action 2</string>
 </resources>

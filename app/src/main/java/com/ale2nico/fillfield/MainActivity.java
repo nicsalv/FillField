@@ -2,23 +2,27 @@ package com.ale2nico.fillfield;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ale2nico.fillfield.dummy.DummyContent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements HomeFragment.OnListFragmentInteractionListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
+
+    // Field list state for the HomeFragment.
+    // Used for tracking the latest scroll position.
+    public static Parcelable homeFragmentListState = null;
 
     // Firebase Authentication
     FirebaseAuth mAuth;
@@ -49,9 +53,18 @@ public class MainActivity extends AppCompatActivity {
             FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
             switch (item.getItemId()) {
+
                 case R.id.navigation_home:
-                    transaction.replace(R.id.fragment_container, new HomeFragment());
+                    // Create a new HomeFragment with the latest scroll position
+                    HomeFragment homeFragment = new HomeFragment();
+                    Bundle args = new Bundle();
+                    args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
+                    homeFragment.setArguments(args);
+
+                    // Replace the current fragment in the 'fragment_container'
+                    transaction.replace(R.id.fragment_container, homeFragment);
                     break;
+
                 case R.id.navigation_search_fields:
                     transaction.replace(R.id.fragment_container, new SearchFragment());
                     break;
@@ -95,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
 
             // Create a new HomeFragment to be placed in the activity layout
             HomeFragment firstFragment = new HomeFragment();
+            Bundle args = new Bundle();
+            args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
+            firstFragment.setArguments(args);
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
@@ -111,4 +127,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+        Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+    }
 }
