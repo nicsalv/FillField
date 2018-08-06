@@ -24,6 +24,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -117,25 +119,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
             case R.id.settings:
                 break;
             case R.id.sign_out:
-                //Alert to confirm sign-out
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage(R.string.sign_out_message)
-                        .setTitle(R.string.sign_out_title);
-                //Creating buttons for confirm or cancel
-                builder.setPositiveButton(R.string.sign_out_confirm, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User clicked confirm button
-                        mAuth.signOut();
-                    }
-                });
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                signOut();
                break;
         }
     }
@@ -152,5 +136,38 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+
+    /**
+     * Sign-out from app
+     */
+    private void signOut() {
+        //Alert to confirm sign-out
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.sign_out_message)
+                .setTitle(R.string.sign_out_title);
+        //Creating buttons for confirm or cancel
+        builder.setPositiveButton(R.string.sign_out_confirm, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked confirm button
+                mAuth.signOut();
+                GoogleSignIn.getClient(getActivity(),
+                        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                .requestIdToken(getString(R.string.default_web_client_id))
+                                .requestEmail()
+                                .build())
+                        .signOut();
+                getActivity().finish();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
