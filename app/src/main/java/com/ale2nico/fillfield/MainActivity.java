@@ -117,7 +117,11 @@ public class MainActivity extends AppCompatActivity
             String choosen = prefs.getString("home_spinner", "none");
             switch (choosen) {
                 case "Home":
+                    // Create a new HomeFragment with the latest scroll position
                     HomeFragment homeFragment = new HomeFragment();
+                    Bundle args = new Bundle();
+                    args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
+                    homeFragment.setArguments(args);
                     getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, homeFragment).commit();
                     navigation.setSelectedItemId(R.id.navigation_home);
