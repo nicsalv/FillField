@@ -1,7 +1,9 @@
 package com.ale2nico.fillfield;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -100,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
 
+            //SharedPreferences to load correct fragment
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String choosen = prefs.getString("home_spinner", "none");
+            Toast.makeText(this, "Pref:" + choosen , Toast.LENGTH_LONG).show();
         }
     }
 
@@ -125,5 +131,6 @@ public class MainActivity extends AppCompatActivity {
             user = mAuth.getCurrentUser();
         }
     }
+
 
 }

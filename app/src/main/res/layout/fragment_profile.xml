@@ -47,32 +47,43 @@
         android:layout_width="match_parent"
         android:layout_below="@id/name_surname"
         android:orientation="vertical"
+        android:background="@color/grey_100"
         >
 
     <TextView
         android:id="@+id/my_fields"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
+        style="@style/Base.Theme.AppCompat.Light"
+        android:textSize="20sp"
         android:layout_marginTop="50sp"
+        android:layout_marginStart="40sp"
+        android:layout_marginBottom="3dp"
         android:text="@string/my_fields"
         />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_margin="8dp"
             android:background="@android:color/darker_gray"/>
 
-    <TextView
-        android:id="@+id/settings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:text="@string/settings"/>
+        <TextView
+            android:id="@+id/settings"
+            style="@style/Base.Theme.AppCompat.Light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40sp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/settings"
+            android:textSize="20sp"
+            />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_margin="8dp"
             android:background="@android:color/darker_gray"/>
 
         <!--Layout for spinner preference -->
@@ -86,15 +97,20 @@
                 android:id="@+id/home_screen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/Base.Theme.AppCompat.Light"
+                android:layout_marginStart="40sp"
+                android:layout_marginBottom="3dp"
+                android:layout_marginTop="3dp"
                 android:text="@string/home_screen"
                 android:tooltipText="@string/home_screen_tooltip"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <Spinner
                 android:id="@+id/home_screen_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"/>
+                android:entries="@style/Widget.AppCompat.EditText"
+                android:layout_margin="3dp"/>
 
         </LinearLayout>
 
@@ -105,10 +121,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center|bottom"
-            android:text="@string/sign_out"
             android:layout_marginTop="40sp"
-            android:textSize="20sp"
-            />
+            android:text="@string/sign_out"
+            android:textSize="20sp" />
     </LinearLayout>
 
 </RelativeLayout>
