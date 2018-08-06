@@ -30,9 +30,9 @@ public class FieldRecyclerViewAdapter extends RecyclerView.Adapter<FieldRecycler
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // Inflate the 'fragment_field' layout inside a view
+        // Inflate the 'field_card' layout inside a view
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_field, parent, false);
+                .inflate(R.layout.field_card, parent, false);
 
         // Create a ViewHolder that holds the view
         return new ViewHolder(view);

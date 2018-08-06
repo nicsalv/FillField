@@ -2,18 +2,19 @@ package com.ale2nico.fillfield;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
-
-import java.util.List;
 
 /**
  * A fragment representing a list of Fields.
@@ -23,8 +24,11 @@ import java.util.List;
  */
 public class HomeFragment extends Fragment {
 
+    private static final String LOG_TAG = "HomeFragment";
+
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
+    public static final String ARG_SCROLL_POSITION = "field-list-scroll-position";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
@@ -41,14 +45,16 @@ public class HomeFragment extends Fragment {
      * fragment (e.g. upon screen orientation changes).
      */
     public HomeFragment() {
+
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static HomeFragment newInstance(int columnCount) {
+    public static HomeFragment newInstance(int columnCount, int scrollPosition) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(ARG_SCROLL_POSITION, scrollPosition);
         fragment.setArguments(args);
         return fragment;
     }
@@ -89,6 +95,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
         } else {
@@ -101,6 +108,37 @@ public class HomeFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(LOG_TAG, "onPause called.");
+
+        // Save the current scroll position into the arguments of the fragments
+        if (mRecyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+
+            // Reference to the layout manager attached to the RecyclerView
+            // TODO: remove cast if you'll decide to mantain only LinearLayout
+            LinearLayoutManager mLayoutManager
+                    = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+
+            // Save the field list state, especially the scroll position
+            Parcelable listState = mLayoutManager.onSaveInstanceState();
+
+            // Save the field list state inside the hosting activity
+            MainActivity.homeFragmentListState = listState;
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        // Restore the field list state, especially the scroll position
+        Parcelable listState = getArguments().getParcelable(ARG_SCROLL_POSITION);
+        mRecyclerView.getLayoutManager().onRestoreInstanceState(listState);
     }
 
     /**
