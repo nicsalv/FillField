@@ -108,4 +108,22 @@
     <string name="card_field_title">Title of the field</string>
     <string name="card_action_1">Action 1</string>
     <string name="card_action_2">Action 2</string>
+
+
+    <!-- Profile strings -->
+    <string name="my_fields">My fields</string>
+    <string name="settings">Settings</string>
+    <string name="sign_out_message">Do you really want to sign out?</string>
+    <string name="sign_out_title">Sign out</string>
+    <string name="sign_out_confirm">Sign out</string>
+    <string name="cancel">Cancel</string>
+    <string name="placeholder">Placeholder</string>
+    <string name="home_screen">Home Screen:</string>
+    <string name="contact_us">Do you want to add your soccer field? <a href="mailto:fillfield@gmail.com">Contact us!</a></string>
+    <string name="profile_picture">Profile picture</string>
+    <string-array name="home_screen_preference">
+        <item>Home</item>
+        <item>Search</item>
+        <item>Favourites</item>
+    </string-array>
 </resources>

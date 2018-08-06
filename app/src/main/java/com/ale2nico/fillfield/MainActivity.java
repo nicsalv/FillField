@@ -1,8 +1,10 @@
 package com.ale2nico.fillfield;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -29,6 +31,9 @@ public class MainActivity extends AppCompatActivity
 
     // Firebase User
     FirebaseUser user;
+
+    //BottomNavigation
+    BottomNavigationView navigation;
 
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
@@ -87,7 +92,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         // Get Firebase Authentication and set listener on it
@@ -106,22 +111,52 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-            // Create a new HomeFragment to be placed in the activity layout
-            HomeFragment firstFragment = new HomeFragment();
-            Bundle args = new Bundle();
-            args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
-            firstFragment.setArguments(args);
+            // SharedPreferences to load correct fragment
+            // Then add the fragment to the "fragment_container" FrameLayout
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String choosen = prefs.getString("home_spinner", "none");
+            switch (choosen) {
+                case "Home":
+                    HomeFragment homeFragment = new HomeFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, homeFragment).commit();
+                    navigation.setSelectedItemId(R.id.navigation_home);
+                    break;
+                case "Search":
+                    SearchFragment searchFragment = new SearchFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, searchFragment).commit();
+                    navigation.setSelectedItemId(R.id.navigation_search_fields);
+                    break;
+                case "Favourites":
+                    FavouritesFragment favouritesFragment = new FavouritesFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, favouritesFragment).commit();
+                    navigation.setSelectedItemId(R.id.navigation_favourites_fields);
+                    break;
+            }
+            Toast.makeText(this, "Pref:" + choosen , Toast.LENGTH_SHORT).show();
+        }
+    }
 
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        // [START Check sign-in and execute it if needed]
+        // Get currently signed-in user
+        user = mAuth.getCurrentUser();
+        if (user == null) {
+            // Start LoginActivity to sign-in the user
+            Intent loginIntent = new Intent(this, LoginActivity.class);
+            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Get the user that just signed-in
+
+        // Get currently signed-in user
         if (resultCode == RESULT_OK) {
             user = mAuth.getCurrentUser();
         }
