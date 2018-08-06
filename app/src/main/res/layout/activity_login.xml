@@ -30,15 +30,7 @@
             android:theme="@style/ThemeOverlay.MyUpperTitleText"
             android:fontFamily="@font/fff_tusj"/>
 
-        <Button
-            android:id="@+id/facebook_login_button"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/facebook_login_button"
-            android:theme="@style/ThemeOverlay.MyDarkButton"
-            android:fontFamily="@font/walkway_oblique"
-            android:layout_marginBottom="@dimen/title_bottom_margin"/>
+
 
         <TextView
             android:id="@+id/title_text"
