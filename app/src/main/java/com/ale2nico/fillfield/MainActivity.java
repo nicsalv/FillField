@@ -135,7 +135,6 @@ public class MainActivity extends AppCompatActivity
                     navigation.setSelectedItemId(R.id.navigation_favourites_fields);
                     break;
             }
-            Toast.makeText(this, "Pref:" + choosen , Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -62,7 +62,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        super.onCreateView(inflater,container, savedInstanceState);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
@@ -145,7 +144,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selectedItem = (String) homeSpinner.getItemAtPosition(position);
-        Toast.makeText(getContext(), "Selected:" + selectedItem, Toast.LENGTH_SHORT).show();
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).edit();
         prefs.putString("home_spinner", selectedItem);
         prefs.commit();
