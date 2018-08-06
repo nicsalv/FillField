@@ -104,7 +104,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         else
             homeSpinner.setSelection(2);
 
-        Toast.makeText(getContext(), "Choose:" + choosen, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Choose:" + choosen, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -143,7 +143,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selectedItem = (String) homeSpinner.getItemAtPosition(position);
-        Toast.makeText(getContext(), "Selected:" + selectedItem, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Selected:" + selectedItem, Toast.LENGTH_SHORT).show();
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).edit();
         prefs.putString("home_spinner", selectedItem);
         prefs.commit();

@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
             //SharedPreferences to load correct fragment
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String choosen = prefs.getString("home_spinner", "none");
-            Toast.makeText(this, "Pref:" + choosen , Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Pref:" + choosen , Toast.LENGTH_SHORT).show();
         }
     }
 

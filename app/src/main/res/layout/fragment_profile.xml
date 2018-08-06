@@ -60,6 +60,8 @@
         android:layout_marginStart="40sp"
         android:layout_marginBottom="3dp"
         android:text="@string/my_fields"
+        android:drawableLeft="@drawable/ic_fields_icon"
+        android:drawablePadding="4dp"
         />
 
         <View
@@ -78,6 +80,8 @@
             android:layout_marginTop="3dp"
             android:text="@string/settings"
             android:textSize="20sp"
+            android:drawableLeft="@drawable/ic_settings_black_24dp"
+            android:drawablePadding="4dp"
             />
 
         <View
