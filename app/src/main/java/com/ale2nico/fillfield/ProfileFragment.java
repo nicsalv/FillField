@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,12 +54,21 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     private SharedPreferences savedValues;
     private TextView contactUs;
 
+    // For pre-Lollipop devices
+    private TextView myFields;
+    private TextView myBookings;
+    private TextView settings;
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         savedValues = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
     }
 
     @Override
@@ -84,6 +94,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         //Contact us
         contactUs = (TextView) getView().findViewById(R.id.contact_us);
         contactUs.setMovementMethod(LinkMovementMethod.getInstance());
+
+        // For pre-Lollipop devices
+        myFields = getView().findViewById(R.id.my_fields);
+        myBookings = getView().findViewById(R.id.my_bookings);
+        settings = getView().findViewById(R.id.settings);
+        myFields.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fields_icon), null, null, null);
+        myBookings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_book_black_24dp), null, null, null);
+        settings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_settings_black_24dp), null, null, null);
+
 
         //User's image for profile pic
         Glide.with(this)

@@ -33,7 +33,7 @@
         android:scaleType="centerCrop"
         android:layout_alignBottom="@id/profile_background"
         android:layout_marginBottom="40sp"
-        android:src="@drawable/no_profile_pic"
+        app:srcCompat="@drawable/no_profile_pic"
         />
 
     <TextView
