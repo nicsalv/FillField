@@ -84,16 +84,6 @@ public class LoginActivity extends Activity implements
         // [END initialize_auth]
     }
 
-    // [START on_start_check_user]
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
-    // [END on_start_check_user]
-
     // [START onactivityresult]
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -132,7 +122,12 @@ public class LoginActivity extends Activity implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            // Return to MainActivity
+                            Intent mainIntent
+                                    = new Intent(LoginActivity.this, MainActivity.class);
+                            setResult(RESULT_OK, mainIntent);
+                            // This Activity no longer needed
+                            finish();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -143,11 +138,6 @@ public class LoginActivity extends Activity implements
                         // [START_EXCLUDE]
                         //hideProgressDialog();
                         // [END_EXCLUDE]
-
-                        // Return to MainActivity
-                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-                        setResult(RESULT_OK, mainIntent);
-                        finish();
                     }
                 });
     }

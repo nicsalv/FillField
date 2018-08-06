@@ -2,23 +2,27 @@ package com.ale2nico.fillfield;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ale2nico.fillfield.dummy.DummyContent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements HomeFragment.OnListFragmentInteractionListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
+
+    // Field list state for the HomeFragment.
+    // Used for tracking the latest scroll position.
+    public static Parcelable homeFragmentListState = null;
 
     // Firebase Authentication
     FirebaseAuth mAuth;
@@ -31,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             = new FirebaseAuth.AuthStateListener() {
         @Override
         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-            // Check whether the user is signed-in
+            // Check whether the user is signed-in or not
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
                 // Sign-in through the LoginActivity
                 Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
@@ -49,9 +53,18 @@ public class MainActivity extends AppCompatActivity {
             FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
             switch (item.getItemId()) {
+
                 case R.id.navigation_home:
-                    transaction.replace(R.id.fragment_container, new HomeFragment());
+                    // Create a new HomeFragment with the latest scroll position
+                    HomeFragment homeFragment = new HomeFragment();
+                    Bundle args = new Bundle();
+                    args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
+                    homeFragment.setArguments(args);
+
+                    // Replace the current fragment in the 'fragment_container'
+                    transaction.replace(R.id.fragment_container, homeFragment);
                     break;
+
                 case R.id.navigation_search_fields:
                     transaction.replace(R.id.fragment_container, new SearchFragment());
                     break;
@@ -95,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
 
             // Create a new HomeFragment to be placed in the activity layout
             HomeFragment firstFragment = new HomeFragment();
+            Bundle args = new Bundle();
+            args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
+            firstFragment.setArguments(args);
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
@@ -104,26 +120,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        // [START Check sign-in and execute it if needed]
-        // Get currently signed-in user
-        user = mAuth.getCurrentUser();
-        if (user == null) {
-            // Start LoginActivity to sign-in the user
-            Intent loginIntent = new Intent(this, LoginActivity.class);
-            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        // Get currently signed-in user
+        // Get the user that just signed-in
         if (resultCode == RESULT_OK) {
             user = mAuth.getCurrentUser();
         }
     }
 
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+        Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+    }
 }
