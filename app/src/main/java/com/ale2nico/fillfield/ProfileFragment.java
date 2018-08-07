@@ -75,6 +75,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        getActivity().setTitle(getContext().getResources().getString(R.string.my_profile));
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
@@ -103,6 +104,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         myBookings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_book_black_24dp), null, null, null);
         settings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_settings_black_24dp), null, null, null);
 
+        //Listeners
+        myFields.setOnClickListener(this);
+        myBookings.setOnClickListener(this);
+        settings.setOnClickListener(this);
 
         //User's image for profile pic
         Glide.with(this)
@@ -134,6 +139,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.my_fields:
+                MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, myFieldsFragment).addToBackStack("profile").commit();
+                break;
+            case R.id.my_bookings:
+                MyBookingsFragment myBookingsFragment = new MyBookingsFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, myBookingsFragment).addToBackStack("profile").commit();
                 break;
             case R.id.settings:
                 break;
