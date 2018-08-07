@@ -36,6 +36,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import com.ale2nico.fillfield.models.User;
 
 /**
  * Firebase Authentication using a Google ID Token.
@@ -46,9 +50,8 @@ public class LoginActivity extends Activity implements
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
 
-    // [START declare_auth]
     private FirebaseAuth mAuth;
-    // [END declare_auth]
+    private DatabaseReference mDatabase;
 
     private GoogleSignInClient mGoogleSignInClient;
     private TextView mStatusTextView;
@@ -81,6 +84,7 @@ public class LoginActivity extends Activity implements
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     // [START onactivityresult]
@@ -119,14 +123,9 @@ public class LoginActivity extends Activity implements
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
+                            // Sign in success, insert new user into the database and go to MainActivity
                             Log.d(TAG, "signInWithCredential:success");
-                            // Return to MainActivity
-                            Intent mainIntent
-                                    = new Intent(LoginActivity.this, MainActivity.class);
-                            setResult(RESULT_OK, mainIntent);
-                            // This Activity no longer needed
-                            finish();
+                            onAuthSuccess(task.getResult().getUser());
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -141,6 +140,27 @@ public class LoginActivity extends Activity implements
                 });
     }
     // [END auth_with_google]
+
+    private void onAuthSuccess(FirebaseUser user) {
+        // Get user's information
+        String name = user.getDisplayName().split(" ")[0];
+        String surname = user.getDisplayName().split(" ")[1];
+        String email = user.getEmail();
+
+        // Store the new user into the database
+        insertNewUser(user.getUid(), name, surname, email);
+
+        // Return to MainActivity
+        setResult(MainActivity.REQUEST_USER_LOGIN);
+        finish();
+    }
+
+    private void insertNewUser(String userId, String name, String surname, String email) {
+        User newUser = new User(email, name, surname);
+
+        // Insert a new record in /users/<ID>/
+        mDatabase.child("users").child(userId).setValue(newUser);
+    }
 
     // [START signin]
     private void signIn() {

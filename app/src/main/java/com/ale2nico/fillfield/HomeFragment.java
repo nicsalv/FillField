@@ -14,7 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
-import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
+import com.ale2nico.fillfield.models.Field;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * A fragment representing a list of Fields.
@@ -24,7 +26,7 @@ import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
  */
 public class HomeFragment extends Fragment {
 
-    private static final String LOG_TAG = "HomeFragment";
+    private static final String TAG = "HomeFragment";
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -33,9 +35,13 @@ public class HomeFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
+    // Firebase References
+    private DatabaseReference mFieldsReference;
+
+
     // References to layout objects
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private RecyclerView mFieldsRecycler;
+    private FieldAdapter mFieldAdapter;
     // The layout manager is provided inside the 'onCreateView' method.
     // It depends on the number of column of the list.
 
@@ -66,6 +72,10 @@ public class HomeFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
+        // Reference to the 'fields' object stored in the database
+        mFieldsReference = FirebaseDatabase.getInstance().getReference()
+                .child("fields");
     }
 
     @Override
@@ -76,21 +86,20 @@ public class HomeFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            mRecyclerView = (RecyclerView) view;
+            mFieldsRecycler = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 // Narrow screen, single-column list
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+                mFieldsRecycler.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 // Wide screen, multi-column list
-                mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+                mFieldsRecycler.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            mAdapter = new FieldRecyclerViewAdapter(DummyContent.ITEMS, mListener);
-            mRecyclerView.setAdapter(mAdapter);
+            mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
+            mFieldsRecycler.setAdapter(mFieldAdapter);
         }
 
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -112,15 +121,15 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onPause() {
-        Log.d(LOG_TAG, "onPause called.");
+        Log.d(TAG, "onPause called.");
 
         // Save the current scroll position into the arguments of the fragments
-        if (mRecyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+        if (mFieldsRecycler.getLayoutManager() instanceof LinearLayoutManager) {
 
             // Reference to the layout manager attached to the RecyclerView
             // TODO: remove cast if you'll decide to mantain only LinearLayout
             LinearLayoutManager mLayoutManager
-                    = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+                    = (LinearLayoutManager) mFieldsRecycler.getLayoutManager();
 
             // Save the field list state, especially the scroll position
             Parcelable listState = mLayoutManager.onSaveInstanceState();
@@ -133,12 +142,20 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+
+        // Clean up fields listeners
+        mFieldAdapter.cleanupListener();
+    }
+
+    @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
         // Restore the field list state, especially the scroll position
         Parcelable listState = getArguments().getParcelable(ARG_SCROLL_POSITION);
-        mRecyclerView.getLayoutManager().onRestoreInstanceState(listState);
+        mFieldsRecycler.getLayoutManager().onRestoreInstanceState(listState);
     }
 
     /**
@@ -153,6 +170,6 @@ public class HomeFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Field field);
     }
 }

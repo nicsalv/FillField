@@ -13,8 +13,14 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
+import com.ale2nico.fillfield.models.Field;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener {
@@ -27,10 +33,14 @@ public class MainActivity extends AppCompatActivity
     public static Parcelable homeFragmentListState = null;
 
     // Firebase Authentication
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
 
     // Firebase User
-    FirebaseUser user;
+    private FirebaseUser user;
+
+    // Firebase Database
+    private DatabaseReference mDatabase;
+
 
     //BottomNavigation
     BottomNavigationView navigation;
@@ -99,6 +109,9 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(mAuthListener);
 
+        // Get Firebase Database instance
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         // Place the initial fragment into the activity (the HomeFragment).
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -149,11 +162,23 @@ public class MainActivity extends AppCompatActivity
         // Get currently signed-in user
         if (resultCode == RESULT_OK) {
             user = mAuth.getCurrentUser();
+
+            // [START: inserimento campo di prova]
+            Field field = new Field(user.getUid(), "Savona, SV", "Centro Sportivo");
+
+            String key = mDatabase.child("fields").push().getKey();
+            Map<String, Object> fieldValues = field.toMap();
+
+            Map<String, Object> fieldUpdate = new HashMap<>();
+            fieldUpdate.put("/fields/" + key, fieldValues);
+
+            mDatabase.updateChildren(fieldUpdate);
+            // [END: inserimento campo di prova]
         }
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(Field field) {
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
 }
