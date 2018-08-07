@@ -96,6 +96,10 @@
     <string name="title_favourites_fields">Favourites</string>
     <string name="title_search_fields">Search</string>
 
+    <string name="app_label">FillField</string>
+    <string name="search_hint">Start to search fields Bro!</string>
+    <string name="search_title">Search</string>
+
     <!-- TODO: Remove or change these placeholder texts -->
     <string name="home_fragment">Home Fragment</string>
     <string name="search_fragment">Search fragment</string>
@@ -125,5 +129,14 @@
         <item>Home</item>
         <item>Search</item>
         <item>Favourites</item>
+    </string-array>
+
+
+    <string-array name="query_suggestions">
+        <item>Furniture</item>
+        <item>Women Fashion</item>
+        <item>Hotels</item>
+        <item>Man Fashion</item>
+        <item>Electronics Appliances</item>
     </string-array>
 </resources>
