@@ -18,7 +18,7 @@
         <activity android:name=".LoginActivity" />
 
         <provider android:name=".MySuggestionProvider"
-            android:authorities="com.ale2nico.fillfield.MySuggestionProvider" />
+            android:authorities="com.ale2nico.MySuggestionProvider" />
 
 
         <activity android:name=".SearchableActivity">
@@ -38,6 +38,9 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.app.default_searchable"
+                android:value=".SearchableActivity" />
+
         </activity>
 
         <activity
