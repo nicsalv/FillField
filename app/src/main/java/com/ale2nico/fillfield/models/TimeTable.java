@@ -15,42 +15,46 @@ import java.util.Map;
  */
 public class TimeTable {
 
-    // Working hours of a specific day
-    private LocalTime openingHour;
-    private LocalTime closingHour;
+    // Working hours of a specific day.
+    // The type is String because LocalTime has no no-arguments constructor,
+    // so it can't be stored on Firebase. Therefore, all the computations are
+    // made with casting to LocalTime but the times are stored as String.
+    private String openingHour;
+    private String closingHour;
 
     // Hours left to complete the day
     private int hoursAvailable;
 
-    // Reservations of the day
-    private Map<LocalTime, String> reservations;
+    // Reservations of the day in the form <time, userId>
+    private Map<String, String> reservations;
 
     public TimeTable() {
         // Default constructor required for calls to DataSnapshot.getValue(TimeTable.class)
     }
 
-    public TimeTable(LocalTime openingHour, LocalTime closingHour) {
+    public TimeTable(String openingHour, String closingHour) {
         this.openingHour = openingHour;
         this.closingHour = closingHour;
         reservations = new HashMap<>();
 
         // Initial calculation of the amount of hours available in this day
-        hoursAvailable = closingHour.minus(openingHour.getHour(), ChronoUnit.HOURS).getHour();
+        hoursAvailable = LocalTime.parse(closingHour)
+                .minus(LocalTime.parse(openingHour).getHour(), ChronoUnit.HOURS).getHour();
     }
 
     public int getHoursAvailable() {
         return hoursAvailable;
     }
 
-    public LocalTime getOpeningHour() {
+    public String getOpeningHour() {
         return openingHour;
     }
 
-    public LocalTime getClosingHour() {
+    public String getClosingHour() {
         return closingHour;
     }
 
-    public Map<LocalTime, String> getReservations() {
+    public Map<String, String> getReservations() {
         return reservations;
     }
 
@@ -59,9 +63,10 @@ public class TimeTable {
      * @param time time of the reservation
      * @return true if time is between the working hours.
      */
-    public boolean isReservationTimeLegal(CharSequence time) {
+    public boolean isReservationTimeLegal(String time) {
         LocalTime t = LocalTime.parse(time);
-        if (t.isBefore(openingHour) || t.isAfter(closingHour)) {
+        if (t.isBefore(LocalTime.parse(openingHour)) ||
+                t.isAfter(LocalTime.parse(closingHour))) {
             return false;
         }
         return true;
@@ -81,12 +86,11 @@ public class TimeTable {
      * @return false if: time is not legal;
      * there are no hours left in the day; time has already been booked.
      */
-    public boolean isReservationTimeFree(CharSequence time) {
+    public boolean isReservationTimeFree(String time) {
         if (!isFull() || !isReservationTimeLegal(time)) {
             return false;
         }
-        LocalTime t = LocalTime.parse(time);
-        return reservations.containsKey(t);
+        return reservations.containsKey(time);
     }
 
     /**
@@ -95,23 +99,22 @@ public class TimeTable {
      * @param userId reservation user
      * @return false if time is not ok (out of working hours bounds).
      */
-    public boolean insertReservation(CharSequence time, String userId)
+    public boolean insertReservation(String time, String userId)
             throws IllegalArgumentException {
         if (!isReservationTimeFree(time)) {
             throw new IllegalArgumentException("time is illegal or reservation not empty.");
         }
         // Insert the reservation into the map
-        LocalTime timeKey = LocalTime.parse(time);
-        reservations.put(timeKey, userId);
+        reservations.put(time, userId);
 
         return true;
     }
 
     // TODO: retrieve full user, not only his ID
-    public String getReservation(CharSequence time) throws IllegalArgumentException {
+    public String getReservation(String time) throws IllegalArgumentException {
         if (!isReservationTimeLegal(time)) {
             throw new IllegalArgumentException("getReservation: Time is illegal.");
         }
-        return reservations.get(LocalTime.parse(time));
+        return reservations.get(time);
     }
 }

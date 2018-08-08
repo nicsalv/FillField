@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ale2nico.fillfield.HomeFragment.OnListFragmentInteractionListener;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
@@ -133,8 +132,8 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     @Override
     public void onBindViewHolder(final FieldViewHolder holder, final int position) {
         // Set the content inside the FieldViewHolder
-        holder.fieldPositionTextView.setText(mFields.get(position).getPosition());
-        holder.fieldTitleTextView.setText(mFields.get(position).getName());
+        holder.fieldAddressTextView.setText(Double.toString(mFields.get(position).getLatitude()));
+        holder.fieldNameTextView.setText(mFields.get(position).getName());
 
         // Set the listeners to the action buttons
         holder.action1Button.setOnClickListener(new View.OnClickListener() {
@@ -177,8 +176,8 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
         // Elements of the card
         public final ImageButton favoriteImageButton;
-        public final TextView fieldPositionTextView;
-        public final TextView fieldTitleTextView;
+        public final TextView fieldAddressTextView;
+        public final TextView fieldNameTextView;
         // TODO: rename these buttons
         public final Button action1Button;
         public final Button action2Button;
@@ -188,15 +187,15 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             // Get references of the 'view' so as to edit their contents later
             fieldView = view;
             favoriteImageButton = (ImageButton) view.findViewById(R.id.favourite_button);
-            fieldPositionTextView = (TextView) view.findViewById(R.id.card_field_position);
-            fieldTitleTextView = (TextView) view.findViewById(R.id.card_field_title);
+            fieldAddressTextView = (TextView) view.findViewById(R.id.card_field_address);
+            fieldNameTextView = (TextView) view.findViewById(R.id.card_field_name);
             action1Button = (Button) view.findViewById(R.id.action_1_button);
             action2Button = (Button) view.findViewById(R.id.action_2_button);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + fieldTitleTextView.getText() + "'";
+            return super.toString() + " '" + fieldNameTextView.getText() + "'";
         }
     }
 }

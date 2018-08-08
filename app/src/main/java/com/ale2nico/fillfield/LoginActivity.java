@@ -151,7 +151,7 @@ public class LoginActivity extends Activity implements
         insertNewUser(user.getUid(), name, surname, email);
 
         // Return to MainActivity
-        setResult(MainActivity.REQUEST_USER_LOGIN);
+        setResult(RESULT_OK);
         finish();
     }
 

@@ -162,18 +162,6 @@ public class MainActivity extends AppCompatActivity
         // Get currently signed-in user
         if (resultCode == RESULT_OK) {
             user = mAuth.getCurrentUser();
-
-            // [START: inserimento campo di prova]
-            Field field = new Field(user.getUid(), "Savona, SV", "Centro Sportivo");
-
-            String key = mDatabase.child("fields").push().getKey();
-            Map<String, Object> fieldValues = field.toMap();
-
-            Map<String, Object> fieldUpdate = new HashMap<>();
-            fieldUpdate.put("/fields/" + key, fieldValues);
-
-            mDatabase.updateChildren(fieldUpdate);
-            // [END: inserimento campo di prova]
         }
     }
 
