@@ -1,5 +1,7 @@
 package com.ale2nico.fillfield;
 
+import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -172,28 +175,52 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
-        // Nofitication for API >= 26
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            // Create and send immediately the notification
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "ale2nico.FillField")
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setContentTitle("Prenotato")
-                    .setContentText("Hai prenotato un campo!")
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-            Intent intent = new Intent(getApplicationContext(), this.getClass())
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            mBuilder.setContentIntent(pi);
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(1, mBuilder.build());
-        }
-        else {
-            // Notification for API <26
-
-        }
-
+              // Send a notification
+              sendNotification("ale2nico.FillField", "Ehi tu!",
+                      "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
+                      NotificationReceiver.class,60*60*1000, 0);
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     *  Create and send immediately the notification
+     *  This work both for API <26 and API >=26 because the Channel was created in the onCreate method
+     */
+    public void sendNotification(String channelId, String contentTitle, String contentText,
+                                    Context packageContext, Class classContext, Class notificationReceiver,
+                                    long delay, Integer notificationId) {
+
+        // [START] Create notification and its settings
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setContentTitle(contentTitle)
+                .setContentText(contentText)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+        //[END] Create notification and its settings
+
+        // Intent related to current context and class
+        Intent intent = new Intent(packageContext, classContext)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        // Pending intent for setting notification
+        PendingIntent activityIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(activityIntent);
+
+        // Build Notification
+        Notification notification = mBuilder.build();
+
+        // Schedule notification with two intents:
+        // notificationIntent for attaching to the BroadcastReceiver
+        Intent notificationIntent = new Intent(packageContext, notificationReceiver);
+        notificationIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, notificationId);
+        notificationIntent.putExtra(NotificationReceiver.NOTIFICATION, notification);
+
+        // PendingIntent and AlarmManager for scheduling the notification at a specific time
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        long futureInMillis = SystemClock.elapsedRealtime() + delay;
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+
     }
 }
