@@ -19,7 +19,8 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
                     MyBookingsFragment.OnListFragmentInteractionListener,
-                    MyFieldsFragment.OnListFragmentInteractionListener {
+                    MyFieldsFragment.OnListFragmentInteractionListener,
+                    FavouritesFragment.OnListFragmentInteractionListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
