@@ -15,14 +15,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".LoginActivity" />
+
+        <activity android:name=".SearchableActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
+
+
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main">
+            android:label="@string/title_activity_main"
+            android:windowSoftInputMode="adjustResize">
+            <!-- enable the search dialog to send searches to SearchableActivity -->
+            <meta-data android:name="android.app.default_searchable"
+                android:value=".SearchableActivity"
+                android:launchMode="singleTop"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
         <activity
             android:name=".FacebookLoginActivity"
             android:label="@string/title_activity_facebook_login"></activity>

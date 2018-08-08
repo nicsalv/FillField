@@ -1,5 +1,7 @@
 package com.ale2nico.fillfield;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +11,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -156,4 +161,27 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.search_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.search:
+                onSearchRequested();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }

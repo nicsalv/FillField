@@ -109,6 +109,10 @@
     <string name="card_action_1">Action 1</string>
     <string name="card_action_2">Action 2</string>
 
+    <string name="app_label">FillField 2</string>
+    <string name="search_hint">Action 2</string>
+    <string name="search_title">Action 2</string>
+
 
     <!-- Profile strings -->
     <string name="my_fields">My fields</string>
