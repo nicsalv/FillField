@@ -1,13 +1,20 @@
 package com.ale2nico.fillfield;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -102,6 +109,14 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(mAuthListener);
 
+        // Register notification channel for API >=26
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("ale2nico.FillField", "FillField", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("Notification channel for FillField app");
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
         // Place the initial fragment into the activity (the HomeFragment).
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -156,6 +171,29 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
+        // Nofitication for API >= 26
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            // Create and send immediately the notification
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "ale2nico.FillField")
+                    .setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setContentTitle("Prenotato")
+                    .setContentText("Hai prenotato un campo!")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            Intent intent = new Intent(getApplicationContext(), this.getClass())
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setContentIntent(pi);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(1, mBuilder.build());
+        }
+        else {
+            // Notification for API <26
+
+        }
+
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
 }
