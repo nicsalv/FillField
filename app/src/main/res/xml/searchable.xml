@@ -3,7 +3,12 @@
     android:label="@string/app_label"
     android:hint="@string/search_hint"
     android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
-    android:searchSuggestAuthority="com.ale2nico.fillfield.MySuggestionProvider"
-    android:searchSuggestSelection=" ?" >
+    android:searchSuggestAuthority="com.ale2nico.MySuggestionProvider"
+    android:searchSuggestSelection=" ?"
+    android:includeInGlobalSearch="true"
+    android:searchSettingsDescription="@string/string_description"
+    android:queryAfterZeroResults="true"
+    android:searchSuggestIntentAction="android.intent.action.VIEW"
+    >
 
 </searchable>

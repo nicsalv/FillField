@@ -97,8 +97,11 @@
     <string name="title_search_fields">Search</string>
 
     <string name="app_label">FillField</string>
-    <string name="search_hint">Start to search fields Bro!</string>
+    <string name="search_hint">Search fields...</string>
     <string name="search_title">Search</string>
+    <string name="result_text">Results:</string>
+    <string name="string_description">Enter the name of the city you are looking for</string>
+
 
     <!-- TODO: Remove or change these placeholder texts -->
     <string name="home_fragment">Home Fragment</string>
