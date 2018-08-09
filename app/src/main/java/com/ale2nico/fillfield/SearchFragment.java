@@ -1,5 +1,6 @@
 package com.ale2nico.fillfield;
 
+import android.app.ActionBar;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -58,7 +59,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setHasOptionsMenu(true);
+        setHasOptionsMenu(true);
 
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -72,7 +73,15 @@ public class SearchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        View rootView = inflater.inflate(R.layout.search_result, container, false);
+        /*
+        ActionBar actionBar = getActivity().getActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.hide();
+        */
+
+        return rootView;
     }
 
     /*

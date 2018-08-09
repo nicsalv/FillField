@@ -101,6 +101,8 @@
     <string name="search_title">Search</string>
     <string name="result_text">Results:</string>
     <string name="string_description">Enter the name of the city you are looking for</string>
+    <string name="string_result">Results: </string>
+    <string name="search_result_number">0</string>
 
 
     <!-- TODO: Remove or change these placeholder texts -->
