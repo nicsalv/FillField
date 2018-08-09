@@ -20,7 +20,6 @@
         <provider android:name=".MySuggestionProvider"
             android:authorities="com.ale2nico.MySuggestionProvider" />
 
-
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -31,11 +30,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
+                <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
-
         </activity>
 
         <activity

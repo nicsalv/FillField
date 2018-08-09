@@ -17,4 +17,5 @@
     <dimen name="card_position_top_margin">10dp</dimen>
     <dimen name="card_element_top_margin">10dp</dimen>
 
+
 </resources>

@@ -205,7 +205,14 @@ public class MainActivity extends AppCompatActivity
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
             suggestions.saveRecentQuery(query, null);
             Toast.makeText(this, "You have searched "+query+", isn't it? :)",Toast.LENGTH_LONG).show();
-            //TODO: search the query on Firebase and show result
+            //TODO: search the query on Firebase
+
+            // Replace the current fragment with the selected fragment --> showing result in a particular fragment
+            FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction();
+            transaction.replace(R.id.fragment_container, new SearchFragment());
+            transaction.commit();
+
         }
     }
 
