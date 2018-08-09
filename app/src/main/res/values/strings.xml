@@ -127,6 +127,7 @@
     <string name="booking_time">Booking time</string>
     <string name="view_field">View field</string>
     <string name="share">Share</string>
+    <string name="firebase_fillfield_url">https://fillfield-bc48e.firebaseio.com/</string>
     <string-array name="home_screen_preference">
         <item>Home</item>
         <item>Search</item>

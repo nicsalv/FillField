@@ -23,8 +23,13 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
+import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
@@ -105,6 +110,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Firebase.setAndroidContext(this);
+
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -178,7 +185,8 @@ public class MainActivity extends AppCompatActivity
               // Send a notification
               sendNotification("ale2nico.FillField", "Ehi tu!",
                       "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
-                      NotificationReceiver.class,60*60*1000, 0);
+                      NotificationReceiver.class, 1000 , 0);
+              sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
 
@@ -223,4 +231,17 @@ public class MainActivity extends AppCompatActivity
         alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
 
     }
+
+    public static void sendNotificationToUser(String user, final String message) {
+        Firebase ref = new Firebase( "https://fillfield-bc48e.firebaseio.com/");
+        final Firebase notifications = ref.child("notificationRequests");
+
+        Map notification = new HashMap<>();
+        notification.put("username", user);
+        notification.put("message", message);
+
+        notifications.push().setValue(notification);
+    }
+
+
 }
