@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
                     MyBookingsFragment.OnListFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener,
-                    FavouritesFragment.OnListFragmentInteractionListener {
+                    FavouritesFragment.OnListFragmentInteractionListener,
+                    FieldViewFragment.OnFragmentInteractionListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -208,6 +209,11 @@ public class MainActivity extends AppCompatActivity
                 NotificationReceiver.class, 0 , 0);
         sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+        FieldViewFragment fieldViewFragment = new FieldViewFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fieldViewFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
