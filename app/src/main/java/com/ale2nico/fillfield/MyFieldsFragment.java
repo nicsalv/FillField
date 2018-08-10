@@ -67,7 +67,7 @@ public class MyFieldsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyFieldRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyFieldsAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
     }
