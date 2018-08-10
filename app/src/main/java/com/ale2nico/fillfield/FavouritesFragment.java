@@ -13,8 +13,6 @@ import android.view.ViewGroup;
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
 
-import java.util.List;
-
 /**
  * A fragment representing a list of Items.
  * <p/>
@@ -69,7 +67,7 @@ public class FavouritesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyFavouritesRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new FavouritesFieldAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
     }

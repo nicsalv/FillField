@@ -18,12 +18,12 @@ import java.util.List;
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyFavouritesRecyclerViewAdapter extends RecyclerView.Adapter<MyFavouritesRecyclerViewAdapter.ViewHolder> {
+public class FavouritesFieldAdapter extends RecyclerView.Adapter<FavouritesFieldAdapter.ViewHolder> {
 
     private final List<DummyItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyFavouritesRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public FavouritesFieldAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }

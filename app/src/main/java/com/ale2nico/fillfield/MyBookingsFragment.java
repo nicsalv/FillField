@@ -1,8 +1,6 @@
 package com.ale2nico.fillfield;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,7 +16,6 @@ import android.widget.TextView;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
-import com.google.android.gms.plus.PlusShare;
 
 /**
  * A fragment representing a list of Items.
@@ -80,7 +77,7 @@ public class MyBookingsFragment extends Fragment implements View.OnClickListener
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new BookingsRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyBookingsAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
     }
