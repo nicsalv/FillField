@@ -192,11 +192,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Field field) {
+        sendNotification("ale2nico.FillField", "Ehi tu!",
+                "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
+                NotificationReceiver.class, 0 , 0);
+        sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
+        Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
         // Send a notification
         sendNotification("ale2nico.FillField", "Ehi tu!",
                 "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
-                NotificationReceiver.class, 1000 , 0);
+                NotificationReceiver.class, 0 , 0);
         sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
