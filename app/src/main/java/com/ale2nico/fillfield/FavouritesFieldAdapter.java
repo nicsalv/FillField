@@ -89,8 +89,8 @@ public class FavouritesFieldAdapter extends RecyclerView.Adapter<FavouritesField
             // Get references of the 'view' so as to edit their contents later
             fieldView = view;
             favoriteImageButton = (ImageButton) view.findViewById(R.id.favourite_button);
-            fieldPositionTextView = (TextView) view.findViewById(R.id.card_field_position);
-            fieldTitleTextView = (TextView) view.findViewById(R.id.card_field_title);
+            fieldPositionTextView = (TextView) view.findViewById(R.id.card_field_address);
+            fieldTitleTextView = (TextView) view.findViewById(R.id.card_field_name);
             action1Button = (Button) view.findViewById(R.id.action_1_button);
             action2Button = (Button) view.findViewById(R.id.action_2_button);
 

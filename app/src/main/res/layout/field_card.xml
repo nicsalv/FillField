@@ -31,7 +31,7 @@
             android:contentDescription="@string/card_image_description" />
 
         <TextView
-            android:id="@+id/card_field_position"
+            android:id="@+id/card_field_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/card_field_image"
@@ -41,10 +41,10 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
 
         <TextView
-            android:id="@+id/card_field_title"
+            android:id="@+id/card_field_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/card_field_position"
+            android:layout_below="@id/card_field_address"
             android:layout_marginStart="@dimen/card_text_left_margin"
             android:layout_marginTop="@dimen/card_element_top_margin"
             android:text="@string/card_field_title"
@@ -56,7 +56,7 @@
             android:id="@+id/action_1_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/card_field_title"
+            android:layout_below="@id/card_field_name"
             android:layout_toStartOf="@id/action_2_button"
             android:text="@string/card_action_1"
             />
@@ -66,7 +66,7 @@
             android:id="@+id/action_2_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/card_field_title"
+            android:layout_below="@id/card_field_name"
             android:layout_alignEnd="@id/card_field_image"
             android:text="@string/card_action_2"
             />

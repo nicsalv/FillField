@@ -1,15 +1,20 @@
-package com.ale2nico.fillfield;
+package com.ale2nico.fillfield.models;
+
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Rappresentazione dell'oggeto utente all'interno dell'applicazione.
  */
 
+@IgnoreExtraProperties
 public class User {
 
     private final String email;
-
     private final String name;
-
     private final String surname;
 
     /**
@@ -34,6 +39,16 @@ public class User {
 
     public String getSurname() {
         return surname;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("email", email);
+        result.put("name", name);
+        result.put("surname", surname);
+
+        return result;
     }
 
 }

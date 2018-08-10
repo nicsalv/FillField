@@ -33,7 +33,7 @@
         android:scaleType="centerCrop"
         android:layout_alignBottom="@id/profile_background"
         android:layout_marginBottom="40sp"
-        android:src="@drawable/no_profile_pic"
+        app:srcCompat="@drawable/no_profile_pic"
         />
 
     <TextView
@@ -65,8 +65,27 @@
         android:layout_marginBottom="3dp"
         android:text="@string/my_fields"
         android:drawableStart="@drawable/ic_fields_icon"
-        android:drawablePadding="4dp"
+        android:drawablePadding="8dp"
         />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="8dp"
+            android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:id="@+id/my_bookings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Base.Theme.AppCompat.Light"
+            android:layout_marginStart="40sp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/my_bookings"
+            android:textSize="20sp"
+            android:drawableStart="@drawable/ic_book_black_24dp"
+            android:drawablePadding="8dp"/>
 
         <View
             android:layout_width="match_parent"
@@ -85,7 +104,7 @@
             android:text="@string/settings"
             android:textSize="20sp"
             android:drawableStart="@drawable/ic_settings_black_24dp"
-            android:drawablePadding="4dp"
+            android:drawablePadding="8dp"
             />
 
         <View

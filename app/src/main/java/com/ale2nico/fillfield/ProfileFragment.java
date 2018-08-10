@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -51,19 +54,28 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     private SharedPreferences savedValues;
     private TextView contactUs;
 
+    // For pre-Lollipop devices
+    private TextView myFields;
+    private TextView myBookings;
+    private TextView settings;
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         savedValues = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        super.onCreateView(inflater,container, savedInstanceState);
         // Inflate the layout for this fragment
+        getActivity().setTitle(getContext().getResources().getString(R.string.my_profile));
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
@@ -83,6 +95,19 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         //Contact us
         contactUs = (TextView) getView().findViewById(R.id.contact_us);
         contactUs.setMovementMethod(LinkMovementMethod.getInstance());
+
+        // For pre-Lollipop devices
+        myFields = getView().findViewById(R.id.my_fields);
+        myBookings = getView().findViewById(R.id.my_bookings);
+        settings = getView().findViewById(R.id.settings);
+        myFields.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fields_icon), null, null, null);
+        myBookings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_book_black_24dp), null, null, null);
+        settings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_settings_black_24dp), null, null, null);
+
+        //Listeners
+        myFields.setOnClickListener(this);
+        myBookings.setOnClickListener(this);
+        settings.setOnClickListener(this);
 
         //User's image for profile pic
         Glide.with(this)
@@ -114,29 +139,19 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.my_fields:
+                MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, myFieldsFragment).addToBackStack("profile").commit();
+                break;
+            case R.id.my_bookings:
+                MyBookingsFragment myBookingsFragment = new MyBookingsFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, myBookingsFragment).addToBackStack("profile").commit();
                 break;
             case R.id.settings:
                 break;
             case R.id.sign_out:
-                //Alert to confirm sign-out
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage(R.string.sign_out_message)
-                        .setTitle(R.string.sign_out_title);
-                //Creating buttons for confirm or cancel
-                builder.setPositiveButton(R.string.sign_out_confirm, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User clicked confirm button
-                        mAuth.signOut();
-                    }
-                });
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                signOut();
                break;
         }
     }
@@ -145,7 +160,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selectedItem = (String) homeSpinner.getItemAtPosition(position);
-        Toast.makeText(getContext(), "Selected:" + selectedItem, Toast.LENGTH_SHORT).show();
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).edit();
         prefs.putString("home_spinner", selectedItem);
         prefs.commit();
@@ -154,5 +168,38 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+
+    /**
+     * Sign-out from app
+     */
+    private void signOut() {
+        //Alert to confirm sign-out
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.sign_out_message)
+                .setTitle(R.string.sign_out_title);
+        //Creating buttons for confirm or cancel
+        builder.setPositiveButton(R.string.sign_out_confirm, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked confirm button
+                mAuth.signOut();
+                GoogleSignIn.getClient(getActivity(),
+                        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                .requestIdToken(getString(R.string.default_web_client_id))
+                                .requestEmail()
+                                .build())
+                        .signOut();
+                getActivity().finish();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
