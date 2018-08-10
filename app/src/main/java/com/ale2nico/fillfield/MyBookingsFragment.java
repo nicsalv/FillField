@@ -2,6 +2,8 @@ package com.ale2nico.fillfield;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,6 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
@@ -19,7 +23,7 @@ import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class FavouritesFragment extends Fragment {
+public class MyBookingsFragment extends Fragment implements View.OnClickListener {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -27,17 +31,23 @@ public class FavouritesFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
+    //Parameters
+    private TextView fieldNameTextView;
+    private TextView bookingTimeTextView;
+    private Button viewFieldButton;
+    private Button shareBookingButton;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public FavouritesFragment() {
+    public MyBookingsFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static FavouritesFragment newInstance(int columnCount) {
-        FavouritesFragment fragment = new FavouritesFragment();
+    public static MyBookingsFragment newInstance(int columnCount) {
+        MyBookingsFragment fragment = new MyBookingsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -56,8 +66,8 @@ public class FavouritesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
-        getActivity().setTitle(getContext().getResources().getString(R.string.title_favourites_fields));
+        View view = inflater.inflate(R.layout.fragment_mybookings_list, container, false);
+        getActivity().setTitle(getContext().getResources().getString(R.string.my_bookings));
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
@@ -67,11 +77,29 @@ public class FavouritesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new FavouritesFieldAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyBookingsAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        fieldNameTextView = getView().findViewById(R.id.field_name);
+        bookingTimeTextView = getView().findViewById(R.id.booking_time);
+        viewFieldButton = getView().findViewById(R.id.view_field_button);
+        shareBookingButton = (Button) getView().findViewById(R.id.share_booking_button);
+    }
+/*
+    private void share() {
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        String shareBody = "Share!";
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+
+    }*/
 
     @Override
     public void onAttach(Context context) {
@@ -88,6 +116,10 @@ public class FavouritesFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onClick(View v) {
     }
 
     /**

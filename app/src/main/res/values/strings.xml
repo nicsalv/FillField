@@ -121,6 +121,13 @@
     <string name="home_screen">Home Screen:</string>
     <string name="contact_us">Do you want to add your soccer field? <a href="mailto:fillfield@gmail.com">Contact us!</a></string>
     <string name="profile_picture">Profile picture</string>
+    <string name="my_bookings">My bookings</string>
+    <string name="my_profile">My profile</string>
+    <string name="field_name">Field name</string>
+    <string name="booking_time">Booking time</string>
+    <string name="view_field">View field</string>
+    <string name="share">Share</string>
+    <string name="firebase_fillfield_url">https://fillfield-bc48e.firebaseio.com/</string>
     <string-array name="home_screen_preference">
         <item>Home</item>
         <item>Search</item>

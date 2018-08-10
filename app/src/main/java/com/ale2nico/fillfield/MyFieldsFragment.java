@@ -19,7 +19,7 @@ import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class FavouritesFragment extends Fragment {
+public class MyFieldsFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -31,13 +31,13 @@ public class FavouritesFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public FavouritesFragment() {
+    public MyFieldsFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static FavouritesFragment newInstance(int columnCount) {
-        FavouritesFragment fragment = new FavouritesFragment();
+    public static MyFieldsFragment newInstance(int columnCount) {
+        MyFieldsFragment fragment = new MyFieldsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -56,8 +56,8 @@ public class FavouritesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
-        getActivity().setTitle(getContext().getResources().getString(R.string.title_favourites_fields));
+        View view = inflater.inflate(R.layout.fragment_myfields_list, container, false);
+        getActivity().setTitle(getContext().getResources().getString(R.string.my_fields));
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
@@ -67,7 +67,7 @@ public class FavouritesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new FavouritesFieldAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyFieldsAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
     }
