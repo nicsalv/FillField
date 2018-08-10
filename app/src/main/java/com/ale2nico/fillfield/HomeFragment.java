@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.models.Field;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -33,7 +32,7 @@ public class HomeFragment extends Fragment {
     public static final String ARG_SCROLL_POSITION = "field-list-scroll-position";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private HomeFragment.OnListFragmentInteractionListener mListener;
 
     // Firebase References
     private DatabaseReference mFieldsReference;

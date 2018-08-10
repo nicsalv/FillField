@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -32,6 +29,7 @@
         android:textSize="16sp"
         android:fontFamily="@font/seasrn__"/>
     <View
+        android:id="@+id/line_separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_margin="3dp"
@@ -39,6 +37,13 @@
         android:layout_alignLeft="@+id/search_label"
         android:layout_below="@+id/search_label"/>
 
-</RelativeLayout>
+    <include
+        android:id="@+id/result_list"
+        android:layout_marginTop="@dimen/card_margin"
+        layout="@layout/fragment_field_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/line_separator" />
 
-</ScrollView>
+
+</RelativeLayout>

@@ -243,10 +243,16 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "You have searched "+query+", isn't it? :)",Toast.LENGTH_LONG).show();
             //TODO: search the query on Firebase
 
+            //creation of SearchFragment with search_query argument
+            SearchFragment searchFragment = new SearchFragment();
+            Bundle args = new Bundle();
+            args.putString(SearchFragment.ARG_SEARCH_QUERY, query);
+            searchFragment.setArguments(args);
             // Replace the current fragment with the selected fragment --> showing result in a particular fragment
             FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
-            transaction.replace(R.id.fragment_container, new SearchFragment()).addToBackStack(null);
+            transaction.replace(R.id.fragment_container, searchFragment)
+                    .addToBackStack(null);
             transaction.commit();
 
         }
