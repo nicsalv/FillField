@@ -66,6 +66,7 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getActivity().setTitle(getContext().getResources().getString(R.string.search_title));
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.search_result, container, false);
 

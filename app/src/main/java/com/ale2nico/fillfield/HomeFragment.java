@@ -81,6 +81,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getActivity().setTitle(getContext().getResources().getString(R.string.fillfield));
         View view = inflater.inflate(R.layout.fragment_field_list, container, false);
 
         // Set the adapter
