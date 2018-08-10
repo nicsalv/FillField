@@ -23,7 +23,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan">
             <!-- enable the search dialog to send searches to SearchableActivity -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

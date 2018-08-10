@@ -1,7 +1,6 @@
 package com.ale2nico.fillfield;
 
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,9 +10,7 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -210,7 +207,7 @@ public class MainActivity extends AppCompatActivity
             // Replace the current fragment with the selected fragment --> showing result in a particular fragment
             FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
-            transaction.replace(R.id.fragment_container, new SearchFragment());
+            transaction.replace(R.id.fragment_container, new SearchFragment()).addToBackStack(null);
             transaction.commit();
 
         }
