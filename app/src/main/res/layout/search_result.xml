@@ -14,20 +14,9 @@
         android:layout_height="wrap_content"
         android:padding="3dp"
         android:text="@string/string_result"
-        android:textSize="16sp"
-        android:fontFamily="@font/seasrn__"/>
-    <TextView
-        android:id="@+id/billAmountEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/search_label"
-        android:layout_marginLeft="200dp"
-        android:layout_toRightOf="@+id/search_label"
-        android:ems="1"
-        android:inputType="numberDecimal"
-        android:text="@string/search_result_number"
-        android:textSize="16sp"
-        android:fontFamily="@font/seasrn__"/>
+        android:textSize="13sp"
+        android:fontFamily="@font/walkway_oblique"/>
+
     <View
         android:id="@+id/line_separator"
         android:layout_width="match_parent"

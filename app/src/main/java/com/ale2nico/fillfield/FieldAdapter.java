@@ -136,4 +136,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     public List<Field> getFields() {
         return mFields;
     }
+    public Integer getNumberOfFields(){
+        return mFields.size();
+    }
 }

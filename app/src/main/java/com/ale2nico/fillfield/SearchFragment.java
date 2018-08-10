@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.ale2nico.fillfield.firebaselisteners.SearchChildEventListener;
 import com.google.firebase.database.ChildEventListener;
@@ -89,7 +90,10 @@ public class SearchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        getActivity().setTitle(getContext().getResources().getString(R.string.search_fragment_title));
+
         View rootView = inflater.inflate(R.layout.search_result, container, false);
+
         View view = rootView.findViewById(R.id.result_list);
 
         // Set the adapter
@@ -100,10 +104,15 @@ public class SearchFragment extends Fragment {
             //TODO: build an appropriate listener in order to pass it to the adapter
 
             mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
-            ChildEventListener childEventListener = new SearchChildEventListener(searchQuery, mFieldAdapter);
+            ChildEventListener childEventListener = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext());
             mFieldAdapter.setChildEventListener(childEventListener);
             mFieldsRecycler.setAdapter(mFieldAdapter);
+
+
         }
+
+
+
 
         return rootView;
     }
@@ -137,6 +146,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
     }
 
 }
