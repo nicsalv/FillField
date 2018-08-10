@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">FillField</string>
-
     <string name="label_google_sign_in">Firebase + Google Sign In</string>
     <string name="desc_google_sign_in">Use a Google Sign In credential to authenticate with Firebase.</string>
 
@@ -96,6 +95,15 @@
     <string name="title_favourites_fields">Favourites</string>
     <string name="title_search_fields">Search</string>
 
+    <string name="app_label">FillField</string>
+    <string name="search_hint">Search fields...</string>
+    <string name="search_title">Search</string>
+    <string name="result_text">Results:</string>
+    <string name="string_description">Enter the name of the city you are looking for</string>
+    <string name="string_result">Results: </string>
+    <string name="search_result_number">0</string>
+
+
     <!-- TODO: Remove or change these placeholder texts -->
     <string name="home_fragment">Home Fragment</string>
     <string name="search_fragment">Search fragment</string>
@@ -132,5 +140,14 @@
         <item>Home</item>
         <item>Search</item>
         <item>Favourites</item>
+    </string-array>
+
+
+    <string-array name="query_suggestions">
+        <item>Furniture</item>
+        <item>Women Fashion</item>
+        <item>Hotels</item>
+        <item>Man Fashion</item>
+        <item>Electronics Appliances</item>
     </string-array>
 </resources>
