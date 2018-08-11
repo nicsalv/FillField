@@ -42,85 +42,14 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     private List<String> mFieldsIds = new ArrayList<>();
     private List<Field> mFields = new ArrayList<>();
 
-    private final OnListFragmentInteractionListener mListener;
+    private final HomeFragment.OnListFragmentInteractionListener mListener;
 
-    public FieldAdapter(DatabaseReference ref, OnListFragmentInteractionListener listener) {
+    public FieldAdapter(DatabaseReference ref,
+                        HomeFragment.OnListFragmentInteractionListener listener) {
+
         mDatabaseReference = ref;
         mListener = listener;
 
-        // Create child event listener
-        // [START child_event_listener_recycler]
-        ChildEventListener childEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-
-                // A new field has been added, add it to the displayed list
-                Field field = dataSnapshot.getValue(Field.class);
-
-                // Update RecyclerView
-                mFieldsIds.add(dataSnapshot.getKey());
-                mFields.add(field);
-                notifyItemInserted(mFields.size() - 1);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-
-                // A field has changed, use the key to determine if we are displaying
-                // this field and if so displayed the changed field.
-                Field changedField = dataSnapshot.getValue(Field.class);
-                String fieldKey = dataSnapshot.getKey();
-
-                int fieldIndex = mFieldsIds.indexOf(fieldKey);
-                if (fieldIndex > -1) {
-                    // Replace with the new data
-                    mFields.set(fieldIndex,changedField);
-
-                    // Update RecyclerView
-                    notifyItemChanged(fieldIndex);
-                } else {
-                    Log.w(TAG, "onChildChanged:unknown_child:" + fieldKey);
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-
-                // A field has been removed, use the key to determine if we are displaying
-                // this field and if so remove it.
-                String fieldKey = dataSnapshot.getKey();
-
-                int fieldIndex = mFieldsIds.indexOf(fieldKey);
-                if (fieldIndex > -1) {
-                    // Remove field from both lists
-                    mFieldsIds.remove(fieldIndex);
-                    mFields.remove(fieldIndex);
-
-                    // Update RecyclerView
-                    notifyItemRemoved(fieldIndex);
-                }
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
-
-                // Do nothing because we don't expect a field to move position
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "FieldAdapter:onCancelled", databaseError.toException());
-            }
-        };
-
-        ref.addChildEventListener(childEventListener);
-
-        // Store reference to listener so it can be removed on app stop
-        mChildEventListener = childEventListener;
     }
 
     @Override
@@ -272,4 +201,19 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         }
     }
 
+    public void setChildEventListener(ChildEventListener childEventListener){
+        mChildEventListener = childEventListener;
+        mDatabaseReference.addChildEventListener(childEventListener);
+    }
+
+    public List<String> getFieldsIds() {
+        return mFieldsIds;
+    }
+
+    public List<Field> getFields() {
+        return mFields;
+    }
+    public Integer getNumberOfFields(){
+        return mFields.size();
+    }
 }

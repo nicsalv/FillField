@@ -33,7 +33,7 @@ public class HomeFragment extends Fragment {
     public static final String ARG_SCROLL_POSITION = "field-list-scroll-position";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private HomeFragment.OnListFragmentInteractionListener mListener;
 
     // Firebase References
     private DatabaseReference mFieldsReference;
@@ -81,7 +81,8 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle(getContext().getResources().getString(R.string.fillfield));
+        getActivity().setTitle(getContext().getResources().getString(R.string.app_name));
+
         View view = inflater.inflate(R.layout.fragment_field_list, container, false);
 
         // Set the adapter

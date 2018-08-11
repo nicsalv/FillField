@@ -1,13 +1,22 @@
 package com.ale2nico.fillfield;
 
-import android.app.ActionBar;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-
+import com.ale2nico.fillfield.firebaselisteners.SearchChildEventListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 /**
@@ -21,12 +30,27 @@ import android.view.ViewGroup;
 public class SearchFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    public static final String ARG_SEARCH_QUERY = "search-query";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String searchQuery;
+
+    private Boolean flag;
+
+
+    // Firebase References
+    private DatabaseReference mFieldsReference;
+    private DatabaseReference mUsersReference;
+
+
+    // References to layout objects
+    private RecyclerView mFieldsRecycler;
+    private FieldAdapter mFieldAdapter;
+    // The layout manager is provided inside the 'onCreateView' method.
+    // It depends on the number of column of the list.
+
+    private HomeFragment.OnListFragmentInteractionListener mListener;
+
 
     public SearchFragment() {
         // Required empty public constructor
@@ -37,15 +61,13 @@ public class SearchFragment extends Fragment {
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment SearchFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
+    public static SearchFragment newInstance(String param1) {
         SearchFragment fragment = new SearchFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_SEARCH_QUERY, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,9 +78,18 @@ public class SearchFragment extends Fragment {
         setHasOptionsMenu(true);
 
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            searchQuery = getArguments().getString(ARG_SEARCH_QUERY);
+            flag = true;
+        }else{
+            flag = false;
         }
+
+        // Reference to the 'fields' object stored in the database
+        mFieldsReference = FirebaseDatabase.getInstance().getReference()
+                .child("fields");
+        // Reference to the 'users' object stored in the database
+        mUsersReference = FirebaseDatabase.getInstance().getReference()
+                .child("users");
     }
 
 
@@ -66,18 +97,90 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle(getContext().getResources().getString(R.string.search_title));
+        View rootView;
+        View view;
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.search_result, container, false);
+        getActivity().setTitle(getContext().getResources().getString(R.string.search_fragment_title));
 
+        if(flag){
+            rootView = inflater.inflate(R.layout.search_result, container, false);
+            view = rootView.findViewById(R.id.result_list);
+
+            // Set the adapter
+            if (view instanceof RecyclerView) {
+                Context context = rootView.getContext();
+                mFieldsRecycler = (RecyclerView) view;
+                mFieldsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+                //TODO: build an appropriate listener in order to pass it to the adapter
+
+                mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
+                ChildEventListener childEventListener = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext());
+                mFieldAdapter.setChildEventListener(childEventListener);
+                mFieldsRecycler.setAdapter(mFieldAdapter);
+
+
+            }
+
+        }else {
+            rootView = inflater.inflate(R.layout.search_informations, container, false);
+        }
 
         return rootView;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof HomeFragment.OnListFragmentInteractionListener) {
+            mListener = (HomeFragment.OnListFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Clean up fields listeners
+        if(flag){
+            mFieldAdapter.cleanupListener();
+        }
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the options menu from XML
+        inflater.inflate(R.menu.search_menu, menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.search:
+                getActivity().onSearchRequested();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
 }

@@ -101,6 +101,7 @@
     <string name="result_text">Results:</string>
     <string name="string_description">Enter the name of the city you are looking for</string>
     <string name="string_result">Results: </string>
+    <string name="search_info">Enter the name of the field or his location </string>
     <string name="search_result_number">0</string>
 
 
@@ -131,6 +132,7 @@
     <string name="profile_picture">Profile picture</string>
     <string name="my_bookings">My bookings</string>
     <string name="my_profile">My profile</string>
+    <string name="search_fragment_title">Search</string>
     <string name="field_name">Field name</string>
     <string name="booking_time">Booking time</string>
     <string name="view_field">View field</string>

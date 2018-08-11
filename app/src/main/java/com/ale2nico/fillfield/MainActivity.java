@@ -1,11 +1,11 @@
 package com.ale2nico.fillfield;
 
-import android.app.SearchManager;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,8 +20,6 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
                     MyBookingsFragment.OnListFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener,
-                    FavouritesFragment.OnListFragmentInteractionListener {
+                    FavouritesFragment.OnListFragmentInteractionListener{
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -57,6 +55,8 @@ public class MainActivity extends AppCompatActivity
 
     // Firebase Database
     private DatabaseReference mDatabase;
+
+    //ActionBar actionBar = getActionBar();
 
 
     //BottomNavigation
@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity
 
                 case R.id.navigation_search_fields:
                     transaction.replace(R.id.fragment_container, new SearchFragment());
+                    onSearchRequested();
                     break;
                 case R.id.navigation_favourites_fields:
                     transaction.replace(R.id.fragment_container, new FavouritesFragment());
@@ -210,27 +211,6 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the options menu from XML
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.search_menu, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.search:
-                onSearchRequested();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     @Override
     public void onNewIntent(Intent intent){
@@ -243,10 +223,17 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "You have searched "+query+", isn't it? :)",Toast.LENGTH_LONG).show();
             //TODO: search the query on Firebase
 
+            //creation of SearchFragment with search_query argument
+            SearchFragment searchFragment = new SearchFragment();
+            Bundle args = new Bundle();
+            args.putString(SearchFragment.ARG_SEARCH_QUERY, query);
+            searchFragment.setArguments(args);
+
             // Replace the current fragment with the selected fragment --> showing result in a particular fragment
             FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
-            transaction.replace(R.id.fragment_container, new SearchFragment()).addToBackStack(null);
+            transaction.replace(R.id.fragment_container, searchFragment)
+                    .addToBackStack(null);
             transaction.commit();
 
         }
@@ -307,6 +294,8 @@ public class MainActivity extends AppCompatActivity
 
         notifications.push().setValue(notification);
     }
+
+
 
 
 }
