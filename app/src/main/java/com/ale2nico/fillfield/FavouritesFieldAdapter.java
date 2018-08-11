@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.FavouritesFragment.OnListFragmentInteractionListener;
@@ -74,7 +75,7 @@ public class FavouritesFieldAdapter extends RecyclerView.Adapter<FavouritesField
         public final View fieldView;
 
         // Elements of the card
-        public final ImageButton favoriteImageButton;
+        public final ImageView favoriteImageButton;
         public final TextView fieldPositionTextView;
         public final TextView fieldTitleTextView;
         // TODO: rename these buttons
@@ -88,7 +89,7 @@ public class FavouritesFieldAdapter extends RecyclerView.Adapter<FavouritesField
             super(view);
             // Get references of the 'view' so as to edit their contents later
             fieldView = view;
-            favoriteImageButton = (ImageButton) view.findViewById(R.id.favourite_button);
+            favoriteImageButton = (ImageView) view.findViewById(R.id.heart);
             fieldPositionTextView = (TextView) view.findViewById(R.id.card_field_address);
             fieldTitleTextView = (TextView) view.findViewById(R.id.card_field_name);
             action1Button = (Button) view.findViewById(R.id.action_1_button);

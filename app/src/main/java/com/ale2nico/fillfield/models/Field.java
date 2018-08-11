@@ -31,7 +31,11 @@ public class Field {
     private String closingHour;
 
     // Calendar which contains the reservations of the field
-    private Map<String, TimeTable> calendar;
+    private Map<String, TimeTable> calendar = new HashMap<>();
+
+    // Hearts put by users
+    private int heartsCount = 0;
+    private Map<String, Boolean> hearts = new HashMap<>();
 
     public Field() {
         // Default constructor required for calls to DataSnapshot.getValue(Field.class)
@@ -48,8 +52,7 @@ public class Field {
         this.latitude = latitude;
         this.longitude = longitude;
 
-        // Set calendar and timetables
-        calendar = new HashMap<>();
+        // Set timetables
         this.openingHour = openingHour;
         this.closingHour = closingHour;
     }
@@ -76,6 +79,18 @@ public class Field {
 
     public String getClosingHour() {
         return closingHour;
+    }
+
+    public void setHeartsCount(int heartsCount) {
+        this.heartsCount = heartsCount;
+    }
+
+    public int getHeartsCount() {
+        return heartsCount;
+    }
+
+    public Map<String, Boolean> getHearts() {
+        return hearts;
     }
 
     /**
@@ -156,6 +171,8 @@ public class Field {
         result.put("openingHour", openingHour);
         result.put("closingHour", closingHour);
         result.put("calendar", calendar);
+        result.put("heartsCount", heartsCount);
+        result.put("hearts", hearts);
 
         return result;
     }
