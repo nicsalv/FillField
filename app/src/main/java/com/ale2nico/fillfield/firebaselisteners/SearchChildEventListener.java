@@ -38,6 +38,8 @@ public class SearchChildEventListener implements ChildEventListener {
         double lat = field.getLatitude();
         double lon = field.getLongitude();
 
+        String city = "";
+
         Address locality = null;
 
         List<Address> addresses = null;
@@ -51,14 +53,28 @@ public class SearchChildEventListener implements ChildEventListener {
             e.printStackTrace();
         }
 
-        if (addresses.size() > 0)
+        if (addresses.size() > 0) {
             locality = addresses.get(0);
+            city = locality.getLocality();
+        }
 
-        String city = locality.getLocality();
+        Boolean cityFlag = false;
+
+        if(city != null && searchQuery!=null){
+            city = city.toLowerCase();
+            if(city.contains(searchQuery.toLowerCase()))
+                cityFlag = true;
+            else
+                cityFlag = false;
+
+        }else {
+            cityFlag = false;
+        }
+
 
         //check su query
         if (searchQuery != null) {
-            if (field.getName().toLowerCase().contains(searchQuery.toLowerCase()) || city.toLowerCase().contains(searchQuery.toLowerCase())) {
+            if (field.getName().toLowerCase().contains(searchQuery.toLowerCase()) || cityFlag) {
                 //add the field to results
                 // Update RecyclerView
                 fieldAdapter.getFields().add(field);

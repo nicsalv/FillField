@@ -6,6 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -31,6 +34,8 @@ public class SearchFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private String searchQuery;
+
+    private Boolean flag;
 
 
     // Firebase References
@@ -74,6 +79,9 @@ public class SearchFragment extends Fragment {
 
         if (getArguments() != null) {
             searchQuery = getArguments().getString(ARG_SEARCH_QUERY);
+            flag = true;
+        }else{
+            flag = false;
         }
 
         // Reference to the 'fields' object stored in the database
@@ -89,30 +97,33 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View rootView;
+        View view;
         // Inflate the layout for this fragment
         getActivity().setTitle(getContext().getResources().getString(R.string.search_fragment_title));
 
-        View rootView = inflater.inflate(R.layout.search_result, container, false);
+        if(flag){
+            rootView = inflater.inflate(R.layout.search_result, container, false);
+            view = rootView.findViewById(R.id.result_list);
 
-        View view = rootView.findViewById(R.id.result_list);
+            // Set the adapter
+            if (view instanceof RecyclerView) {
+                Context context = rootView.getContext();
+                mFieldsRecycler = (RecyclerView) view;
+                mFieldsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+                //TODO: build an appropriate listener in order to pass it to the adapter
 
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = rootView.getContext();
-            mFieldsRecycler = (RecyclerView) view;
-            mFieldsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-            //TODO: build an appropriate listener in order to pass it to the adapter
-
-            mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
-            ChildEventListener childEventListener = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext());
-            mFieldAdapter.setChildEventListener(childEventListener);
-            mFieldsRecycler.setAdapter(mFieldAdapter);
+                mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
+                ChildEventListener childEventListener = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext());
+                mFieldAdapter.setChildEventListener(childEventListener);
+                mFieldsRecycler.setAdapter(mFieldAdapter);
 
 
+            }
+
+        }else {
+            rootView = inflater.inflate(R.layout.search_informations, container, false);
         }
-
-
-
 
         return rootView;
     }
@@ -140,13 +151,36 @@ public class SearchFragment extends Fragment {
         super.onStop();
 
         // Clean up fields listeners
-        mFieldAdapter.cleanupListener();
+        if(flag){
+            mFieldAdapter.cleanupListener();
+        }
+
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the options menu from XML
+        inflater.inflate(R.menu.search_menu, menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.search:
+                getActivity().onSearchRequested();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }
