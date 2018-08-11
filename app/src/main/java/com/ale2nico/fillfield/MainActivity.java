@@ -1,11 +1,13 @@
 package com.ale2nico.fillfield;
 
+import android.app.DatePickerDialog;
 import android.app.SearchManager;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,18 +25,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.models.Field;
 import com.firebase.client.Firebase;
+import com.github.tibolte.agendacalendarview.models.CalendarEvent;
+import com.github.tibolte.agendacalendarview.models.DayItem;
+import com.github.tibolte.agendacalendarview.models.WeekItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
@@ -194,26 +203,61 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Field field) {
-        sendNotification("ale2nico.FillField", "Ehi tu!",
-                "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
-                NotificationReceiver.class, 0 , 0);
-        sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        // Send a notification
-        sendNotification("ale2nico.FillField", "Ehi tu!",
-                "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
-                NotificationReceiver.class, 0 , 0);
-        sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
-        Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
-        FieldViewFragment fieldViewFragment = new FieldViewFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fieldViewFragment)
-                .addToBackStack(null)
-                .commit();
+        // Passing to the FieldViewFragment
+        /*
+            FieldViewFragment fieldViewFragment = new FieldViewFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fieldViewFragment)
+                    .addToBackStack(null)
+                    .commit();
+                    */
+
+        // [START] Reservation!!!
+
+        // Set listener for TimePickerDialog
+        final TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                //TODO add reservation!
+                // Send a notification
+                sendNotification("ale2nico.FillField", "Prenotazione",
+                        "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
+                        NotificationReceiver.class, 0, 0);
+                sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
+
+            }
+        };
+
+
+        // Set listener for DatePickerDialog
+        DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                Toast.makeText(MainActivity.this, "Date:" + year + month + dayOfMonth, Toast.LENGTH_SHORT).show();
+
+                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this,
+                        onTimeSetListener, 12, 00,true);
+                timePickerDialog.show();
+            }
+        };
+
+
+        // Creation of calendar for today date and DatePickerDialog
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, 0,
+                onDateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.show();
+
+        //  [END] Reservation!!!
     }
 
     @Override
