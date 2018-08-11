@@ -37,15 +37,10 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
                     MyBookingsFragment.OnListFragmentInteractionListener,
-                    MyFieldsFragment.OnListFragmentInteractionListener,
-                    FavouritesFragment.OnListFragmentInteractionListener{
+                    MyFieldsFragment.OnListFragmentInteractionListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
-
-    // Field list state for the HomeFragment.
-    // Used for tracking the latest scroll position.
-    public static Parcelable homeFragmentListState = null;
 
     // Firebase Authentication
     private FirebaseAuth mAuth;
@@ -84,17 +79,12 @@ public class MainActivity extends AppCompatActivity
             // Replace the current fragment with the selected fragment
             FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
+
             switch (item.getItemId()) {
 
                 case R.id.navigation_home:
-                    // Create a new HomeFragment with the latest scroll position
-                    HomeFragment homeFragment = new HomeFragment();
-                    Bundle args = new Bundle();
-                    args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
-                    homeFragment.setArguments(args);
-
                     // Replace the current fragment in the 'fragment_container'
-                    transaction.replace(R.id.fragment_container, homeFragment);
+                    transaction.replace(R.id.fragment_container, new HomeFragment());
                     break;
 
                 case R.id.navigation_search_fields:
@@ -102,6 +92,7 @@ public class MainActivity extends AppCompatActivity
                     onSearchRequested();
                     break;
                 case R.id.navigation_favourites_fields:
+                    // Replace the current fragment in the 'fragment_container'
                     transaction.replace(R.id.fragment_container, new FavouritesFragment());
                     break;
                 case R.id.navigation_profile:
@@ -156,27 +147,25 @@ public class MainActivity extends AppCompatActivity
             // Then add the fragment to the "fragment_container" FrameLayout
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String choosen = prefs.getString("home_spinner", "Home");
+
             switch (choosen) {
                 case "Home":
-                    // Create a new HomeFragment with the latest scroll position
-                    HomeFragment homeFragment = new HomeFragment();
-                    Bundle args = new Bundle();
-                    args.putParcelable(HomeFragment.ARG_SCROLL_POSITION, homeFragmentListState);
-                    homeFragment.setArguments(args);
+                    // Replace the current fragment in the 'fragment_container'
                     getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, homeFragment).commit();
+                            .add(R.id.fragment_container, new HomeFragment()).commit();
                     navigation.setSelectedItemId(R.id.navigation_home);
                     break;
+
                 case "Search":
                     SearchFragment searchFragment = new SearchFragment();
                     getSupportFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, searchFragment).commit();
                     navigation.setSelectedItemId(R.id.navigation_search_fields);
                     break;
+
                 case "Favourites":
-                    FavouritesFragment favouritesFragment = new FavouritesFragment();
                     getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, favouritesFragment).commit();
+                            .add(R.id.fragment_container, new HomeFragment());
                     navigation.setSelectedItemId(R.id.navigation_favourites_fields);
                     break;
             }
@@ -201,6 +190,7 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
     }
 
+    // TODO: remove this method
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
         // Send a notification

@@ -106,9 +106,9 @@
 
 
     <!-- TODO: Remove or change these placeholder texts -->
-    <string name="home_fragment">Home Fragment</string>
+    <string name="home_fragment_title">Home Fragment</string>
     <string name="search_fragment">Search fragment</string>
-    <string name="favourite_fragment">Favourite fragment</string>
+    <string name="favourite_fragment_title">Favourite Fields</string>
     <string name="profile_fragment">Profile fragment</string>
 
     <!-- Sample text of the cards-->

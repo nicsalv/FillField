@@ -11,7 +11,12 @@ import com.google.firebase.database.DatabaseError;
 
 public class HomeChildEventListener implements ChildEventListener {
 
-    private FieldAdapter fieldAdapter;
+    // The adapter that will look up for the data
+    protected FieldAdapter fieldAdapter;
+
+    public HomeChildEventListener() {
+
+    }
 
     public HomeChildEventListener(FieldAdapter fieldAdapter) {
         this.fieldAdapter = fieldAdapter;

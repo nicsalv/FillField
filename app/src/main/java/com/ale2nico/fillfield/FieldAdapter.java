@@ -42,18 +42,18 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     private List<String> mFieldsIds = new ArrayList<>();
     private List<Field> mFields = new ArrayList<>();
 
+    // Interaction listener passes data to the hosting activity
     private final HomeFragment.OnListFragmentInteractionListener mListener;
 
     public FieldAdapter(DatabaseReference ref,
                         HomeFragment.OnListFragmentInteractionListener listener) {
-
         mDatabaseReference = ref;
         mListener = listener;
-
     }
 
     @Override
-    public FieldViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public FieldViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate the 'field_card' layout inside a view
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.field_card, parent, false);
@@ -63,7 +63,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     }
 
     @Override
-    public void onBindViewHolder(final FieldViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final FieldViewHolder holder, final int position) {
         final String fieldKey = mFieldsIds.get(position);
         Field field = mFields.get(position);
 
@@ -93,7 +93,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(mFields.get(position));
+                    mListener.onListFragmentInteraction(null);
                 }
             }
         });
@@ -103,7 +103,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(mFields.get(position));
+                    mListener.onListFragmentInteraction(null);
                 }
             }
         });
@@ -141,6 +141,23 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
+    }
+
+    public void setChildEventListener(ChildEventListener childEventListener){
+        mChildEventListener = childEventListener;
+        mDatabaseReference.addChildEventListener(childEventListener);
+    }
+
+    public List<String> getFieldsIds() {
+        return mFieldsIds;
+    }
+
+    public List<Field> getFields() {
+        return mFields;
+    }
+
+    public Integer getNumberOfFields(){
+        return mFields.size();
     }
 
     @Override
@@ -201,19 +218,4 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         }
     }
 
-    public void setChildEventListener(ChildEventListener childEventListener){
-        mChildEventListener = childEventListener;
-        mDatabaseReference.addChildEventListener(childEventListener);
-    }
-
-    public List<String> getFieldsIds() {
-        return mFieldsIds;
-    }
-
-    public List<Field> getFields() {
-        return mFields;
-    }
-    public Integer getNumberOfFields(){
-        return mFields.size();
-    }
 }
