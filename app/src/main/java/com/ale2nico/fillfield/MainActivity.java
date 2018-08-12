@@ -1,6 +1,7 @@
 package com.ale2nico.fillfield;
 
-import android.app.AlertDialog;
+import android.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.SearchManager;
 import android.app.AlarmManager;
@@ -25,13 +26,19 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -217,6 +224,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
         // Passing to the FieldViewFragment
         /*
             FieldViewFragment fieldViewFragment = new FieldViewFragment();
@@ -228,43 +236,24 @@ public class MainActivity extends AppCompatActivity
 
         // [START] Reservation!!!
 
-        // Set listener for TimePickerDialog
-        final TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                //TODO add reservation!
-                // Send a notification
-                sendNotification("ale2nico.FillField", "Prenotazione",
-                        "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
-                        NotificationReceiver.class, 0, 0);
-                sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
-
-            }
-        };
-
-
         // Set listener for DatePickerDialog
         DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            public void onDateSet(final DatePicker view, int year, int month, int dayOfMonth) {
                 Toast.makeText(MainActivity.this, "Date:" + year + month + dayOfMonth, Toast.LENGTH_SHORT).show();
-/*
-                //TimePickerDialog
-                TimePickerDialog timePickerDialog = new  TimePickerDialog(MainActivity.this, onTimeSetListener, 12, 00, true);
-                timePickerDialog.show();
-*/
-               // Create dialog for selecting reservation time
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                //TODO save date into reservation event
+
+                // Create dialog for selecting reservation time
+                final AlertDialog.Builder reservationDialogBuilder = new AlertDialog.Builder(MainActivity.this,
+                R.style.Theme_AppCompat_Light_Dialog);
 
                 // [START] Create centered custom title for dialog
                 TextView title = new TextView(MainActivity.this);
                 title.setText(R.string.reservation_time);
-                title.setBackgroundColor(Color.DKGRAY);
-                title.setPadding(10, 10, 10, 10);
                 title.setGravity(Gravity.CENTER);
-                title.setTextColor(Color.WHITE);
                 title.setTextSize(20);
-                dialogBuilder.setCustomTitle(title);
+                title.setTextColor(Color.BLACK);
+                reservationDialogBuilder.setCustomTitle(title);
 
                 // [END] Create centered custom title for dialog
 
@@ -276,33 +265,73 @@ public class MainActivity extends AppCompatActivity
                 // [END] Get all hours
 
                 // [START] TODO remove unavaiable hours, getting them from database
-                // ***Example***Remove unavaiable hours
-                for(int i=11; i<27 ; i=i+2) {
+                // ***Example*** Remove unavaiable hours
+               /* for(int i=11; i<27 ; i=i+2) {
                     int startTime = i;
                     int endTime = startTime + 1;
                     String startTimeString = Integer.toString(startTime);
                     String endTimeString = Integer.toString(endTime);
                     adapter.remove(startTimeString.concat("-").concat(endTimeString));
-                }
+                }*/
                 // [END] TODO remove unavaiable hours, getting them from database
 
 
                 //Set dialog with correct hours
-                dialogBuilder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+
+                // THIS SHOULD KEEP THE DIALOG ACTIVE WITH ONE SELECTED RESERVATION, DOESN'T WORK
+
+                reservationDialogBuilder.setAdapter(adapter, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //TODO add reservation
                         String strName = adapter.getItem(which);
                         Toast.makeText(MainActivity.this, strName, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+               /*
+               //NOT WORKING
+               reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
+
+                    private int colorOrg = 0x00000000;
+                    private int colorSelected = 0xFF00FF00;
+                    private View previousView;
+
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //TODO add reservation
+                        String strName = adapter.getItem(which);
+                        Toast.makeText(MainActivity.this, strName, Toast.LENGTH_SHORT).show();
+                        if(previousView != null) {
+                            previousView.setBackgroundColor(colorOrg);
+                        }
+                        // changing items's BG color
+                        adapter.getView(which, null, view).setBackgroundColor(colorSelected);
+                        previousView = adapter.getView(which, null, view);
+                    }
+                });
+                */
+
+                // Set confirm and cancel button for reservation
+                reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                         //Reservation done, send notification
                         sendNotification("ale2nico.FillField", "Prenotazione",
                                 "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
                                 NotificationReceiver.class, 0, 0);
                         sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
                     }
-                });
+                })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        });
 
-                dialogBuilder.show();
+                // Show the dialog for selecting reservation hour
+                reservationDialogBuilder.show();
             }
         };
 
@@ -417,6 +446,5 @@ public class MainActivity extends AppCompatActivity
 
         notifications.push().setValue(notification);
     }
-
 
 }

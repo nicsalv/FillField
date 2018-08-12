@@ -1,7 +1,7 @@
 <!-- Layout for custom reservation list view -->
 <TextView android:layout_width="match_parent"
+    android:theme="@style/AlertDialog.AppCompat.Light"
     android:layout_height="wrap_content"
-    android:textColor="#111111"
     android:padding="10dp"
     android:textAlignment="center"
     android:textSize="20sp"
