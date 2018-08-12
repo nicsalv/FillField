@@ -305,9 +305,8 @@ public class MainActivity extends AppCompatActivity
                     public void onClick(DialogInterface dialog, int which) {
                         //TODO add reservation
                         ListView listView = ((AlertDialog) dialog).getListView();
-                        listView.setTag(which);
-                        String strName = adapter.getItem(which);
-                        Toast.makeText(MainActivity.this, strName, Toast.LENGTH_SHORT).show();
+                        String reservationTime = adapter.getItem(which);
+                        Toast.makeText(MainActivity.this, reservationTime, Toast.LENGTH_SHORT).show();
                         if(previousView != null) {
                             previousView.setBackgroundColor(colorOrg);
                         }
