@@ -1,5 +1,6 @@
 package com.ale2nico.fillfield;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.SearchManager;
 import android.app.AlarmManager;
@@ -9,8 +10,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -22,10 +25,14 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -40,6 +47,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -239,10 +248,61 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 Toast.makeText(MainActivity.this, "Date:" + year + month + dayOfMonth, Toast.LENGTH_SHORT).show();
-
-                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this,
-                        onTimeSetListener, 12, 00,true);
+/*
+                //TimePickerDialog
+                TimePickerDialog timePickerDialog = new  TimePickerDialog(MainActivity.this, onTimeSetListener, 12, 00, true);
                 timePickerDialog.show();
+*/
+               // Create dialog for selecting reservation time
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+
+                // [START] Create centered custom title for dialog
+                TextView title = new TextView(MainActivity.this);
+                title.setText(R.string.reservation_time);
+                title.setBackgroundColor(Color.DKGRAY);
+                title.setPadding(10, 10, 10, 10);
+                title.setGravity(Gravity.CENTER);
+                title.setTextColor(Color.WHITE);
+                title.setTextSize(20);
+                dialogBuilder.setCustomTitle(title);
+
+                // [END] Create centered custom title for dialog
+
+                // [START] Get all hours
+                String[] array = getApplicationContext().getResources().getStringArray(R.array.hours);
+                ArrayList <String> hours =  new ArrayList<String>(Arrays.asList(array));;
+                final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                            R.layout.reservation_dialog, hours );
+                // [END] Get all hours
+
+                // [START] TODO remove unavaiable hours, getting them from database
+                // ***Example***Remove unavaiable hours
+                for(int i=11; i<27 ; i=i+2) {
+                    int startTime = i;
+                    int endTime = startTime + 1;
+                    String startTimeString = Integer.toString(startTime);
+                    String endTimeString = Integer.toString(endTime);
+                    adapter.remove(startTimeString.concat("-").concat(endTimeString));
+                }
+                // [END] TODO remove unavaiable hours, getting them from database
+
+
+                //Set dialog with correct hours
+                dialogBuilder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //TODO add reservation
+                        String strName = adapter.getItem(which);
+                        Toast.makeText(MainActivity.this, strName, Toast.LENGTH_SHORT).show();
+                        //Reservation done, send notification
+                        sendNotification("ale2nico.FillField", "Prenotazione",
+                                "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
+                                NotificationReceiver.class, 0, 0);
+                        sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
+                    }
+                });
+
+                dialogBuilder.show();
             }
         };
 
