@@ -15,7 +15,6 @@ public class HomeChildEventListener implements ChildEventListener {
     protected FieldAdapter fieldAdapter;
 
     public HomeChildEventListener() {
-
     }
 
     public HomeChildEventListener(FieldAdapter fieldAdapter) {
@@ -23,7 +22,7 @@ public class HomeChildEventListener implements ChildEventListener {
     }
 
     @Override
-    public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
 
         // A new field has been added, add it to the displayed list
         Field field = dataSnapshot.getValue(Field.class);
@@ -35,8 +34,9 @@ public class HomeChildEventListener implements ChildEventListener {
     }
 
     @Override
-    public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
 
+        Log.d("HomeChildEventListener", "onChildChanged");
         // A field has changed, use the key to determine if we are displaying
         // this field and if so displayed the changed field.
         Field changedField = dataSnapshot.getValue(Field.class);
@@ -45,7 +45,7 @@ public class HomeChildEventListener implements ChildEventListener {
         int fieldIndex = fieldAdapter.getFieldsIds().indexOf(fieldKey);
         if (fieldIndex > -1) {
             // Replace with the new data
-            fieldAdapter.getFields().set(fieldIndex,changedField);
+            fieldAdapter.getFields().set(fieldIndex, changedField);
 
             // Update RecyclerView
             fieldAdapter.notifyItemChanged(fieldIndex);
@@ -74,7 +74,7 @@ public class HomeChildEventListener implements ChildEventListener {
     }
 
     @Override
-    public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
         Log.d(FieldAdapter.TAG, "onChildMoved:" + dataSnapshot.getKey());
 
         // Do nothing because we don't expect a field to move position

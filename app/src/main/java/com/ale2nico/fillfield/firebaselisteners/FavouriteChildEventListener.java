@@ -1,5 +1,8 @@
 package com.ale2nico.fillfield.firebaselisteners;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.ale2nico.fillfield.FieldAdapter;
 import com.ale2nico.fillfield.models.Field;
 import com.google.firebase.database.DataSnapshot;
@@ -27,5 +30,31 @@ public class FavouriteChildEventListener extends HomeChildEventListener {
             fieldAdapter.notifyItemInserted(fieldAdapter.getFields().size() - 1);
         }
 
+    }
+
+    @Override
+    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
+        Field field = dataSnapshot.getValue(Field.class);
+
+        // User may have unstarred the field; if so, remove the field from the list.
+        if (!field.getHearts().containsKey(fieldAdapter.getUid())) {
+
+            // Field has changed and it's not starred by the user anymore.
+            // Remove it from the list.
+            String fieldKey = dataSnapshot.getKey();
+
+            int fieldIndex = fieldAdapter.getFieldsIds().indexOf(fieldKey);
+            if (fieldIndex > -1) {
+                // Remove the field
+                fieldAdapter.getFieldsIds().remove(fieldIndex);
+                fieldAdapter.getFields().remove(fieldIndex);
+
+                // Update RecyclerView
+                fieldAdapter.notifyItemRemoved(fieldIndex);
+            } else {
+                Log.w(FieldAdapter.TAG, "onChildChanged:unknown_child:" + fieldKey);
+            }
+
+        }
     }
 }

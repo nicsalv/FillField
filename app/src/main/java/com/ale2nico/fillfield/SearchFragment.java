@@ -22,7 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link SearchFragment.OnFragmentInteractionListener} interface
+ * {@link HomeFragment.OnListFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link SearchFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -114,7 +114,8 @@ public class SearchFragment extends Fragment {
                 //TODO: build an appropriate listener in order to pass it to the adapter
 
                 mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
-                ChildEventListener childEventListener = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext());
+                ChildEventListener childEventListener
+                        = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext());
                 mFieldAdapter.setChildEventListener(childEventListener);
                 mFieldsRecycler.setAdapter(mFieldAdapter);
 

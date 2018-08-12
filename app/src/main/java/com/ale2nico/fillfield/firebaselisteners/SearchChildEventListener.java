@@ -8,27 +8,21 @@ import android.support.annotation.Nullable;
 
 import com.ale2nico.fillfield.FieldAdapter;
 import com.ale2nico.fillfield.models.Field;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-public class SearchChildEventListener implements ChildEventListener {
+public class SearchChildEventListener extends HomeChildEventListener {
 
     private String searchQuery;
-
-    private FieldAdapter fieldAdapter;
-
     private Context context;
 
-    public SearchChildEventListener(String searchQuery, FieldAdapter fieldAdapter,Context context) {
+    public SearchChildEventListener(String searchQuery, FieldAdapter fieldAdapter, Context context) {
         this.searchQuery = searchQuery;
         this.fieldAdapter = fieldAdapter;
         this.context = context;
-
     }
 
     @Override
@@ -84,23 +78,4 @@ public class SearchChildEventListener implements ChildEventListener {
         }
     }
 
-    @Override
-    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-    }
-
-    @Override
-    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-    }
-
-    @Override
-    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-    }
-
-    @Override
-    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-    }
 }
