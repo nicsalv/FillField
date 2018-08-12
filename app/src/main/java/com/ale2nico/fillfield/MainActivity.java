@@ -39,6 +39,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -278,6 +279,7 @@ public class MainActivity extends AppCompatActivity
 
                 //Set dialog with correct hours
 
+                /*
                 // THIS SHOULD KEEP THE DIALOG ACTIVE WITH ONE SELECTED RESERVATION, DOESN'T WORK
 
                 reservationDialogBuilder.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -288,10 +290,10 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(MainActivity.this, strName, Toast.LENGTH_SHORT).show();
                     }
                 });
+*/
 
 
-               /*
-               //NOT WORKING
+               // WORKING
                reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
 
                     private int colorOrg = 0x00000000;
@@ -302,17 +304,19 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //TODO add reservation
+                        ListView listView = ((AlertDialog) dialog).getListView();
+                        listView.setTag(which);
                         String strName = adapter.getItem(which);
                         Toast.makeText(MainActivity.this, strName, Toast.LENGTH_SHORT).show();
                         if(previousView != null) {
                             previousView.setBackgroundColor(colorOrg);
                         }
                         // changing items's BG color
-                        adapter.getView(which, null, view).setBackgroundColor(colorSelected);
-                        previousView = adapter.getView(which, null, view);
+                        listView.getChildAt(which).setBackgroundColor(colorSelected);
+                        previousView = listView.getChildAt(which);
                     }
                 });
-                */
+
 
                 // Set confirm and cancel button for reservation
                 reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
