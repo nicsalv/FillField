@@ -33,6 +33,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -221,13 +222,13 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
         // Passing to the FieldViewFragment
-
+            /*
             FieldViewFragment fieldViewFragment = new FieldViewFragment();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fieldViewFragment)
                     .addToBackStack(null)
                     .commit();
-
+            */
 
         // [START] Reservation!!!
 
@@ -241,7 +242,6 @@ public class MainActivity extends AppCompatActivity
                 // Create dialog for selecting reservation time
                 final AlertDialog.Builder reservationDialogBuilder = new AlertDialog.Builder(MainActivity.this,
                 R.style.Theme_AppCompat_Light_Dialog);
-
                 // [START] Create centered custom title for dialog
                 TextView title = new TextView(MainActivity.this);
                 title.setText(R.string.reservation_time);
@@ -261,13 +261,16 @@ public class MainActivity extends AppCompatActivity
 
                 // [START] TODO remove unavaiable hours, getting them from database
                 // ***Example*** Remove unavaiable hours
-               /* for(int i=11; i<27 ; i=i+2) {
+                /*
+                for(int i=11; i<27 ; i=i+2) {
+
                     int startTime = i;
                     int endTime = startTime + 1;
                     String startTimeString = Integer.toString(startTime);
                     String endTimeString = Integer.toString(endTime);
                     adapter.remove(startTimeString.concat("-").concat(endTimeString));
-                }*/
+                }
+                */
                 // [END] TODO remove unavaiable hours, getting them from database
 
 
@@ -282,16 +285,20 @@ public class MainActivity extends AppCompatActivity
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO add reservation
+
                         ListView listView = ((AlertDialog) dialog).getListView();
+                        //Needed in case of scrolling listView
+                        final int firstListItemPosition = listView.getFirstVisiblePosition();
                         String reservationTime = adapter.getItem(which);
                         Toast.makeText(MainActivity.this, reservationTime, Toast.LENGTH_SHORT).show();
+                        // Select item from list
                         if(previousView != null) {
                             previousView.setBackgroundColor(colorOrg);
                         }
-                        // changing items's BG color
-                        listView.getChildAt(which).setBackgroundColor(colorSelected);
-                        previousView = listView.getChildAt(which);
+
+                        // Change background color of selected item
+                        listView.getChildAt(which-firstListItemPosition).setBackgroundColor(colorSelected);
+                        previousView = listView.getChildAt(which-firstListItemPosition);
                     }
                 });
 
@@ -299,6 +306,7 @@ public class MainActivity extends AppCompatActivity
                 // Set confirm and cancel button for reservation
                 reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        //TODO add reservation
                         //Reservation done, send notification
                         sendNotification("ale2nico.FillField", "Prenotazione",
                                 "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
