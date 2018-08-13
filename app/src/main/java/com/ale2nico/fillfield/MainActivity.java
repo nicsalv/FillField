@@ -26,6 +26,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -54,7 +55,7 @@ import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
-                    MyBookingsFragment.OnListFragmentInteractionListener,
+                    MyReservationsFragment.OnListFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener {
 
     // Request login code
