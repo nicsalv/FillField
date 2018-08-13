@@ -8,5 +8,5 @@
     android:layout_height="match_parent"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
-    tools:context=".MyBookingsFragment"
-    tools:listitem="@layout/booking_card" />
+    tools:context=".MyReservationsFragment"
+    tools:listitem="@layout/reservation_card" />

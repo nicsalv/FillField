@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity"
+            android:noHistory="true"/>
 
         <provider android:name=".MySuggestionProvider"
             android:authorities="com.ale2nico.MySuggestionProvider" />

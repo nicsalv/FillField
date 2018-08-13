@@ -21,28 +21,29 @@
         android:textSize="20sp"/>
 
     <TextView
-        android:id="@+id/booking_time"
+        android:id="@+id/reservation_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/booking_time"
+        android:text="@string/reservation_time"
         android:textSize="20sp"
         android:layout_alignParentEnd="true"/>
 
     <Button
-        android:id="@+id/view_field_button"
+        android:id="@+id/view_map_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/field_name"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:text="@string/view_field"
+        android:text="@string/view_field_map"
         />
     <Button
-        android:id="@+id/share_booking_button"
+        android:id="@+id/cancel_reservation_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/booking_time"
+        android:layout_below="@id/reservation_time"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:text="@string/share"
+        android:textColor="@color/red"
+        android:text="@string/cancel_reservation"
         android:layout_alignParentEnd="true"
         />
 
