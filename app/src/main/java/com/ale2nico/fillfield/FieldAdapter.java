@@ -94,7 +94,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(null);
+                    mListener.onListFragmentInteraction(mFields.get(position),v.getId());
                 }
             }
         });
@@ -104,7 +104,8 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(null);
+
+                    mListener.onListFragmentInteraction(mFields.get(position), v.getId());
                 }
             }
         });
