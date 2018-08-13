@@ -47,6 +47,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     @Override
     public FieldViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Inflate the 'field_card' layout inside a view
+
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.field_card, parent, false);
 
@@ -67,7 +68,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(mFields.get(position));
+                    mListener.onListFragmentInteraction(mFields.get(position),v.getId());
                 }
             }
         });
@@ -77,7 +78,8 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(mFields.get(position));
+
+                    mListener.onListFragmentInteraction(mFields.get(position), v.getId());
                 }
             }
         });

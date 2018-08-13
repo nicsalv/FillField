@@ -43,6 +43,11 @@ public class MainActivity extends AppCompatActivity
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
 
+    //public static final String EXTRA_LAT
+
+    //public static final String EXTRA_LON = null;
+
+
     // Field list state for the HomeFragment.
     // Used for tracking the latest scroll position.
     public static Parcelable homeFragmentListState = null;
@@ -193,12 +198,39 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(Field field) {
+    public void onListFragmentInteraction(Field field, int id) {
+        switch (id){
+            case R.id.action_1_button:
+                Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.action_2_button:
+                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+
+                //Create the bundle
+                Bundle bundle = new Bundle();
+
+                //Add your data to bundle
+                bundle.putDouble("EXTRA_LAT", field.getLatitude());
+                bundle.putDouble("EXTRA_LON", field.getLongitude());
+
+                //Add the bundle to the intent
+                intent.putExtras(bundle);
+
+                //Fire that second activity
+                startActivity(intent);
+
+                //intent.putExtra(EXTRA_LAT,field.getLatitude());
+                //intent.putExtra(EXTRA_LON,field.getLongitude());
+                //startActivity(intent);
+                break;
+
+        }
+
         sendNotification("ale2nico.FillField", "Ehi tu!",
                 "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
                 NotificationReceiver.class, 0 , 0);
         sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
-        Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -209,6 +241,8 @@ public class MainActivity extends AppCompatActivity
                 NotificationReceiver.class, 0 , 0);
         sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
         Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
+
+
     }
 
 
