@@ -165,8 +165,10 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-            // Load initial fragment
-            loadFragmentFromSharedPreferences();
+            // Load initial fragment only if there is a signed-in user
+            if (user != null) {
+                loadFragmentFromSharedPreferences();
+            }
         }
     }
 
