@@ -152,18 +152,16 @@ public class MainActivity extends AppCompatActivity
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         // Place the initial fragment into the activity (the HomeFragment).
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
         if (findViewById(R.id.fragment_container) != null) {
-
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
-            if (savedInstanceState != null) {
-                return;
-            }
 
             // Load initial fragment only if there is a signed-in user
             if (user != null) {
@@ -178,9 +176,6 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
-
-            // Load initial fragment
-            loadFragmentFromSharedPreferences();
         }
     }
 

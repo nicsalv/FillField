@@ -42,7 +42,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import com.ale2nico.fillfield.models.User;
-import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 /**
  * Firebase Authentication using a Google ID Token.
