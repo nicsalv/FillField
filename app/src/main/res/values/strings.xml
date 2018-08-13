@@ -156,6 +156,7 @@
     <string name="reservation_time">Reservation time</string>
     <string name="final_dialog_reservation">Confirm reservation?</string>
     <string name="confirm_reservation">Confirm</string>
+    <string name="sign_in_with_google">Sign in with \n Google </string>
     <string-array name="hours">
 
         <item> 10-11 </item>
