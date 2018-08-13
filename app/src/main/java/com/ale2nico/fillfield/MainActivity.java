@@ -1,6 +1,6 @@
 package com.ale2nico.fillfield;
 
-import android.app.ActionBar;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.SearchManager;
@@ -9,7 +9,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,30 +25,20 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.models.Field;
 import com.firebase.client.Firebase;
-import com.github.tibolte.agendacalendarview.models.CalendarEvent;
-import com.github.tibolte.agendacalendarview.models.DayItem;
-import com.github.tibolte.agendacalendarview.models.WeekItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -64,7 +53,7 @@ import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
-                    MyBookingsFragment.OnListFragmentInteractionListener,
+                    MyReservationsFragment.OnListFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener,
                     FavouritesFragment.OnListFragmentInteractionListener,
                     FieldViewFragment.OnFragmentInteractionListener {
@@ -136,6 +125,10 @@ public class MainActivity extends AppCompatActivity
                 default:
                     return false;
             }
+            FragmentManager fm = getSupportFragmentManager();
+            for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+                fm.popBackStack();
+            }
             transaction.commit();
             return true;
         }
@@ -206,6 +199,7 @@ public class MainActivity extends AppCompatActivity
                     navigation.setSelectedItemId(R.id.navigation_favourites_fields);
                     break;
             }
+
         }
     }
 
@@ -227,13 +221,13 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
         // Passing to the FieldViewFragment
-        /*
+
             FieldViewFragment fieldViewFragment = new FieldViewFragment();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fieldViewFragment)
                     .addToBackStack(null)
                     .commit();
-                    */
+
 
         // [START] Reservation!!!
 
@@ -279,22 +273,7 @@ public class MainActivity extends AppCompatActivity
 
                 //Set dialog with correct hours
 
-                /*
-                // THIS SHOULD KEEP THE DIALOG ACTIVE WITH ONE SELECTED RESERVATION, DOESN'T WORK
-
-                reservationDialogBuilder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //TODO add reservation
-                        String strName = adapter.getItem(which);
-                        Toast.makeText(MainActivity.this, strName, Toast.LENGTH_SHORT).show();
-                    }
-                });
-*/
-
-
-               // WORKING
-               reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
+                reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
 
                     private int colorOrg = 0x00000000;
                     private int colorSelected = 0xFF00FF00;
@@ -449,5 +428,4 @@ public class MainActivity extends AppCompatActivity
 
         notifications.push().setValue(notification);
     }
-
 }

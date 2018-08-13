@@ -127,14 +127,13 @@
     <string name="cancel">Cancel</string>
     <string name="placeholder">Placeholder</string>
     <string name="home_screen">Home Screen:</string>
-    <string name="contact_us">Do you want to add your soccer field? <a href="mailto:fillfield@gmail.com">Contact us!</a></string>
+    <string name="contact_us">Do you want to add your soccer field? <a href="mailto:ale2nico.fillfield@gmail.com">Contact us!</a></string>
     <string name="profile_picture">Profile picture</string>
-    <string name="my_bookings">My bookings</string>
+    <string name="my_reservations">My reservations</string>
     <string name="my_profile">My profile</string>
     <string name="field_name">Field name</string>
-    <string name="booking_time">Booking time</string>
-    <string name="view_field">View field</string>
-    <string name="share">Share</string>
+    <string name="view_field_map">View map</string>
+    <string name="cancel_reservation">Cancel reservation</string>
     <string name="firebase_fillfield_url">https://fillfield-bc48e.firebaseio.com/</string>
     <string name="fillfield">FillField</string>
     <string-array name="home_screen_preference">
@@ -152,8 +151,7 @@
         <item>Electronics Appliances</item>
     </string-array>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="specific_field">Field</string>
     <string name="reservation_time">Reservation time</string>
     <string name="final_dialog_reservation">Confirm reservation?</string>

@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ale2nico.fillfield.MyBookingsFragment.OnListFragmentInteractionListener;
+import com.ale2nico.fillfield.MyReservationsFragment.OnListFragmentInteractionListener;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
 
 import java.util.List;
@@ -15,12 +15,12 @@ import java.util.List;
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyBookingsAdapter extends RecyclerView.Adapter<MyBookingsAdapter.ViewHolder> {
+public class MyReservationsAdapter extends RecyclerView.Adapter<MyReservationsAdapter.ViewHolder> {
 
     private final List<DummyItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyBookingsAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyReservationsAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -28,7 +28,7 @@ public class MyBookingsAdapter extends RecyclerView.Adapter<MyBookingsAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.booking_card, parent, false);
+                .inflate(R.layout.reservation_card, parent, false);
         return new ViewHolder(view);
     }
 

@@ -23,7 +23,7 @@ import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class MyBookingsFragment extends Fragment implements View.OnClickListener {
+public class MyReservationsFragment extends Fragment implements View.OnClickListener {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -33,7 +33,7 @@ public class MyBookingsFragment extends Fragment implements View.OnClickListener
 
     //Parameters
     private TextView fieldNameTextView;
-    private TextView bookingTimeTextView;
+    private TextView reservationTimeTextView;
     private Button viewFieldButton;
     private Button shareBookingButton;
 
@@ -41,13 +41,13 @@ public class MyBookingsFragment extends Fragment implements View.OnClickListener
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public MyBookingsFragment() {
+    public MyReservationsFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static MyBookingsFragment newInstance(int columnCount) {
-        MyBookingsFragment fragment = new MyBookingsFragment();
+    public static MyReservationsFragment newInstance(int columnCount) {
+        MyReservationsFragment fragment = new MyReservationsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -66,8 +66,8 @@ public class MyBookingsFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_mybookings_list, container, false);
-        getActivity().setTitle(getContext().getResources().getString(R.string.my_bookings));
+        View view = inflater.inflate(R.layout.fragment_myreservations_list, container, false);
+        getActivity().setTitle(getContext().getResources().getString(R.string.my_reservations));
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
@@ -77,7 +77,7 @@ public class MyBookingsFragment extends Fragment implements View.OnClickListener
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyBookingsAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyReservationsAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
     }
@@ -86,9 +86,9 @@ public class MyBookingsFragment extends Fragment implements View.OnClickListener
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         fieldNameTextView = getView().findViewById(R.id.field_name);
-        bookingTimeTextView = getView().findViewById(R.id.booking_time);
-        viewFieldButton = getView().findViewById(R.id.view_field_button);
-        shareBookingButton = (Button) getView().findViewById(R.id.share_booking_button);
+        reservationTimeTextView = getView().findViewById(R.id.reservation_time);
+        viewFieldButton = getView().findViewById(R.id.view_map_button);
+        shareBookingButton = (Button) getView().findViewById(R.id.cancel_reservation_button);
     }
 /*
     private void share() {
