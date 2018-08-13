@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity
         // Get Firebase Authentication and set listener on it
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(mAuthListener);
+        user = mAuth.getCurrentUser();
 
         // Get Firebase Database instance
         mDatabase = FirebaseDatabase.getInstance().getReference();
