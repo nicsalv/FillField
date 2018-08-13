@@ -222,14 +222,14 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
         // Passing to the FieldViewFragment
-            /*
-            FieldViewFragment fieldViewFragment = new FieldViewFragment();
+
+           /* FieldViewFragment fieldViewFragment = new FieldViewFragment();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fieldViewFragment)
                     .addToBackStack(null)
                     .commit();
-            */
 
+            */
         // [START] Reservation!!!
 
         // Set listener for DatePickerDialog
