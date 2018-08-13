@@ -117,6 +117,8 @@ public class MainActivity extends AppCompatActivity
                 default:
                     return false;
             }
+
+            // Clear the back stack
             FragmentManager fm = getSupportFragmentManager();
             for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
                 fm.popBackStack();
@@ -163,41 +165,49 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-            // SharedPreferences to load correct fragment
-            // Then add the fragment to the "fragment_container" FrameLayout
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            String choosen = prefs.getString("home_spinner", "Home");
-
-            switch (choosen) {
-                case "Home":
-                    // Replace the current fragment in the 'fragment_container'
-                    getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, new HomeFragment()).commit();
-                    navigation.setSelectedItemId(R.id.navigation_home);
-                    break;
-
-                case "Search":
-                    SearchFragment searchFragment = new SearchFragment();
-                    getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, searchFragment).commit();
-                    navigation.setSelectedItemId(R.id.navigation_search_fields);
-                    break;
-
-                case "Favourites":
-                    getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, new HomeFragment());
-                    navigation.setSelectedItemId(R.id.navigation_favourites_fields);
-                    break;
-            }
+            // Load initial fragment
+            loadFragmentFromSharedPreferences();
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        // Get currently signed-in user
         if (resultCode == RESULT_OK) {
+            // Get currently signed-in user
             user = mAuth.getCurrentUser();
+
+            // Load initial fragment
+            loadFragmentFromSharedPreferences();
+        }
+    }
+
+    private void loadFragmentFromSharedPreferences() {
+        // Get shared preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // If there isn't any preference, load the HomeFragment
+        String chosen = prefs.getString("home_spinner", "Home");
+
+        switch (chosen) {
+            case "Home":
+                // Replace the current fragment in the 'fragment_container'
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, new HomeFragment()).commit();
+                navigation.setSelectedItemId(R.id.navigation_home);
+                break;
+
+            case "Search":
+                SearchFragment searchFragment = new SearchFragment();
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, searchFragment).commit();
+                navigation.setSelectedItemId(R.id.navigation_search_fields);
+                break;
+
+            case "Favourites":
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, new HomeFragment());
+                navigation.setSelectedItemId(R.id.navigation_favourites_fields);
+                break;
         }
     }
 
