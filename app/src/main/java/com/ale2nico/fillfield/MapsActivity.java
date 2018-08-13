@@ -3,7 +3,6 @@ package com.ale2nico.fillfield;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,8 +33,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Extract the data…
         lat = bundle.getDouble("EXTRA_LAT");
         lon = bundle.getDouble("EXTRA_LON");
-
-        Toast.makeText(this, "lat: "+lon+", lon: "+lon, Toast.LENGTH_SHORT).show();
 
     }
 
