@@ -1,5 +1,7 @@
 package com.ale2nico.fillfield;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +17,8 @@ import android.widget.Toast;
 import com.ale2nico.fillfield.HomeFragment.OnListFragmentInteractionListener;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
 import com.ale2nico.fillfield.models.Field;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseError;
@@ -22,6 +26,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +82,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         }
 
         // Bind field to ViewHolder, setting OnClickListener for the heart button
-        holder.bindToField(field, new View.OnClickListener() {
+        holder.bindToField(field, fieldKey, new View.OnClickListener() {
             @Override
             public void onClick(View heartView) {
                 // Ref to the field in the database
@@ -104,7 +110,6 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-
                     mListener.onListFragmentInteraction(mFields.get(position), v.getId());
                 }
             }
@@ -158,10 +163,6 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         return mFields;
     }
 
-    public Integer getNumberOfFields(){
-        return mFields.size();
-    }
-
     @Override
     public int getItemCount() {
         return mFields.size();
@@ -187,6 +188,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         public final TextView heartsCountTextView;
         public final TextView fieldAddressTextView;
         public final TextView fieldNameTextView;
+        public final ImageView fieldImageView;
         // TODO: rename these buttons
         public final Button action1Button;
         public final Button action2Button;
@@ -199,19 +201,62 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             heartsCountTextView = (TextView) view.findViewById(R.id.field_num_hearts);
             fieldAddressTextView = (TextView) view.findViewById(R.id.card_field_address);
             fieldNameTextView = (TextView) view.findViewById(R.id.card_field_name);
+            fieldImageView = (ImageView) view.findViewById(R.id.card_field_image);
             action1Button = (Button) view.findViewById(R.id.action_1_button);
             action2Button = (Button) view.findViewById(R.id.action_2_button);
         }
 
-        public void bindToField(Field field, View.OnClickListener heartClickListener) {
+        public void bindToField(Field field, String fieldKey, View.OnClickListener heartClickListener) {
+            // Download and set the picture of the field (done at first because it can take much time).
+            downloadFieldImage(fieldKey);
+
             fieldNameTextView.setText(field.getName());
             fieldAddressTextView.setText(Double.toString(field.getLatitude()));
+
+            // Show hearts count only if it's greater than zero.
             if (field.getHeartsCount() > 0) {
                 heartsCountTextView.setText(Integer.toString(field.getHeartsCount()));
             }
             // TODO: set all the field's fields
 
             heartImageView.setOnClickListener(heartClickListener);
+        }
+
+        private void downloadFieldImage(String fieldKey) {
+            // Check if the image has already been downloaded
+            if (fieldImageView.getDrawable() != null) {
+                return;
+            }
+
+            // Get reference to the image on the cloud
+            StorageReference fieldImageRef
+                    = FirebaseStorage.getInstance().getReference().child(fieldKey + ".jpg");
+
+            // Declare maximum size for download, otherwise it could fill the memory and
+            // make the app crash.
+            final long ONE_MEGABYTE = 1024 * 1024;
+
+            // Start the image download with the method 'getBytes' and set
+            // it into the ImageView once it has finished.
+            fieldImageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] fieldImageBytes) {
+                    // Generate a bitmap image from the byte array
+                    Bitmap fieldImageBitmap = BitmapFactory
+                            .decodeByteArray(fieldImageBytes, 0, fieldImageBytes.length);
+
+                    // Set the image into the field card after having removed the grey background
+                    fieldImageView.setBackground(null);
+                    fieldImageView.setImageBitmap(fieldImageBitmap);
+                }
+
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("Firebase Cloud Storage",
+                            "A problem occured when trying to fetch image.");
+                }
+            });
         }
 
         @Override
