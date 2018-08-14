@@ -2,6 +2,7 @@ package com.ale2nico.fillfield;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.Fragment;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -372,7 +373,7 @@ public class MainActivity extends AppCompatActivity
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
             suggestions.saveRecentQuery(query, null);
-            //TODO: search the query on Firebase
+            //TODO: search the query on Firebase (alredy made!)
 
             //creation of SearchFragment with search_query argument
             SearchFragment searchFragment = new SearchFragment();
@@ -444,5 +445,40 @@ public class MainActivity extends AppCompatActivity
         notification.put("message", message);
 
         notifications.push().setValue(notification);
+    }
+
+    @Override
+    public void onPause() {
+        // save the instance variables
+        /*
+        SharedPreferences.Editor editor = savedValues.edit();
+        editor.putString("billAmountString", billAmountString);
+        editor.putFloat("tipPercent", tipPercent);
+        editor.commit();
+        */
+
+        //get the actual fragments
+        if (getFragmentManager().getBackStackEntryCount() > 1) {
+            Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
+
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        /*
+        // get the instance variables
+        billAmountString = savedValues.getString("billAmountString", "");
+        tipPercent = savedValues.getFloat("tipPercent", 0.15f);
+
+        // set the bill amount on its widget
+        billAmountEditText.setText(billAmountString);
+
+        // calculate and display
+        calculateAndDisplay();
+        */
+
     }
 }

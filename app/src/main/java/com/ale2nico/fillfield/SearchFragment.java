@@ -11,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.ale2nico.fillfield.firebaselisteners.SearchChildEventListener;
 import com.google.firebase.database.ChildEventListener;
@@ -184,5 +183,6 @@ public class SearchFragment extends Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
 }

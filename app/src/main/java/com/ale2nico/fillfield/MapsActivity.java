@@ -1,9 +1,9 @@
 package com.ale2nico.fillfield;
 
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,7 +37,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lon = bundle.getDouble("EXTRA_LON");
         fieldName = bundle.getString("EXTRA_FIELD_NAME");
 
-        Toast.makeText(this, "Schiaccia sul marker per ottenere le indicazione stradali.", Toast.LENGTH_LONG).show();
+        new AlertDialog.Builder(this).setMessage("Schiaccia sul marker per ottenere le indicazione stradali.")
+                .show();
+
 
     }
 
@@ -51,4 +53,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float zoomLevel = 10.0f;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
     }
+
 }
