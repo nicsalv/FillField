@@ -2,9 +2,12 @@ package com.ale2nico.fillfield;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +31,13 @@ import com.google.firebase.database.FirebaseDatabase;
  * create an instance of this fragment.
  */
 public class SearchFragment extends Fragment {
+
+    // tag for debugging
+    private static final String TAG = "SearchFragment";
+
+    // key for saving the state of the recycler
+    public static final String KEY_RECYCLER_STATE = "RECYCLER_STATE";
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     public static final String ARG_SEARCH_QUERY = "search-query";
@@ -46,6 +56,7 @@ public class SearchFragment extends Fragment {
     // References to layout objects
     private RecyclerView mFieldsRecycler;
     private FieldAdapter mFieldAdapter;
+    private Bundle mFieldsRecyclerState;
     // The layout manager is provided inside the 'onCreateView' method.
     // It depends on the number of column of the list.
 
@@ -142,6 +153,29 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        // Save the state of the RecyclerView
+        mFieldsRecyclerState = new Bundle();
+        if (mFieldsRecycler != null) {
+            mFieldsRecyclerState.putParcelable(KEY_RECYCLER_STATE,
+                    mFieldsRecycler.getLayoutManager().onSaveInstanceState());
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Restore the state of the RecyclerView
+        if (mFieldsRecyclerState != null) {
+            Parcelable recyclerState = mFieldsRecyclerState.getParcelable(KEY_RECYCLER_STATE);
+            mFieldsRecycler.getLayoutManager().onRestoreInstanceState(recyclerState);
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
@@ -155,12 +189,6 @@ public class SearchFragment extends Fragment {
         if(flag){
             mFieldAdapter.cleanupListener();
         }
-
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
 
     }
 

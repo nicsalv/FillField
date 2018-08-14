@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity
 
             case "Favourites":
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, new HomeFragment());
+                        .add(R.id.fragment_container, new HomeFragment()).commit();
                 navigation.setSelectedItemId(R.id.navigation_favourites_fields);
                 break;
         }
