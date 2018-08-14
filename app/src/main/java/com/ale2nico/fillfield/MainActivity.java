@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity
                 //Add your data to bundle
                 bundle.putDouble("EXTRA_LAT", field.getLatitude());
                 bundle.putDouble("EXTRA_LON", field.getLongitude());
+                bundle.putString("EXTRA_FIELD_NAME", field.getName());
 
                 //Add the bundle to the intent
                 intent.putExtras(bundle);

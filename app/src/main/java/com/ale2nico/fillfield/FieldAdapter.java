@@ -1,5 +1,9 @@
 package com.ale2nico.fillfield;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -10,21 +14,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ale2nico.fillfield.HomeFragment.OnListFragmentInteractionListener;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
 import com.ale2nico.fillfield.models.Field;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
@@ -46,6 +51,8 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     // Interaction listener passes data to the hosting activity
     private final HomeFragment.OnListFragmentInteractionListener mListener;
 
+    private Context context;
+
     public FieldAdapter(DatabaseReference ref,
                         HomeFragment.OnListFragmentInteractionListener listener) {
         mDatabaseReference = ref;
@@ -58,6 +65,9 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         // Inflate the 'field_card' layout inside a view
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.field_card, parent, false);
+
+        //save the context
+        this.context = parent.getContext();
 
         // Create a FieldViewHolder that holds the view
         return new FieldViewHolder(view);
@@ -205,7 +215,9 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
         public void bindToField(Field field, View.OnClickListener heartClickListener) {
             fieldNameTextView.setText(field.getName());
-            fieldAddressTextView.setText(Double.toString(field.getLatitude()));
+
+            new DiscoverAddress().execute(field.getLatitude(), field.getLongitude());
+
             if (field.getHeartsCount() > 0) {
                 heartsCountTextView.setText(Integer.toString(field.getHeartsCount()));
             }
@@ -217,6 +229,56 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         @Override
         public String toString() {
             return super.toString() + " '" + fieldNameTextView.getText() + "'";
+        }
+
+
+        class DiscoverAddress extends AsyncTask<Double, Void, String>{
+
+            Double lat;
+            Double lon;
+
+            @Override
+            protected String doInBackground(Double... params) {
+
+                lat = params[0];
+                lon = params[1];
+
+                //A complete address -> addresses[0]
+                String addressLine = null;
+
+                //obtained by splitting addressLine
+                String address = null;
+
+                //Long vector filled by geocoder Object
+                Address locality = null;
+
+                //A list of possible addresses
+                List<Address> addresses = null;
+
+                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+
+                //try to get the location from lat e lon
+                try {
+                    addresses = geocoder.getFromLocation(lat, lon, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (addresses.size() > 0) {
+                    locality = addresses.get(0);
+                    addressLine = locality.getAddressLine(0);
+                    String[] addressLineSplitted = addressLine.split(",");
+                    address = addressLineSplitted[2];
+                }
+
+
+                return address;
+            }
+
+            @Override
+            protected void onPostExecute(String result){
+                fieldAddressTextView.setText(result);
+            }
         }
     }
 

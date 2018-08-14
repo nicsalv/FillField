@@ -3,6 +3,7 @@ package com.ale2nico.fillfield;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,6 +18,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private double lat ;
     private double lon ;
+    private String fieldName ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Extract the data…
         lat = bundle.getDouble("EXTRA_LAT");
         lon = bundle.getDouble("EXTRA_LON");
+        fieldName = bundle.getString("EXTRA_FIELD_NAME");
+
+        Toast.makeText(this, "Schiaccia sul marker per ottenere le indicazione stradali.", Toast.LENGTH_LONG).show();
 
     }
 
@@ -40,10 +45,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
-        // Add a marker in Sydney, Australia, and move the camera.
+        // Add a marker on the field, and move the camera.
         LatLng location = new LatLng(lat, lon);
-        mMap.addMarker(new MarkerOptions().position(location).title("Marker in the field"));
+        mMap.addMarker(new MarkerOptions().position(location).title("Field: "+fieldName));
         float zoomLevel = 10.0f;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
     }
