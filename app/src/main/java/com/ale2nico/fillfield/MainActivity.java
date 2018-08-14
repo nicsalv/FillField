@@ -35,18 +35,27 @@ import android.widget.Toast;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.models.Field;
+import com.ale2nico.fillfield.models.FieldAgenda;
+import com.ale2nico.fillfield.models.TimeTable;
 import com.firebase.client.Firebase;
 import com.github.tibolte.agendacalendarview.models.BaseCalendarEvent;
 import com.github.tibolte.agendacalendarview.models.CalendarEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import org.threeten.bp.LocalTime;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -175,6 +184,18 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
+
+            // [START: inserimento agenda di prova]
+            String k = mDatabase.child("fields").child("-LJcRUY3GIQ-047hBdOS").getKey();
+            FieldAgenda fieldAgenda = new FieldAgenda(k, "08:00", "23:00");
+
+            Map<String, Object> fieldValues = fieldAgenda.toMap();
+
+            Map<String, Object> fieldUpdate = new HashMap<>();
+            fieldUpdate.put("/agenda/" + fieldAgenda.getFieldKey(), fieldValues);
+
+            mDatabase.updateChildren(fieldUpdate);
+            // [END: inserimento campo di prova]
         }
     }
 
@@ -208,25 +229,41 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(Field field, int id) {
+    public void onListFragmentInteraction(final Field field, final String fieldKey, int id) {
         switch (id){
             case R.id.action_1_button:
-                Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();// [START] Reservation!!!
+
+                mDatabase.child("agenda").child(fieldKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue(FieldAgenda.class) == null) {
+                            mDatabase.child("agenda").child(fieldKey)
+                                    .setValue(new FieldAgenda(fieldKey, "08:00", "23:00"));
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
 
                 // Variable for saving reservation details
                 final BaseCalendarEvent[] reservationEvent = new BaseCalendarEvent[1];
+                // This array stores the Date in the first cell, and the Time in the second one
+                final String[] reservationDateTime = new String[2];
 
 
                 // Set listener for DatePickerDialog
                 DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(final DatePicker view, int year, int month, int dayOfMonth) {
-                        Toast.makeText(MainActivity.this, "Date:" + year + month + dayOfMonth, Toast.LENGTH_SHORT).show();
-                        //TODO save date into reservation event
-                        //
+                        // Save the chosen Date in the array
+                        reservationDateTime[0] = getDateFromPicker(year, month, dayOfMonth);
+
                         final Calendar reservationDay = Calendar.getInstance();
                         reservationDay.set(year, month, dayOfMonth);
-                        reservationEvent[0] = new BaseCalendarEvent(reservationDay, "Reservation");
+                        reservationEvent[0] = new BaseCalendarEvent(reservationDay, "FieldAgenda");
                         // Create dialog for selecting reservation time
                         final AlertDialog.Builder reservationDialogBuilder = new AlertDialog.Builder(MainActivity.this,
                                 R.style.Theme_AppCompat_Light_Dialog);
@@ -237,33 +274,16 @@ public class MainActivity extends AppCompatActivity
                         title.setTextSize(20);
                         title.setTextColor(Color.BLACK);
                         reservationDialogBuilder.setCustomTitle(title);
-
                         // [END] Create centered custom title for dialog
 
-                        // [START] Get all hours
-                        String[] array = getApplicationContext().getResources().getStringArray(R.array.hours);
-                        ArrayList <String> hours =  new ArrayList<String>(Arrays.asList(array));;
+                        // [START] Get free hours
+                        List<String> hours = new ArrayList<>();
                         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
-                                R.layout.reservation_dialog, hours );
-                        // [END] Get all hours
-
-                        // [START] TODO remove unavaiable hours, getting them from database
-                        // ***Example*** Remove unavaiable hours
-                /*
-                for(int i=11; i<27 ; i=i+2) {
-
-                    int startTime = i;
-                    int endTime = startTime + 1;
-                    String startTimeString = Integer.toString(startTime);
-                    String endTimeString = Integer.toString(endTime);
-                    adapter.remove(startTimeString.concat("-").concat(endTimeString));
-                }
-                */
-                        // [END] TODO remove unavaiable hours, getting them from database
-
+                                R.layout.reservation_dialog, hours);
+                        getFreeHoursFromDatabase(adapter, hours, fieldKey, reservationDateTime[0]);
+                        // [END] Get free hours
 
                         //Set dialog with correct hours
-
                         reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
 
                             private int colorOrg = 0x00000000;
@@ -273,13 +293,15 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
+                                // User clicked on entry, save the choice
                                 ListView listView = ((AlertDialog) dialog).getListView();
                                 // Needed in case of scrolling listView
                                 final int firstListItemPosition = listView.getFirstVisiblePosition();
-                                String reservationTime = adapter.getItem(which);
 
-                                // Save reservation time
+                                String reservationTime = adapter.getItem(which).toString();
+
+                               /*
+                               // Save reservation time
                                 Calendar startTime = Calendar.getInstance();
                                 startTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(reservationTime.substring(0, 2)));
                                 Calendar endTime = Calendar.getInstance();
@@ -287,18 +309,18 @@ public class MainActivity extends AppCompatActivity
                                 reservationEvent[0].setAllDay(false);
                                 reservationEvent[0].setStartTime(startTime);
                                 reservationEvent[0].setEndTime(endTime);
+                                */
 
 
+                                Toast.makeText(MainActivity.this, Integer.toString(reservationEvent[0].getEndTime().get(Calendar.HOUR_OF_DAY)) , Toast.LENGTH_LONG).show();
 
-                                Toast.makeText(MainActivity.this, reservationEvent[0].toString(), Toast.LENGTH_LONG).show();
-                                Toast.makeText(MainActivity.this, reservationEvent[0].getEndTime().toString() , Toast.LENGTH_LONG).show();
                                 // Select item from list
                                 if(previousView != null) {
                                     previousView.setBackgroundColor(colorOrg);
                                 }
 
                                 // Change background color of selected item
-                                listView.getChildAt(which-firstListItemPosition).setBackgroundColor(colorSelected);
+                                listView.getChildAt(which - firstListItemPosition).setBackgroundColor(colorSelected);
                                 previousView = listView.getChildAt(which-firstListItemPosition);
                             }
                         });
@@ -308,7 +330,7 @@ public class MainActivity extends AppCompatActivity
                         reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 //TODO add reservation and send notification
-                                // Reservation done, send notification
+                                // FieldAgenda done, send notification
                                 sendNotification("ale2nico.FillField", "Prenotazione",
                                         "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
                                         NotificationReceiver.class, 0, 0);
@@ -337,7 +359,7 @@ public class MainActivity extends AppCompatActivity
                 datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
                 datePickerDialog.show();
 
-                //  [END] Reservation!!!
+                //  [END] FieldAgenda!!!
 
                 break;
             case R.id.action_2_button:
@@ -356,9 +378,6 @@ public class MainActivity extends AppCompatActivity
                 //Fire that second activity
                 startActivity(intent);
 
-                //intent.putExtra(EXTRA_LAT,field.getLatitude());
-                //intent.putExtra(EXTRA_LON,field.getLongitude());
-                //startActivity(intent);
                 break;
 
         }
@@ -381,117 +400,6 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.fragment_container, fieldViewFragment)
                     .addToBackStack(null)
                     .commit();
-
-       /*
-       // [START] Reservation!!!
-
-
-        // Set listener for DatePickerDialog
-        DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(final DatePicker view, int year, int month, int dayOfMonth) {
-                Toast.makeText(MainActivity.this, "Date:" + year + month + dayOfMonth, Toast.LENGTH_SHORT).show();
-                //TODO save date into reservation event
-
-                // Create dialog for selecting reservation time
-                final AlertDialog.Builder reservationDialogBuilder = new AlertDialog.Builder(MainActivity.this,
-                R.style.Theme_AppCompat_Light_Dialog);
-                // [START] Create centered custom title for dialog
-                TextView title = new TextView(MainActivity.this);
-                title.setText(R.string.reservation_time);
-                title.setGravity(Gravity.CENTER);
-                title.setTextSize(20);
-                title.setTextColor(Color.BLACK);
-                reservationDialogBuilder.setCustomTitle(title);
-
-                // [END] Create centered custom title for dialog
-
-                // [START] Get all hours
-                String[] array = getApplicationContext().getResources().getStringArray(R.array.hours);
-                ArrayList <String> hours =  new ArrayList<String>(Arrays.asList(array));;
-                final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
-                            R.layout.reservation_dialog, hours );
-                // [END] Get all hours
-
-                // [START] TODO remove unavaiable hours, getting them from database
-                // ***Example*** Remove unavaiable hours
-
-                for(int i=11; i<27 ; i=i+2) {
-
-                    int startTime = i;
-                    int endTime = startTime + 1;
-                    String startTimeString = Integer.toString(startTime);
-                    String endTimeString = Integer.toString(endTime);
-                    adapter.remove(startTimeString.concat("-").concat(endTimeString));
-                }
-
-                // [END] TODO remove unavaiable hours, getting them from database
-
-
-                //Set dialog with correct hours
-
-                reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
-
-                    private int colorOrg = 0x00000000;
-                    private int colorSelected = 0xFF00FF00;
-                    private View previousView;
-
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        ListView listView = ((AlertDialog) dialog).getListView();
-                        //Needed in case of scrolling listView
-                        final int firstListItemPosition = listView.getFirstVisiblePosition();
-                        String reservationTime = adapter.getItem(which);
-                        Toast.makeText(MainActivity.this, reservationTime, Toast.LENGTH_SHORT).show();
-                        // Select item from list
-                        if(previousView != null) {
-                            previousView.setBackgroundColor(colorOrg);
-                        }
-
-                        // Change background color of selected item
-                        listView.getChildAt(which-firstListItemPosition).setBackgroundColor(colorSelected);
-                        previousView = listView.getChildAt(which-firstListItemPosition);
-                    }
-                });
-
-
-                // Set confirm and cancel button for reservation
-                reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //TODO add reservation
-                        //Reservation done, send notification
-                        sendNotification("ale2nico.FillField", "Prenotazione",
-                                "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
-                                NotificationReceiver.class, 0, 0);
-                        sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
-                    }
-                })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User cancelled the dialog
-                            }
-                        });
-
-                // Show the dialog for selecting reservation hour
-                reservationDialogBuilder.show();
-            }
-        };
-
-
-        // Creation of calendar for today date and DatePickerDialog
-        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-        DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, 0,
-                onDateSetListener,
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
-        datePickerDialog.show();
-
-        //  [END] Reservation!!!
-                */
     }
 
 
@@ -575,5 +483,70 @@ public class MainActivity extends AppCompatActivity
         notification.put("message", message);
 
         notifications.push().setValue(notification);
+    }
+
+    public String getDateFromPicker(int year, int month, int dayOfMonth) {
+       String yearStr = Integer.toString(year);
+       String monthStr = month > 9 ? Integer.toString(month) : "0" + Integer.toString(month);
+       String dayofMonthStr = dayOfMonth > 9 ? Integer.toString(dayOfMonth) : "0" + Integer.toString(dayOfMonth);
+
+       return yearStr + "-" + monthStr + "-" + dayofMonthStr;
+    }
+
+    public void getFreeHoursFromDatabase(final ArrayAdapter<String> adapter, final List<String> freeHours, final String fieldKey, final String date) {
+        DatabaseReference mAgendaRef = mDatabase.child("agenda").child(fieldKey);
+
+        mAgendaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                FieldAgenda mFieldAgenda = dataSnapshot.getValue(FieldAgenda.class);
+
+                // All hours are available
+                if (mFieldAgenda.getTimeTable(date) == null) {
+                    freeHours.addAll(buildHoursList(mFieldAgenda.getOpeningHour(),
+                            mFieldAgenda.getClosingHour(), new ArrayList<String>()));
+                }
+                // One or more hours already reserved
+                else {
+                    TimeTable timeTable = mFieldAgenda.getTimeTable(date);
+                    List<String> busyHours = buildBusyHoursList(timeTable);
+                    freeHours.addAll(buildHoursList(timeTable.getOpeningHour(),
+                            timeTable.getClosingHour(), busyHours));
+
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    // Construct free hours for one day
+    public List<String> buildHoursList(String openingHour, String closingHour, List<String> busyHours) {
+        String currentHour = openingHour;
+        List<String> freeHours = new ArrayList<>();
+        while (LocalTime.parse(currentHour).isBefore(LocalTime.parse(closingHour))) {
+            if (busyHours.indexOf(currentHour) == -1) {
+                freeHours.add(currentHour);
+            }
+            currentHour = LocalTime.parse(currentHour).plusHours(1).toString();
+        }
+        return freeHours;
+    }
+
+    public List<String> buildBusyHoursList(TimeTable timeTable) {
+        List<String> busyHours = new ArrayList<>();
+        String currentHour = timeTable.getOpeningHour();
+        while (LocalTime.parse(currentHour).isBefore(LocalTime.parse(timeTable.getClosingHour()))) {
+            if (timeTable.getReservation(currentHour) != null) {
+                busyHours.add(currentHour);
+            }
+            currentHour = LocalTime.parse(currentHour).plusHours(1).toString();
+        }
+        return busyHours;
     }
 }

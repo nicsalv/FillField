@@ -135,7 +135,7 @@ public class HomeFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(Field field, int id);
+        void onListFragmentInteraction(Field field, String fieldKey, int id);
 
     }
 
