@@ -28,9 +28,9 @@
                 android:id="@+id/heart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:background="?attr/selectableItemBackground"
-                app:srcCompat="@drawable/ic_favorite_outline_red_24dp"/>
+                android:padding="10dp"
+                app:srcCompat="@drawable/ic_favorite_outline_red_24dp" />
 
             <TextView
                 android:id="@+id/field_num_hearts"
@@ -57,7 +57,7 @@
             android:layout_marginStart="@dimen/card_text_left_margin"
             android:layout_marginTop="@dimen/card_position_top_margin"
             android:text="@string/card_field_position"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <TextView
             android:id="@+id/card_field_name"
@@ -67,28 +67,53 @@
             android:layout_marginStart="@dimen/card_text_left_margin"
             android:layout_marginTop="@dimen/card_element_top_margin"
             android:text="@string/card_field_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
         <Button
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:id="@+id/action_1_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/card_field_name"
             android:layout_toStartOf="@id/action_2_button"
-            android:text="@string/card_action_1"
-            />
+            android:text="@string/card_reserve" />
 
         <Button
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:id="@+id/action_2_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/card_field_image"
+            android:layout_below="@id/card_field_name"
+            android:text="@string/card_view_map" />
+
+        <TextView
+            android:id="@+id/field_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/card_field_name"
+            android:layout_marginEnd="52dp"
+            android:text="@string/field_price" />
+
+        <TextView
+            android:id="@+id/field_dimen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/card_field_address"
+            android:layout_below="@+id/field_surface"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:text="@string/field_dimen" />
+
+        <TextView
+            android:id="@+id/field_surface"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/card_field_name"
-            android:layout_alignEnd="@id/card_field_image"
-            android:text="@string/card_action_2"
-            />
+            android:layout_alignStart="@+id/card_field_address"
+            android:layout_marginTop="@dimen/calendar_header_height"
+            android:text="@string/field_surface" />
 
     </RelativeLayout>
 

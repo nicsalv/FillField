@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.TimePicker;
 
 import com.github.tibolte.agendacalendarview.AgendaCalendarView;
 import com.github.tibolte.agendacalendarview.CalendarPickerController;
+import com.github.tibolte.agendacalendarview.models.BaseCalendarEvent;
 import com.github.tibolte.agendacalendarview.models.CalendarEvent;
 import com.github.tibolte.agendacalendarview.models.DayItem;
 import com.github.tibolte.agendacalendarview.models.WeekItem;
@@ -74,8 +76,28 @@ public class FieldViewFragment extends Fragment {
         minDate.set(Calendar.DAY_OF_MONTH, 1);
         maxDate.add(Calendar.YEAR, 1);
 
+        // ***Example*** Add event to the list
 
         List<CalendarEvent> eventList = new ArrayList<>();
+        Calendar startTime2 = Calendar.getInstance();
+        Calendar endTime2 = Calendar.getInstance();
+        startTime2.set(Calendar.HOUR_OF_DAY, 18);
+        startTime2.set(Calendar.MINUTE, 0);
+        endTime2.set(Calendar.HOUR_OF_DAY, 19);
+        endTime2.set(Calendar.MINUTE, 0);
+        BaseCalendarEvent event2 = new BaseCalendarEvent("Prenotazione: "+startTime2.get(Calendar.HOUR_OF_DAY) + "-"+endTime2.get(Calendar.HOUR_OF_DAY), "", "Dalvík",
+                ContextCompat.getColor(this.getContext(), R.color.red), startTime2, endTime2, false);
+        eventList.add(event2);
+        Calendar startTime3 = Calendar.getInstance();
+        Calendar endTime3 = Calendar.getInstance();
+        startTime3.set(Calendar.HOUR_OF_DAY, 14);
+        startTime3.set(Calendar.MINUTE, 0);
+        endTime3.set(Calendar.HOUR_OF_DAY, 15);
+        endTime3.set(Calendar.MINUTE, 0);
+        BaseCalendarEvent event3 = new BaseCalendarEvent("Prenotazione: "+startTime3.get(Calendar.HOUR_OF_DAY) + "-"+endTime3.get(Calendar.HOUR_OF_DAY), "", "Dalvík",
+                ContextCompat.getColor(this.getContext(), R.color.red), startTime3, endTime3, false);
+        eventList.add(event3);
+        // ***Example finished***
         //TODO: fill the calendar with the correct reservations for this field
 
         CalendarPickerController calendarPickerController = new CalendarPickerController() {

@@ -101,7 +101,7 @@
     <string name="result_text">Results:</string>
     <string name="string_description">Enter the name of the city you are looking for</string>
     <string name="string_result">Results: </string>
-    <string name="search_info">Enter the name of the field or his location </string>
+    <string name="search_info">Enter the name of the field or its location </string>
     <string name="search_result_number">0</string>
 
 
@@ -115,8 +115,8 @@
     <string name="card_image_description">Picture of the field</string>
     <string name="card_field_position">Location of the field</string>
     <string name="card_field_title">Title of the field</string>
-    <string name="card_action_1">Action 1</string>
-    <string name="card_action_2">Action 2</string>
+    <string name="card_reserve">Reserve</string>
+    <string name="card_view_map">View map</string>
 
 
     <!-- Profile strings -->
@@ -159,6 +159,9 @@
     <string name="final_dialog_reservation">Confirm reservation?</string>
     <string name="confirm_reservation">Confirm</string>
     <string name="sign_in_with_google">Sign in with \n Google </string>
+    <string name="field_price">Field price</string>
+    <string name="field_dimen">Field dimen</string>
+    <string name="field_surface">Field surface</string>
     <string-array name="hours">
 
         <item> 10-11 </item>
