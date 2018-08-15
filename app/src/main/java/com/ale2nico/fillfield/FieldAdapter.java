@@ -168,7 +168,10 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     }
 
     public String getUid() {
+        if (FirebaseAuth.getInstance().getCurrentUser()!= null)
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
+        else
+            return "";
     }
 
     public void cleanupListener() {

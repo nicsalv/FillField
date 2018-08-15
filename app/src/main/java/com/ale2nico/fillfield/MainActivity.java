@@ -149,6 +149,11 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(mAuthListener);
         user = mAuth.getCurrentUser();
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            // Sign-in through the LoginActivity
+            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
+        }
 
         // Get Firebase Database instance
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -178,6 +183,16 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            // Sign-in through the LoginActivity
+            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
+        }
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -469,6 +484,7 @@ public class MainActivity extends AppCompatActivity
         notifications.push().setValue(notification);
     }
 
+    //Convert the date into a string that matches the pattern requested from LocalTime
     public String getDateFromPicker(int year, int month, int dayOfMonth) {
        String yearStr = Integer.toString(year);
        String monthStr = month > 9 ? Integer.toString(month) : "0" + Integer.toString(month);
