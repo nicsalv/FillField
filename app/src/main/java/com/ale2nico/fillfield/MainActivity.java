@@ -233,6 +233,8 @@ public class MainActivity extends AppCompatActivity
         switch (id){
             case R.id.action_1_button:
 
+                // [START] Reservation
+
                 mDatabase.child("agenda").child(fieldKey).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -248,11 +250,8 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-                // Variable for saving reservation details
-                final BaseCalendarEvent[] reservationEvent = new BaseCalendarEvent[1];
                 // This array stores the Date in the first cell, and the Time in the second one
                 final String[] reservationDateTime = new String[2];
-
 
                 // Set listener for DatePickerDialog
                 DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -263,7 +262,6 @@ public class MainActivity extends AppCompatActivity
 
                         final Calendar reservationDay = Calendar.getInstance();
                         reservationDay.set(year, month, dayOfMonth);
-                        reservationEvent[0] = new BaseCalendarEvent(reservationDay, "FieldAgenda");
                         // Create dialog for selecting reservation time
                         final AlertDialog.Builder reservationDialogBuilder = new AlertDialog.Builder(MainActivity.this,
                                 R.style.Theme_AppCompat_Light_Dialog);
@@ -300,21 +298,7 @@ public class MainActivity extends AppCompatActivity
 
                                 String reservationTime = adapter.getItem(which).toString();
 
-                               /*
-                               // Save reservation time
-                                Calendar startTime = Calendar.getInstance();
-                                startTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(reservationTime.substring(0, 2)));
-                                Calendar endTime = Calendar.getInstance();
-                                endTime.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY)+1 );
-                                reservationEvent[0].setAllDay(false);
-                                reservationEvent[0].setStartTime(startTime);
-                                reservationEvent[0].setEndTime(endTime);
-                                */
-
-
-                                Toast.makeText(MainActivity.this, Integer.toString(reservationEvent[0].getEndTime().get(Calendar.HOUR_OF_DAY)) , Toast.LENGTH_LONG).show();
-
-                                // Select item from list
+                                // Change background color of previously selected item
                                 if(previousView != null) {
                                     previousView.setBackgroundColor(colorOrg);
                                 }
@@ -330,7 +314,7 @@ public class MainActivity extends AppCompatActivity
                         reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 //TODO add reservation and send notification
-                                // FieldAgenda done, send notification
+                                // Reservation done, send notification
                                 sendNotification("ale2nico.FillField", "Prenotazione",
                                         "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
                                         NotificationReceiver.class, 0, 0);
@@ -359,7 +343,7 @@ public class MainActivity extends AppCompatActivity
                 datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
                 datePickerDialog.show();
 
-                //  [END] FieldAgenda!!!
+                //  [END] Reservation
 
                 break;
             case R.id.action_2_button:
@@ -500,7 +484,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 FieldAgenda mFieldAgenda = dataSnapshot.getValue(FieldAgenda.class);
-
                 // All hours are available
                 if (mFieldAgenda.getTimeTable(date) == null) {
                     freeHours.addAll(buildHoursList(mFieldAgenda.getOpeningHour(),
@@ -538,6 +521,7 @@ public class MainActivity extends AppCompatActivity
         return freeHours;
     }
 
+    // Detect which hours are already reserved
     public List<String> buildBusyHoursList(TimeTable timeTable) {
         List<String> busyHours = new ArrayList<>();
         String currentHour = timeTable.getOpeningHour();
