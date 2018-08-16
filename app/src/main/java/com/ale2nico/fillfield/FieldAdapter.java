@@ -31,8 +31,12 @@ import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
@@ -50,6 +54,9 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     // List of the fields stored into the database
     private List<String> mFieldsIds = new ArrayList<>();
     private List<Field> mFields = new ArrayList<>();
+
+    // Field images stored as byte array keyed by fieldKey
+    private Map<String, ByteBuffer> mFieldImage = new HashMap<>();
 
     // Interaction listener passes data to the hosting activity
     private final HomeFragment.OnListFragmentInteractionListener mListener;
@@ -102,7 +109,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(mFields.get(position),v.getId());
+                    mListener.onListFragmentInteraction(mFields.get(position), v.getId());
                 }
             }
         });
@@ -152,7 +159,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         });
     }
 
-    public void setChildEventListener(ChildEventListener childEventListener){
+    public void setChildEventListener(ChildEventListener childEventListener) {
         mChildEventListener = childEventListener;
         mDatabaseReference.addChildEventListener(childEventListener);
     }
@@ -235,25 +242,29 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             action2Button = (Button) view.findViewById(R.id.action_2_button);
         }
 
-        public void bindToField(Field field, String fieldKey, View.OnClickListener heartClickListener) {
+        private void bindToField(Field field, String fieldKey, View.OnClickListener heartClickListener) {
             // Download and set the picture of the field (done at first because it can take much time).
-            downloadFieldImage(fieldKey);
+            downloadAndSetFieldImage(fieldKey);
 
             fieldNameTextView.setText(field.getName());
-            fieldAddressTextView.setText(Double.toString(field.getLatitude()));
+            fieldAddressTextView.setText(String
+                    .format(Locale.getDefault(), "%f", field.getLatitude()));
 
             // Show hearts count only if it's greater than zero.
             if (field.getHeartsCount() > 0) {
-                heartsCountTextView.setText(Integer.toString(field.getHeartsCount()));
+                heartsCountTextView.setText(String
+                        .format(Locale.getDefault(), "%d", field.getHeartsCount()));
             }
             // TODO: set all the field's fields
 
             heartImageView.setOnClickListener(heartClickListener);
         }
 
-        private void downloadFieldImage(String fieldKey) {
+        private void downloadAndSetFieldImage(final String fieldKey) {
             // Check if the image has already been downloaded
-            if (fieldImageView.getDrawable() != null) {
+            if (mFieldImage.containsKey(fieldKey)) {
+                // No need to download, just set it into the view
+                setFieldImage(mFieldImage.get(fieldKey).array());
                 return;
             }
 
@@ -270,13 +281,11 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             fieldImageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                 @Override
                 public void onSuccess(byte[] fieldImageBytes) {
-                    // Generate a bitmap image from the byte array
-                    Bitmap fieldImageBitmap = BitmapFactory
-                            .decodeByteArray(fieldImageBytes, 0, fieldImageBytes.length);
+                    // Store the image into the adapter so as to avoid downloading it again
+                    ByteBuffer imageByteBuffer = ByteBuffer.wrap(fieldImageBytes);
+                    mFieldImage.put(fieldKey, imageByteBuffer);
 
-                    // Set the image into the field card after having removed the grey background
-                    fieldImageView.setBackground(null);
-                    fieldImageView.setImageBitmap(fieldImageBitmap);
+                    setFieldImage(fieldImageBytes);
                 }
 
             }).addOnFailureListener(new OnFailureListener() {
@@ -286,6 +295,16 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                             "A problem occured when trying to fetch image.");
                 }
             });
+        }
+
+        private void setFieldImage(byte[] fieldImageBytes) {
+            // Generate a bitmap image from the byte array
+            Bitmap fieldImageBitmap = BitmapFactory
+                    .decodeByteArray(fieldImageBytes, 0, fieldImageBytes.length);
+
+            // Set the image into the field card after having removed the grey background
+            fieldImageView.setBackground(null);
+            fieldImageView.setImageBitmap(fieldImageBitmap);
         }
 
         @Override
