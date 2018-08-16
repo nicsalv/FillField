@@ -1,5 +1,8 @@
 package com.ale2nico.fillfield.models;
 
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.temporal.ChronoUnit;
 
@@ -13,6 +16,7 @@ import java.util.Map;
  * which means that a 9.00-10.00 reservation is ok but
  * a 9.30-10.30 is not.
  */
+@IgnoreExtraProperties
 public class TimeTable {
 
     // Working hours of a specific day.
@@ -26,7 +30,7 @@ public class TimeTable {
     private int hoursAvailable;
 
     // Reservations of the day in the form <time, userId>
-    private Map<String, String> reservations;
+    private Map<String, String> reservations = new HashMap<>();
 
     public TimeTable() {
         // Default constructor required for calls to DataSnapshot.getValue(TimeTable.class)
@@ -35,7 +39,6 @@ public class TimeTable {
     public TimeTable(String openingHour, String closingHour) {
         this.openingHour = openingHour;
         this.closingHour = closingHour;
-        reservations = new HashMap<>();
 
         // Initial calculation of the amount of hours available in this day
         hoursAvailable = LocalTime.parse(closingHour)
@@ -87,10 +90,10 @@ public class TimeTable {
      * there are no hours left in the day; time has already been booked.
      */
     public boolean isReservationTimeFree(String time) {
-        if (!isFull() || !isReservationTimeLegal(time)) {
+        if (isFull() || !isReservationTimeLegal(time)) {
             return false;
         }
-        return reservations.containsKey(time);
+        return !reservations.containsKey(time);
     }
 
     /**
@@ -99,15 +102,13 @@ public class TimeTable {
      * @param userId reservation user
      * @return false if time is not ok (out of working hours bounds).
      */
-    public boolean insertReservation(String time, String userId)
+    public void insertReservation(String time, String userId)
             throws IllegalArgumentException {
         if (!isReservationTimeFree(time)) {
             throw new IllegalArgumentException("time is illegal or reservation not empty.");
         }
         // Insert the reservation into the map
         reservations.put(time, userId);
-
-        return true;
     }
 
     // TODO: retrieve full user, not only his ID
@@ -116,5 +117,16 @@ public class TimeTable {
             throw new IllegalArgumentException("getReservation: Time is illegal.");
         }
         return reservations.get(time);
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("openingHour", openingHour);
+        result.put("closingHour", closingHour);
+        result.put("hoursAvailable", hoursAvailable);
+        result.put("reservations", reservations);
+
+        return result;
     }
 }

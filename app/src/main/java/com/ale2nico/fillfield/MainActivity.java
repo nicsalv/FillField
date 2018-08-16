@@ -18,12 +18,14 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +48,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import org.threeten.bp.LocalTime;
@@ -149,11 +153,6 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(mAuthListener);
         user = mAuth.getCurrentUser();
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            // Sign-in through the LoginActivity
-            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
-        }
 
         // Get Firebase Database instance
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -192,7 +191,7 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
         }
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -200,17 +199,20 @@ public class MainActivity extends AppCompatActivity
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
 
-            // [START: inserimento agenda di prova]
-            String k = mDatabase.child("fields").child("-LJcRUY3GIQ-047hBdOS").getKey();
-            FieldAgenda fieldAgenda = new FieldAgenda(k, "08:00", "23:00");
-
-            Map<String, Object> fieldValues = fieldAgenda.toMap();
-
             Map<String, Object> fieldUpdate = new HashMap<>();
-            fieldUpdate.put("/agenda/" + fieldAgenda.getFieldKey(), fieldValues);
+            Map<String, Object> fieldAgendaUpdate = new HashMap<>();
+            for( int i = 0 ; i < 10 ; i++) {
+                Field field = new Field(user.getUid(), "Campo " + i, 44.0568495d, 8.1641088d, "08:00", "23:00");
+                FieldAgenda fieldAgenda = new FieldAgenda(field.getOpeningHour(), field.getClosingHour());
+                String key = mDatabase.child("fields").push().getKey();
+                Map<String, Object> fieldValues = field.toMap();
+                Map<String, Object> fieldAgendaValues = fieldAgenda.toMap();
 
+                fieldUpdate.put("/fields/" + key, fieldValues);
+                fieldAgendaUpdate.put("/agenda/" + key, fieldAgendaValues);
+            }
             mDatabase.updateChildren(fieldUpdate);
-            // [END: inserimento campo di prova]
+            mDatabase.updateChildren(fieldAgendaUpdate);
         }
     }
 
@@ -249,13 +251,13 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_1_button:
 
                 // [START] Reservation
-
-                mDatabase.child("agenda").child(fieldKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                final DatabaseReference mFieldAgendaRef = mDatabase.child("agenda").child(fieldKey);
+                mFieldAgendaRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue(FieldAgenda.class) == null) {
                             mDatabase.child("agenda").child(fieldKey)
-                                    .setValue(new FieldAgenda(fieldKey, "08:00", "23:00"));
+                                    .setValue(new FieldAgenda(field.getOpeningHour(), field.getClosingHour()));
                         }
                     }
 
@@ -273,7 +275,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onDateSet(final DatePicker view, int year, int month, int dayOfMonth) {
                         // Save the chosen Date in the array
-                        reservationDateTime[0] = getDateFromPicker(year, month, dayOfMonth);
+                        reservationDateTime[0] = getDateFromPicker(year, month + 1, dayOfMonth);
 
                         final Calendar reservationDay = Calendar.getInstance();
                         reservationDay.set(year, month, dayOfMonth);
@@ -311,8 +313,7 @@ public class MainActivity extends AppCompatActivity
                                 // Needed in case of scrolling listView
                                 final int firstListItemPosition = listView.getFirstVisiblePosition();
 
-                                String reservationTime = adapter.getItem(which).toString();
-
+                                reservationDateTime[1] = adapter.getItem(which).toString();
                                 // Change background color of previously selected item
                                 if(previousView != null) {
                                     previousView.setBackgroundColor(colorOrg);
@@ -329,6 +330,11 @@ public class MainActivity extends AppCompatActivity
                         reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 //TODO add reservation and send notification
+                                // Get reservation data
+                                String date = reservationDateTime[0];
+                                String time = reservationDateTime[1];
+                                onInsertedReservation(mFieldAgendaRef, date, time, user.getUid());
+
                                 // Reservation done, send notification
                                 sendNotification("ale2nico.FillField", "Prenotazione",
                                         "Non te lo prenoto quel campo, maledetto", getApplicationContext(), this.getClass(),
@@ -548,5 +554,29 @@ public class MainActivity extends AppCompatActivity
             currentHour = LocalTime.parse(currentHour).plusHours(1).toString();
         }
         return busyHours;
+    }
+
+    public void onInsertedReservation(final DatabaseReference fieldAgendaRef, final String date, final String time, final String userId) {
+        fieldAgendaRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                FieldAgenda fieldAgenda = mutableData.getValue(FieldAgenda.class);
+                if (fieldAgenda == null) {
+                    return Transaction.success(mutableData);
+                }
+
+                // Insert reservation data
+                fieldAgenda.insertReservation(date, time, userId);
+
+                mutableData.setValue(fieldAgenda);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                Log.d("INSERT RESERVATION", "postTransaction:onComplete:" + databaseError);
+            }
+        });
     }
 }

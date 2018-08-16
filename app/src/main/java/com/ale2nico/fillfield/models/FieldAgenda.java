@@ -3,6 +3,7 @@ package com.ale2nico.fillfield.models;
 import android.util.Log;
 
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
@@ -11,10 +12,8 @@ import org.threeten.bp.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+@IgnoreExtraProperties
 public class FieldAgenda {
-
-    // Key of the field stored in the database
-    private String fieldKey;
 
     // Calendar which contains the reservations of the field
     private Map<String, TimeTable> calendar = new HashMap<>();
@@ -27,14 +26,9 @@ public class FieldAgenda {
         // Default constructor required for calls to DataSnapshot.getValue(FieldAgenda.class)
     }
 
-    public FieldAgenda(String fieldKey, String openingHour, String closingHour) {
-        this.fieldKey = fieldKey;
+    public FieldAgenda(String openingHour, String closingHour) {
         this.openingHour = openingHour;
         this.closingHour = closingHour;
-    }
-
-    public String getFieldKey() {
-        return fieldKey;
     }
 
     public String getOpeningHour() {
@@ -45,6 +39,10 @@ public class FieldAgenda {
         return closingHour;
     }
 
+    public Map<String, TimeTable> getCalendar() {
+        return calendar;
+    }
+
     /**
      * A date is legal if it's not in the past.
      *
@@ -53,7 +51,7 @@ public class FieldAgenda {
      */
     public boolean isDateLegal(String date) {
         LocalDate reservationDate = LocalDate.parse(date);
-        return !reservationDate.isBefore(LocalDate.now());
+        return true;
     }
 
     /**
@@ -111,14 +109,13 @@ public class FieldAgenda {
             // On this day the field is completely free (so far)
             TimeTable timeTable = new TimeTable(openingHour, closingHour);
             timeTable.insertReservation(time, userId);
-
+            calendar.put(date, timeTable);
         }
     }
 
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("fieldKey", fieldKey);
         result.put("calendar", calendar);
         result.put("openingHour", openingHour);
         result.put("closingHour", closingHour);
