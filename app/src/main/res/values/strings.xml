@@ -118,6 +118,8 @@
     <string name="card_action_1">Action 1</string>
     <string name="card_action_2">Action 2</string>
 
+    <string name="field_list_empty">There aren\'t any fields to show.</string>
+
 
     <!-- Profile strings -->
     <string name="my_fields">My fields</string>

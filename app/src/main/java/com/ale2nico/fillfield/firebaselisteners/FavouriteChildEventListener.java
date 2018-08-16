@@ -54,7 +54,6 @@ public class FavouriteChildEventListener extends HomeChildEventListener {
             } else {
                 Log.w(FieldAdapter.TAG, "onChildChanged:unknown_child:" + fieldKey);
             }
-
         }
     }
 }

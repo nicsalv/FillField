@@ -29,6 +29,8 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,6 +177,33 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     public void cleanupListener() {
         if (mChildEventListener != null) {
             mDatabaseReference.removeEventListener(mChildEventListener);
+        }
+    }
+
+    public class FieldAdapterObserver extends RecyclerView.AdapterDataObserver {
+
+        // Layout that contains the empty text
+        private View layoutView;
+
+        public FieldAdapterObserver(View layoutView) {
+            this.layoutView = layoutView;
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            // Hide the empty view
+            TextView emptyViewText = layoutView.findViewById(R.id.field_list_empty_text_view);
+            emptyViewText.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            // Show empty view if there are no fields left in the list
+            if (getItemCount() == 0) {
+                TextView emptyTextView = (TextView) layoutView
+                        .findViewById(R.id.field_list_empty_text_view);
+                emptyTextView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
