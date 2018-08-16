@@ -33,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.models.Field;
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+
     }
 
     @Override
@@ -187,6 +189,25 @@ public class MainActivity extends AppCompatActivity
             // Sign-in through the LoginActivity
             Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
             startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Opening "My Reservations" if user clicked on Notification Reminder
+        if (user != null && getIntent().getStringExtra("reservationsFragment") != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            // Load profile fragment
+            fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
+            navigation.setSelectedItemId(R.id.navigation_profile);
+            // Load My reservations fragment
+            MyReservationsFragment myReservationsFragment = new MyReservationsFragment();
+            fragmentTransaction.replace(R.id.fragment_container, myReservationsFragment)
+                    .addToBackStack(null).commit();
+
+
         }
     }
 
@@ -341,10 +362,12 @@ public class MainActivity extends AppCompatActivity
                                 long reservationTimeMillis = reservationDate.getTime();
                                 // Send the notification one hour before the reservation
                                 long delay = (reservationTimeMillis - 60*60*1000 ) - currentTimeMillis;
-                                sendNotificationReminder("ale2nico.FillField", Integer.toString(R.string.remember_reservation),
-                                        Integer.toString(R.string.remember_reservation_text), getApplicationContext(), this.getClass(),
-                                        NotificationReceiver.class, delay, 0);
-                                sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
+                                if (delay > 0) {
+                                    sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
+                                            getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
+                                            NotificationReceiver.class, delay, 0);
+                                }
+                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT);
                             }
                         })
                                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -391,11 +414,6 @@ public class MainActivity extends AppCompatActivity
                 break;
 
         }
-
-        sendNotificationReminder("ale2nico.FillField", "Ehi tu!",
-                "Non avrai mica cliccato quel bottone.....", getApplicationContext(), this.getClass(),
-                NotificationReceiver.class, 0 , 0);
-        sendNotificationToUser("bozzi.ale96@gmail.com", "Ciao");
 
     }
 
@@ -456,15 +474,19 @@ public class MainActivity extends AppCompatActivity
                 .setContentTitle(contentTitle)
                 .setContentText(contentText)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setWhen(System.currentTimeMillis() + delay)
                 .setAutoCancel(true);
         //[END] Create notification and its settings
 
         // Intent related to current context and class
-        Intent intent = new Intent(packageContext, classContext)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent intent = new Intent(packageContext, classContext);
+        intent.putExtra("reservationsFragment", "myReservationsFragment");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
 
         // Pending intent for setting notification
-        PendingIntent activityIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent activityIntent = PendingIntent.getActivity(this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(activityIntent);
 
         // Build Notification
@@ -475,6 +497,7 @@ public class MainActivity extends AppCompatActivity
         Intent notificationIntent = new Intent(packageContext, notificationReceiver);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, notificationId);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION, notification);
+        notificationIntent.putExtra("reservationsFragment", "myReservationsFragment");
 
         // PendingIntent and AlarmManager for scheduling the notification at a specific time
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);

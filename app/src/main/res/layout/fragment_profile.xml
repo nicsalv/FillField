@@ -75,7 +75,7 @@
             android:background="@android:color/darker_gray"/>
 
         <TextView
-            android:id="@+id/my_bookings"
+            android:id="@+id/my_reservations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Base.Theme.AppCompat.Light"
