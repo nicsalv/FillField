@@ -181,7 +181,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
                                 .requestEmail()
                                 .build())
                         .signOut();
-                getActivity().finish();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
