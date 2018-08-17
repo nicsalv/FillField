@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -44,6 +45,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     private Spinner homeSpinner;
     private SharedPreferences savedValues;
     private TextView contactUs;
+    private ImageView backgroundImageView;
 
     // For pre-Lollipop devices
     private TextView myFields;
@@ -82,6 +84,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         nameSurname = (TextView) getView().findViewById((R.id.name_surname));
         nameSurname.setText(user.getDisplayName());
         profileImage = (CircleImageView) getView().findViewById(R.id.profile_image);
+        backgroundImageView = (ImageView) view.findViewById(R.id.profile_background);
 
         //Contact us
         contactUs = (TextView) getView().findViewById(R.id.contact_us);
@@ -99,6 +102,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         myFields.setOnClickListener(this);
         myBookings.setOnClickListener(this);
         settings.setOnClickListener(this);
+
+        // Set the background image
+        Glide.with(this)
+                .load(R.drawable.background_profile)
+                .into(backgroundImageView);
 
         //User's image for profile pic
         Glide.with(this)

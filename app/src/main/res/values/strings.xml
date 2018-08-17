@@ -118,6 +118,8 @@
     <string name="card_reserve">Reserve</string>
     <string name="card_view_map">View map</string>
 
+    <string name="field_list_empty">There aren\'t any fields to show.</string>
+
 
     <!-- Profile strings -->
     <string name="my_fields">My fields</string>

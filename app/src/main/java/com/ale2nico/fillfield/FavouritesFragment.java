@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
@@ -28,6 +29,9 @@ public class FavouritesFragment extends HomeFragment {
 
     private static final String TAG = "FavouritesFragment";
 
+    // Reference to the adapter observer
+    FieldAdapter.FieldAdapterObserver fieldAdapterObserver;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -40,24 +44,30 @@ public class FavouritesFragment extends HomeFragment {
                              Bundle savedInstanceState) {
 
         // Inflate fragment layout
-        View view = inflater.inflate(R.layout.fragment_field_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
 
-        // Initializing the layout
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
+        // Initializing RecyclerView and its layout
+        mFieldsRecycler = view.findViewById(R.id.list);
+        mFieldsRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-            // Initializing RecyclerView and its layout
-            mFieldsRecycler = (RecyclerView) view;
-            mFieldsRecycler.setLayoutManager(new LinearLayoutManager(context));
+        // Initializing adapter
+        mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
 
-            // Initializing adapter with listener
-            mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
-            ChildEventListener favoriteChildEventListener
-                    = new FavouriteChildEventListener(mFieldAdapter);
-            mFieldAdapter.setChildEventListener(favoriteChildEventListener);
+        // Register an observer for the adapter
+        fieldAdapterObserver = mFieldAdapter.new FieldAdapterObserver(view);
+        mFieldAdapter.registerAdapterDataObserver(fieldAdapterObserver);
 
-            // Set the adapter for the recycler
-            mFieldsRecycler.setAdapter(mFieldAdapter);
+        // Attach a listener to the adapter for communicating with Firebase
+        ChildEventListener favoriteChildEventListener
+                = new FavouriteChildEventListener(mFieldAdapter);
+        mFieldAdapter.setChildEventListener(favoriteChildEventListener);
+
+        // Set the adapter for the recycler
+        mFieldsRecycler.setAdapter(mFieldAdapter);
+
+        // Initial check in order to show empty view if there are no favourite fields.
+        if (isFavouriteListEmpty()) {
+            showEmptyView(view);
         }
 
         return view;
@@ -70,5 +80,22 @@ public class FavouritesFragment extends HomeFragment {
         // Set the appbar title
         getActivity().setTitle(getContext()
                 .getResources().getString(R.string.favourite_fragment_title));
+    }
+
+    @Override
+    public void onStop() {
+        // Unregister the adapter observer
+        mFieldAdapter.unregisterAdapterDataObserver(fieldAdapterObserver);
+
+        super.onStop();
+    }
+
+    private boolean isFavouriteListEmpty() {
+        return mFieldAdapter.getItemCount() == 0;
+    }
+
+    private void showEmptyView(View rootView) {
+        TextView emptyTextView = (TextView) rootView.findViewById(R.id.field_list_empty_text_view);
+        emptyTextView.setVisibility(View.VISIBLE);
     }
 }

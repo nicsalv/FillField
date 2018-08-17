@@ -13,7 +13,6 @@
         android:id="@+id/profile_background"
         android:layout_width="match_parent"
         android:layout_height="240sp"
-        android:src="@drawable/background_profile"
         android:scaleType="centerCrop"
         android:contentDescription="@string/profile_picture"
         />
