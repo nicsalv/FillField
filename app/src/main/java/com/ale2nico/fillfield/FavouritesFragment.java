@@ -47,7 +47,7 @@ public class FavouritesFragment extends HomeFragment {
         View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
 
         // Initializing RecyclerView and its layout
-        mFieldsRecycler = view.findViewById(R.id.list);
+        mFieldsRecycler = view.findViewById(R.id.favourite_fields_list);
         mFieldsRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // Initializing adapter
@@ -95,7 +95,7 @@ public class FavouritesFragment extends HomeFragment {
     }
 
     private void showEmptyView(View rootView) {
-        TextView emptyTextView = (TextView) rootView.findViewById(R.id.field_list_empty_text_view);
+        TextView emptyTextView = (TextView) rootView.findViewById(R.id.favourite_fields_empty_view);
         emptyTextView.setVisibility(View.VISIBLE);
     }
 }

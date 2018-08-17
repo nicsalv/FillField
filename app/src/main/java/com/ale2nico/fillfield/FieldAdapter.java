@@ -211,7 +211,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
             // Hide the empty view
-            TextView emptyViewText = layoutView.findViewById(R.id.field_list_empty_text_view);
+            TextView emptyViewText = layoutView.findViewById(R.id.favourite_fields_empty_view);
             emptyViewText.setVisibility(View.GONE);
         }
 
@@ -220,7 +220,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             // Show empty view if there are no fields left in the list
             if (getItemCount() == 0) {
                 TextView emptyTextView = (TextView) layoutView
-                        .findViewById(R.id.field_list_empty_text_view);
+                        .findViewById(R.id.favourite_fields_empty_view);
                 emptyTextView.setVisibility(View.VISIBLE);
             }
         }

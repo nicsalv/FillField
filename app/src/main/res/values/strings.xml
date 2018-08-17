@@ -117,9 +117,11 @@
     <string name="card_field_title">Title of the field</string>
     <string name="card_reserve">Reserve</string>
     <string name="card_view_map">View map</string>
+    <string name="view_reservations_button">Reservations</string>
 
+    <!-- Empty view text displayed when there are no fields to show. -->
     <string name="field_list_empty">There aren\'t any fields to show.</string>
-
+    <string name="my_fields_empty">It seems you don\'t own any fields.</string>
 
     <!-- Profile strings -->
     <string name="my_fields">My fields</string>

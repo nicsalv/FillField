@@ -65,8 +65,8 @@ import java.util.TimeZone;
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
                     MyReservationsFragment.OnListFragmentInteractionListener,
-                    MyFieldsFragment.OnListFragmentInteractionListener,
-                    FieldViewFragment.OnFragmentInteractionListener {
+                    FieldViewFragment.OnFragmentInteractionListener,
+        MyFieldsFragment.OnReservationsButtonClickedListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -624,5 +624,10 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
         return convertedDate;
+    }
+
+    @Override
+    public void onReservationsButtonClicked(String fieldKey) {
+        // Start correct fragment to show reservations
     }
 }
