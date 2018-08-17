@@ -69,6 +69,16 @@
         </activity>
 
         <receiver android:name=".NotificationReceiver"/>
+        <receiver
+            android:name=".ServiceReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name=".RestartService" />
+            </intent-filter>
+        </receiver>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB58OmlW7yIXR--pf3dE5djLqEVI0UqujY"/>
