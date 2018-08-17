@@ -162,6 +162,9 @@
     <string name="field_price">Field price</string>
     <string name="field_dimen">Field dimen</string>
     <string name="field_surface">Field surface</string>
+    <string name="remember_reservation"><b>Remember your reservation!</b></string>
+    <string name="remember_reservation_text">Your reservation is in an hour</string>
+    <string name="reservation_success">Reservation made successfully</string>
     <string-array name="hours">
 
         <item> 10-11 </item>

@@ -89,7 +89,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
 
         // For pre-Lollipop devices
         myFields = getView().findViewById(R.id.my_fields);
-        myBookings = getView().findViewById(R.id.my_bookings);
+        myBookings = getView().findViewById(R.id.my_reservations);
         settings = getView().findViewById(R.id.settings);
         myFields.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fields_icon), null, null, null);
         myBookings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_book_black_24dp), null, null, null);
@@ -134,7 +134,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, myFieldsFragment).addToBackStack(null).commit();
                 break;
-            case R.id.my_bookings:
+            case R.id.my_reservations:
                 MyReservationsFragment myReservationsFragment = new MyReservationsFragment();
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, myReservationsFragment).addToBackStack(null).commit();
