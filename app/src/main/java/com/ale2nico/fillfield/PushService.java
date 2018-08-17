@@ -2,7 +2,6 @@ package com.ale2nico.fillfield;
 
 import android.app.AlarmManager;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -32,11 +31,11 @@ public class PushService extends Service {
     }
     @Override
     public int onStartCommand(Intent intent,  int flags, int startId) {
-        retrivemsg();
+        onReservationAdded();
         return START_STICKY;
     }
 
-    public void retrivemsg() {
+    public void onReservationAdded() {
         // Reference to the agenda table
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("agenda");
         databaseReference.addChildEventListener(new ChildEventListener() {
@@ -95,6 +94,7 @@ public class PushService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        // Restart service
         Intent broadcastIntent = new Intent(".RestartService");
         sendBroadcast(broadcastIntent);
     }

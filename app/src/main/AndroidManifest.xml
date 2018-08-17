@@ -90,7 +90,8 @@
             android:required="false" />
 
 
-        <service android:name=".PushService" />
+        <service android:name=".PushService"
+            android:enabled="true"/>
     </application>
 
 

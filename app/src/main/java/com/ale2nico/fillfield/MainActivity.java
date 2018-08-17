@@ -164,6 +164,18 @@ public class MainActivity extends AppCompatActivity
             notificationManager.createNotificationChannel(channel);
         }
 
+        // Start notification push service
+        startService(new Intent(this, PushService.class));
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Stop the service: this cause the Broadcast receiver to restart service
+        stopService(new Intent(this, PushService.class));
+        Log.i("MAINACT", "onDestroy!");
+        super.onDestroy();
+
     }
 
     @Override
@@ -229,8 +241,6 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack(null).commit();
 
         }
-
-        startService(new Intent(this, PushService.class));
     }
 
     @Override
@@ -239,21 +249,6 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
-
-            Map<String, Object> fieldUpdate = new HashMap<>();
-            Map<String, Object> fieldAgendaUpdate = new HashMap<>();
-            for( int i = 0 ; i < 10 ; i++) {
-                Field field = new Field(user.getUid(), "Campo " + i, 44.0568495d, 8.1641088d, "08:00", "23:00");
-                FieldAgenda fieldAgenda = new FieldAgenda(field.getOpeningHour(), field.getClosingHour());
-                String key = mDatabase.child("fields").push().getKey();
-                Map<String, Object> fieldValues = field.toMap();
-                Map<String, Object> fieldAgendaValues = fieldAgenda.toMap();
-
-                fieldUpdate.put("/fields/" + key, fieldValues);
-                fieldAgendaUpdate.put("/agenda/" + key, fieldAgendaValues);
-            }
-            mDatabase.updateChildren(fieldUpdate);
-            mDatabase.updateChildren(fieldAgendaUpdate);
         }
     }
 
