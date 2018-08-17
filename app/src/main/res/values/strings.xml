@@ -122,6 +122,9 @@
     <string name="field_list_empty">There aren\'t any fields to show.</string>
     <string name="my_fields_empty">It seems you don\'t own any fields.</string>
 
+    <!-- Text of the button inside the owner reservation list -->
+    <string name="contact_button">Contact</string>
+
     <!-- Profile strings -->
     <string name="my_fields">My fields</string>
     <string name="settings">Settings</string>
@@ -184,5 +187,8 @@
         <item> 22-23 </item>
         <item> 23-00 </item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
