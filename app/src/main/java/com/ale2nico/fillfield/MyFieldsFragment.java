@@ -2,12 +2,14 @@ package com.ale2nico.fillfield;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -15,8 +17,10 @@ import android.widget.TextView;
  */
 public class MyFieldsFragment extends Fragment {
 
+    // Get fields on Firebase and display them into the fragment
     private MyFieldsAdapter myFieldsAdapter;
 
+    // Instance of the hosting activity
     private OnReservationsButtonClickedListener mListener;
 
     /**
@@ -37,20 +41,27 @@ public class MyFieldsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.my_fields_list, container, false);
 
+        // Reference to the progress bar
+        ProgressBar progressBar = view.findViewById(R.id.load_field_progress_bar);
+
         // Initializing RecyclerView and its layout
         RecyclerView mFieldsRecycler = view.findViewById(R.id.my_fields_list);
         mFieldsRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // Initializing adapter
-        myFieldsAdapter = new MyFieldsAdapter(getContext(), mListener);
+        myFieldsAdapter = new MyFieldsAdapter(getContext(), mListener, view, progressBar);
         mFieldsRecycler.setAdapter(myFieldsAdapter);
 
-        // Initial check in order to show empty view if there are no favourite fields.
-        if (isFavouriteListEmpty()) {
-            showEmptyView(view);
-        }
-
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // Set the appbar title
+        getActivity().setTitle(getContext()
+                .getResources().getString(R.string.my_fields_title));
     }
 
     @Override
@@ -68,15 +79,6 @@ public class MyFieldsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    private boolean isFavouriteListEmpty() {
-        return myFieldsAdapter.getItemCount() == 0;
-    }
-
-    private void showEmptyView(View rootView) {
-        TextView emptyTextView = (TextView) rootView.findViewById(R.id.my_fields_list_empty_view);
-        emptyTextView.setVisibility(View.VISIBLE);
     }
 
     public interface OnReservationsButtonClickedListener {

@@ -104,12 +104,11 @@
     <string name="search_info">Enter the name of the field or its location </string>
     <string name="search_result_number">0</string>
 
-
-    <!-- TODO: Remove or change these placeholder texts -->
-    <string name="home_fragment_title">Home Fragment</string>
-    <string name="search_fragment">Search fragment</string>
+    <!-- Fragment Titles -->
     <string name="favourite_fragment_title">Favourite Fields</string>
-    <string name="profile_fragment">Profile fragment</string>
+    <string name="search_fragment">Search Fragment</string>
+    <string name="my_profile">My profile</string>
+    <string name="my_fields_title">My Fields</string>
 
     <!-- Sample text of the cards-->
     <string name="card_image_description">Picture of the field</string>
@@ -135,7 +134,6 @@
     <string name="contact_us">Do you want to add your soccer field? <a href="mailto:ale2nico.fillfield@gmail.com">Contact us!</a></string>
     <string name="profile_picture">Profile picture</string>
     <string name="my_reservations">My reservations</string>
-    <string name="my_profile">My profile</string>
     <string name="search_fragment_title">Search</string>
     <string name="field_name">Field name</string>
     <string name="view_field_map">View map</string>

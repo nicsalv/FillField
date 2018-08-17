@@ -53,9 +53,8 @@ public class FavouritesFragment extends HomeFragment {
         // Initializing adapter
         mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
 
-        // Register an observer for the adapter
+        // Initialize an observer for the adapter: it'll be registered in onStart().
         fieldAdapterObserver = mFieldAdapter.new FieldAdapterObserver(view);
-        mFieldAdapter.registerAdapterDataObserver(fieldAdapterObserver);
 
         // Attach a listener to the adapter for communicating with Firebase
         ChildEventListener favoriteChildEventListener
@@ -80,6 +79,14 @@ public class FavouritesFragment extends HomeFragment {
         // Set the appbar title
         getActivity().setTitle(getContext()
                 .getResources().getString(R.string.favourite_fragment_title));
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Register the adapter observer
+        mFieldAdapter.registerAdapterDataObserver(fieldAdapterObserver);
     }
 
     @Override

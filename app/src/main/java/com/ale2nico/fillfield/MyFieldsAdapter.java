@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.models.Field;
@@ -48,15 +49,24 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
     private Map<String, ByteBuffer> myFieldsImage = new HashMap<>();
 
     // Instance of the hosting activity
-    private MyFieldsFragment.OnReservationsButtonClickedListener mReservationButtonListener;
+    private MyFieldsFragment.OnReservationsButtonClickedListener mListener;
+
+    // Reference to the empty view: it'll be hidden when there is at least one field to show.
+    private TextView emptyTextView;
 
     // Used into the AsyncTask
     Context mContext;
 
     public MyFieldsAdapter(Context context,
-                           MyFieldsFragment.OnReservationsButtonClickedListener listener) {
+                           MyFieldsFragment.OnReservationsButtonClickedListener listener,
+                           View rootView,
+                           final ProgressBar progressBar) {
         mContext = context;
-        mReservationButtonListener = listener;
+        mListener = listener;
+
+        // Get a reference of the empty view from the fragment layout
+        emptyTextView = rootView.findViewById(R.id.my_fields_list_empty_view);
+
         // This listener gains all the fields that the currently signed-in user owns.
         ValueEventListener myFieldsListener = new ValueEventListener() {
             @Override
@@ -69,10 +79,19 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
                     if (currentField.getUserId().equals(getUid())) {
                         // Signed-in user owns this field. Add it to the list.
                         myFieldsIds.add(currentFieldKey);
-                        myFields.add(myFieldsIds.indexOf(currentFieldKey), currentField);
-                        notifyItemInserted(myFieldsIds.indexOf(currentFieldKey));
-                        // TODO: remove empty view
+                        int fieldIndex = myFieldsIds.indexOf(currentFieldKey);
+                        if (fieldIndex != -1) {
+                            myFields.add(fieldIndex, currentField);
+                            notifyItemInserted(fieldIndex);
+                        }
                     }
+                }
+                // Hide the progress bar
+                progressBar.setVisibility(View.GONE);
+
+                // If there are no fields to show, display empty view
+                if (myFields.isEmpty()) {
+                    emptyTextView.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -144,15 +163,15 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
             // Download and set the picture of the field (done at first because it can take much time).
             downloadAndSetFieldImage(fieldKey);
 
-            // Find a human-readable addres to display into the card
+            // Find a human-readable address to display into the card
             new DiscoverAddress().execute(field.getLatitude(), field.getLongitude());
 
             // Add listener to the reservations button
             viewReservationButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mReservationButtonListener != null) {
-                        mReservationButtonListener.onReservationsButtonClicked(fieldKey);
+                    if (mListener != null) {
+                        mListener.onReservationsButtonClicked(fieldKey);
                     }
                 }
             });

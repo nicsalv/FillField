@@ -14,8 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="240sp"
         android:scaleType="centerCrop"
-        android:contentDescription="@string/profile_picture"
-        />
+        android:contentDescription="@string/profile_picture" />
+
     <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
 
@@ -32,8 +32,7 @@
         android:scaleType="centerCrop"
         android:layout_alignBottom="@id/profile_background"
         android:layout_marginBottom="40sp"
-        app:srcCompat="@drawable/no_profile_pic"
-        />
+        app:srcCompat="@drawable/no_profile_pic" />
 
     <TextView
         android:id="@+id/name_surname"
@@ -42,16 +41,14 @@
         android:text="@string/placeholder"
         android:textSize="40sp"
         android:layout_alignBottom="@id/profile_background"
-        android:textStyle="bold"
-        />
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_below="@id/name_surname"
         android:orientation="vertical"
-        android:background="@color/grey_100"
-        >
+        android:background="@color/grey_100">
 
     <TextView
         android:id="@+id/my_fields"
@@ -65,7 +62,7 @@
         android:text="@string/my_fields"
         android:drawableStart="@drawable/ic_fields_icon"
         android:drawablePadding="8dp"
-        />
+        android:background="?attr/selectableItemBackground" />
 
         <View
             android:layout_width="match_parent"
@@ -84,7 +81,8 @@
             android:text="@string/my_reservations"
             android:textSize="20sp"
             android:drawableStart="@drawable/ic_book_black_24dp"
-            android:drawablePadding="8dp"/>
+            android:drawablePadding="8dp"
+            android:background="?attr/selectableItemBackground"/>
 
         <View
             android:layout_width="match_parent"
@@ -104,7 +102,7 @@
             android:textSize="20sp"
             android:drawableStart="@drawable/ic_settings_black_24dp"
             android:drawablePadding="8dp"
-            />
+            android:background="?attr/selectableItemBackground" />
 
         <View
             android:layout_width="match_parent"

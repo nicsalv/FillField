@@ -11,6 +11,12 @@
         android:layout_height="match_parent"
         tools:listitem="@layout/my_field_card" />
 
+    <ProgressBar
+        android:id="@+id/load_field_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
     <TextView
         android:id="@+id/my_fields_list_empty_view"
         android:layout_width="wrap_content"
