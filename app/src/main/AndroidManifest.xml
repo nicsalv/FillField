@@ -80,6 +80,7 @@
             android:required="false" />
 
 
+        <service android:name=".PushService" />
     </application>
 
 
