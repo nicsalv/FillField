@@ -3,21 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:agendaCalendar="http://com.github.tibolte.agendacalendarview"
     tools:context=".FieldViewFragment">
 
     <com.github.tibolte.agendacalendarview.AgendaCalendarView
-        android:id="@+id/agenda_calendar_view"
+        android:id="@+id/agenda_calendar_view_green"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        agendaCalendar:agendaCurrentDayTextColor="@color/theme_primary"
-        agendaCalendar:calendarColor="@color/theme_primary"
-        agendaCalendar:calendarCurrentDayTextColor="@color/calendar_text_current_day"
-        agendaCalendar:calendarDayTextColor="@color/theme_text_icons"
-        agendaCalendar:calendarHeaderColor="@color/theme_primary_dark"
-        agendaCalendar:calendarPastDayTextColor="@color/theme_light_primary"
-        agendaCalendar:fabColor="@color/theme_accent" />
+        agendaCalendar:agendaCurrentDayTextColor="@color/colorPrimary"
+        agendaCalendar:calendarColor="@color/colorPrimary"
+        agendaCalendar:calendarCurrentDayTextColor="@color/colorPrimary"
+        agendaCalendar:calendarDayTextColor="@color/white"
+        agendaCalendar:calendarHeaderColor="@color/colorPrimaryDark"
+        agendaCalendar:calendarPastDayTextColor="@color/colorPrimaryLight"
+        agendaCalendar:fabColor="@color/colorAccent" />
 
 
 </FrameLayout>

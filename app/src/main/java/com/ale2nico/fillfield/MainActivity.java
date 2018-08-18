@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -67,6 +68,10 @@ public class MainActivity extends AppCompatActivity
                     MyReservationsFragment.OnListFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener,
                     FieldViewFragment.OnFragmentInteractionListener {
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -164,6 +169,18 @@ public class MainActivity extends AppCompatActivity
             notificationManager.createNotificationChannel(channel);
         }
 
+        // Start notification push service
+        startService(new Intent(this, PushService.class));
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Stop the service: this cause the Broadcast receiver to restart service
+        stopService(new Intent(this, PushService.class));
+        Log.i("MAINACT", "onDestroy!");
+        super.onDestroy();
+
     }
 
     @Override
@@ -195,18 +212,38 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        // Opening "My Reservations" if user clicked on Notification Reminder
-        if (user != null && getIntent().getStringExtra("reservationsFragment") != null) {
+        // Opening "My Reservations" or "My Fields" if user clicked on Notification
+        if (user != null && getIntent().getStringExtra("notificationFragment") != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
             fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
             navigation.setSelectedItemId(R.id.navigation_profile);
-            // Load My reservations fragment
-            MyReservationsFragment myReservationsFragment = new MyReservationsFragment();
-            fragmentTransaction.replace(R.id.fragment_container, myReservationsFragment)
-                    .addToBackStack(null).commit();
+            // Load My reservations fragment if user clicked on Reminder
+            if (getIntent().getStringExtra("notificationFragment").equals("myReservationsFragment")) {
+                MyReservationsFragment myReservationsFragment = new MyReservationsFragment();
+                fragmentTransaction.replace(R.id.fragment_container, myReservationsFragment)
+                        .addToBackStack(null).commit();
+            }
+            // Load My fields fragment if user clicked on Push notification
+            else if (getIntent().getStringExtra("notificationFragment").equals("myFieldsFragment")) {
+                MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
+                fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
+                        .addToBackStack(null).commit();
+            }
 
+        }
+        // Opening "My Fields" if user clicked on New Reservation Notification
+        if (user != null && getIntent().getStringExtra("newReservation") != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            // Load profile fragment
+            fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
+            navigation.setSelectedItemId(R.id.navigation_profile);
+            // Load My fields fragment
+            MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
+            fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
+                    .addToBackStack(null).commit();
 
         }
     }
@@ -217,21 +254,6 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
-
-            Map<String, Object> fieldUpdate = new HashMap<>();
-            Map<String, Object> fieldAgendaUpdate = new HashMap<>();
-            for( int i = 0 ; i < 10 ; i++) {
-                Field field = new Field(user.getUid(), "Campo " + i, 44.0568495d, 8.1641088d, "08:00", "23:00");
-                FieldAgenda fieldAgenda = new FieldAgenda(field.getOpeningHour(), field.getClosingHour());
-                String key = mDatabase.child("fields").push().getKey();
-                Map<String, Object> fieldValues = field.toMap();
-                Map<String, Object> fieldAgendaValues = fieldAgenda.toMap();
-
-                fieldUpdate.put("/fields/" + key, fieldValues);
-                fieldAgendaUpdate.put("/agenda/" + key, fieldAgendaValues);
-            }
-            mDatabase.updateChildren(fieldUpdate);
-            mDatabase.updateChildren(fieldAgendaUpdate);
         }
     }
 
@@ -367,7 +389,7 @@ public class MainActivity extends AppCompatActivity
                                             getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
                                             NotificationReceiver.class, delay, 0);
                                 }
-                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT);
+                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT).show();
                             }
                         })
                                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -481,7 +503,7 @@ public class MainActivity extends AppCompatActivity
 
         // Intent related to current context and class
         Intent intent = new Intent(packageContext, classContext);
-        intent.putExtra("reservationsFragment", "myReservationsFragment");
+        intent.putExtra("notificationFragment", "myReservationsFragment");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
 
@@ -498,7 +520,6 @@ public class MainActivity extends AppCompatActivity
         Intent notificationIntent = new Intent(packageContext, notificationReceiver);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, notificationId);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION, notification);
-        notificationIntent.putExtra("reservationsFragment", "myReservationsFragment");
 
         // PendingIntent and AlarmManager for scheduling the notification at a specific time
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -625,4 +646,5 @@ public class MainActivity extends AppCompatActivity
         }
         return convertedDate;
     }
+
 }

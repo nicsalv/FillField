@@ -18,6 +18,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity android:name=".LoginActivity"
             android:noHistory="true"/>
@@ -69,6 +72,16 @@
         </activity>
 
         <receiver android:name=".NotificationReceiver"/>
+        <receiver
+            android:name=".ServiceReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name=".RestartService" />
+            </intent-filter>
+        </receiver>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB58OmlW7yIXR--pf3dE5djLqEVI0UqujY"/>
@@ -80,6 +93,8 @@
             android:required="false" />
 
 
+        <service android:name=".PushService"
+            android:enabled="true"/>
     </application>
 
 
