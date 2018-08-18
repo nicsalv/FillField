@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -67,6 +68,10 @@ public class MainActivity extends AppCompatActivity
                     MyReservationsFragment.OnListFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener,
                     FieldViewFragment.OnFragmentInteractionListener {
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;

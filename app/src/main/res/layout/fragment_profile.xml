@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
 <RelativeLayout
     xmlns:tools="http://schemas.android.com/tools"
@@ -64,7 +65,7 @@
         android:layout_marginStart="40sp"
         android:layout_marginBottom="3dp"
         android:text="@string/my_fields"
-        android:drawableStart="@drawable/ic_fields_icon"
+        app:srcCompat="@drawable/ic_fields_icon"
         android:drawablePadding="8dp"
         />
 
@@ -84,7 +85,7 @@
             android:layout_marginTop="3dp"
             android:text="@string/my_reservations"
             android:textSize="20sp"
-            android:drawableStart="@drawable/ic_book_black_24dp"
+            app:srcCompat="@drawable/ic_book_black_24dp"
             android:drawablePadding="8dp"/>
 
         <View
@@ -103,7 +104,7 @@
             android:layout_marginTop="3dp"
             android:text="@string/settings"
             android:textSize="20sp"
-            android:drawableStart="@drawable/ic_settings_black_24dp"
+            app:srcCompat="@drawable/ic_settings_black_24dp"
             android:drawablePadding="8dp"
             />
 
