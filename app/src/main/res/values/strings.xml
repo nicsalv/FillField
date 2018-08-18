@@ -121,6 +121,7 @@
     <!-- Empty view text displayed when there are no fields to show. -->
     <string name="field_list_empty">There aren\'t any fields to show.</string>
     <string name="my_fields_empty">It seems you don\'t own any fields.</string>
+    <string name="reservatins_empty_view">There aren\'t any reservations to show.</string>
 
     <!-- Text of the button inside the owner reservation list -->
     <string name="contact_button">Contact</string>

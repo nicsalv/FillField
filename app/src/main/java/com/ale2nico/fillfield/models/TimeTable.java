@@ -3,10 +3,13 @@ package com.ale2nico.fillfield.models;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.temporal.ChronoUnit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,11 +115,43 @@ public class TimeTable {
     }
 
     // TODO: retrieve full user, not only his ID
-    public String getReservation(String time) throws IllegalArgumentException {
-        if (!isReservationTimeLegal(time)) {
-            throw new IllegalArgumentException("getReservation: Time is illegal.");
-        }
+    public String getReservation(String time) {
         return reservations.get(time);
+    }
+
+    /**
+     * Collect all the reservations time into a list.
+     * @return a list which elements are reservations times
+     */
+    public List<String> timesToList() {
+        List<String> result = new ArrayList<>();
+
+        String currentTime = openingHour;
+        while (LocalTime.parse(currentTime).isBefore(LocalTime.parse(closingHour))) {
+            if (getReservation(currentTime) != null) {
+                // There is a reservations at the current time; add it to the list.
+                result.add(currentTime);
+            }
+            // Increment currentTime of one hour
+            currentTime = LocalTime.parse(currentTime).plusHours(1).toString();
+        }
+        return result;
+    }
+
+    /**
+     * Convert the timetable into a list.
+     * @param reservationTimes A list containing reservation times of one day
+     * @return the timetable as a list
+     */
+    public List<String> toList(List<String> reservationTimes) {
+        List<String> result = new ArrayList<>();
+
+        for (String time : reservationTimes) {
+            // Surely there is a reservation at 'time'
+            result.add(getReservation(time));
+        }
+
+        return result;
     }
 
     @Exclude

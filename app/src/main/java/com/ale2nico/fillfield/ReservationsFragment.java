@@ -2,27 +2,34 @@ package com.ale2nico.fillfield;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CalendarView;
 import android.widget.TextView;
+
+import org.threeten.bp.LocalDate;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ReservationsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ReservationsFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class ReservationsFragment extends Fragment
+        implements CalendarView.OnDateChangeListener {
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    // Key String for storing fieldKey
+    private static final String ARG_FIELD_KEY = "fieldKey";
 
+    // Display reservations for this field only
+    private String fieldKey;
+
+    // Adapter that gets reservations info from the database
+    private ReservationsAdapter mReservationsAdapter;
 
     public ReservationsFragment() {
         // Required empty public constructor
@@ -32,16 +39,13 @@ public class ReservationsFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param fieldKey Key of the field stored into the database.
      * @return A new instance of fragment ReservationsFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static ReservationsFragment newInstance(String param1, String param2) {
+    public static ReservationsFragment newInstance(String fieldKey) {
         ReservationsFragment fragment = new ReservationsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_FIELD_KEY, fieldKey);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,17 +54,36 @@ public class ReservationsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            fieldKey = getArguments().getString(ARG_FIELD_KEY);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        TextView textView = new TextView(getActivity());
-        textView.setText(R.string.hello_blank_fragment);
-        return textView;
+        View view = inflater.inflate(R.layout.fragment_reservations, container, false);
+
+        // Set the listener for the calendar
+        CalendarView calendar = view.findViewById(R.id.reservations_calendar);
+        calendar.setOnDateChangeListener(this);
+
+        // Initializing RecyclerView and its layout
+        RecyclerView mReservationsRecycler = view.findViewById(R.id.reservations_list);
+        mReservationsRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
+        // Initialing adapter for the RecyclerView. At first it'll get reservations for today.
+        mReservationsAdapter = new ReservationsAdapter(fieldKey, LocalDate.now().toString());
+        mReservationsRecycler.setAdapter(mReservationsAdapter);
+
+        return view;
     }
 
+    @Override
+    public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+        // Cast the selected date as a String
+        String selectedDate = MainActivity.getDateFromPicker(year, month, dayOfMonth);
+
+        // Set selected date into the adapter
+        mReservationsAdapter.setSelectedDate(selectedDate);
+    }
 }

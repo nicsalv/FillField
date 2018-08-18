@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onDateSet(final DatePicker view, int year, int month, int dayOfMonth) {
                         // Save the chosen Date in the array
-                        reservationDateTime[0] = getDateFromPicker(year, month + 1, dayOfMonth);
+                        reservationDateTime[0] = getDateFromPicker(year, month, dayOfMonth);
 
                         final Calendar reservationDay = Calendar.getInstance();
                         reservationDay.set(year, month, dayOfMonth);
@@ -525,10 +525,19 @@ public class MainActivity extends AppCompatActivity
         notifications.push().setValue(notification);
     }
 
-    //Convert the date into a string that matches the pattern requested from LocalTime
-    public String getDateFromPicker(int year, int month, int dayOfMonth) {
+    /**
+     * Convert the date obtained from the DatePicker into a ISO-matching String.
+     * @param year Year of the date
+     * @param month Month of the date
+     * @param dayOfMonth Day of the date
+     * @return The date selected from the DatePicker as a String
+     */
+    public static String getDateFromPicker(int year, int month, int dayOfMonth) {
        String yearStr = Integer.toString(year);
-       String monthStr = month > 9 ? Integer.toString(month) : "0" + Integer.toString(month);
+
+       // Months are numbered from 0 to 11, that's why there's an eight and not a nine..
+       String monthStr = month > 8 ? Integer.toString(month + 1) : "0" + Integer.toString(month + 1);
+
        String dayofMonthStr = dayOfMonth > 9 ? Integer.toString(dayOfMonth) : "0" + Integer.toString(dayOfMonth);
 
        return yearStr + "-" + monthStr + "-" + dayofMonthStr;
@@ -628,6 +637,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onReservationsButtonClicked(String fieldKey) {
-        // Start correct fragment to show reservations
+        // The user selected a field for displaying reservations. Display the correct fragment.
+
+        // Create fragment and give it an argument for the selected field
+        ReservationsFragment reservationsFragment = ReservationsFragment.newInstance(fieldKey);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        transaction.replace(R.id.fragment_container, reservationsFragment);
+        transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
     }
 }
