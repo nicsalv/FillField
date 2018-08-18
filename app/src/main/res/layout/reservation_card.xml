@@ -35,6 +35,8 @@
         android:layout_below="@id/field_name"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:text="@string/view_field_map"
+        android:actionProviderClass=
+            "android.widget.ShareActionProvider"
         />
     <Button
         android:id="@+id/cancel_reservation_button"

@@ -446,11 +446,25 @@ public class MainActivity extends AppCompatActivity
 
         // Passing to the FieldViewFragment
 
-            FieldViewFragment fieldViewFragment = new FieldViewFragment();
+            /*FieldViewFragment fieldViewFragment = new FieldViewFragment();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fieldViewFragment)
                     .addToBackStack(null)
                     .commit();
+            */
+        Double latitude = 44.0569935;
+        Double longitude = 8.2103726;
+        String fieldName = "Da Rossi";
+        String reservationTime = "19:00";
+        String uri = "http://maps.google.com/maps?q=" +
+                latitude + ","+longitude + "\n\n" +
+                String.format(getResources().getString(R.string.share_action_text),
+                        fieldName, reservationTime);
+
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, uri);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
 
