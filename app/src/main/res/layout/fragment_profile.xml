@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
 <RelativeLayout
     xmlns:tools="http://schemas.android.com/tools"
@@ -27,8 +28,6 @@
         android:layout_height="200sp"
 
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-
         android:layout_marginTop="-130sp"
         android:padding="20sp"
         android:scaleType="centerCrop"
@@ -42,10 +41,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/placeholder"
-        android:textSize="40sp"
+        android:textSize="35sp"
         android:layout_alignBottom="@id/profile_background"
         android:textStyle="bold"
-        android:textColor="@color/black"
+        android:gravity="center_horizontal"
         />
 
     <LinearLayout
@@ -66,7 +65,7 @@
         android:layout_marginStart="40sp"
         android:layout_marginBottom="3dp"
         android:text="@string/my_fields"
-        android:drawableStart="@drawable/ic_fields_icon"
+        app:srcCompat="@drawable/ic_fields_icon"
         android:drawablePadding="8dp"
         />
 
@@ -86,7 +85,7 @@
             android:layout_marginTop="3dp"
             android:text="@string/my_reservations"
             android:textSize="20sp"
-            android:drawableStart="@drawable/ic_book_black_24dp"
+            app:srcCompat="@drawable/ic_book_black_24dp"
             android:drawablePadding="8dp"/>
 
         <View
@@ -94,53 +93,6 @@
             android:layout_height="1dp"
             android:layout_margin="8dp"
             android:background="@android:color/darker_gray"/>
-
-        <TextView
-            android:id="@+id/settings"
-            style="@style/Base.Theme.AppCompat.Light"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40sp"
-            android:layout_marginBottom="3dp"
-            android:layout_marginTop="3dp"
-            android:text="@string/settings"
-            android:textSize="20sp"
-            android:drawableStart="@drawable/ic_settings_black_24dp"
-            android:drawablePadding="8dp"
-            />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_margin="8dp"
-            android:background="@android:color/darker_gray"/>
-
-        <!--Layout for spinner preference -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-
-            <TextView
-                android:id="@+id/home_screen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Base.Theme.AppCompat.Light"
-                android:layout_marginStart="40sp"
-                android:layout_marginBottom="3dp"
-                android:layout_marginTop="3dp"
-                android:text="@string/home_screen"
-                android:textSize="20sp"/>
-
-            <Spinner
-                android:id="@+id/home_screen_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@style/Widget.AppCompat.EditText"
-                android:layout_margin="3dp"/>
-
-        </LinearLayout>
 
         <TextView
             android:id="@+id/contact_us"
@@ -158,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center|bottom"
             android:layout_marginTop="10sp"
-            android:layout_marginBottom="100sp"
+            android:layout_marginBottom="20sp"
             android:text="@string/sign_out"
             android:textSize="20sp" />
     </LinearLayout>

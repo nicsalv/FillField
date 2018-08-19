@@ -68,7 +68,7 @@ public class FieldViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         // Get a reference for the week view in the layout.
-        agendaCalendarView = (AgendaCalendarView) getView().findViewById(R.id.agenda_calendar_view);
+        agendaCalendarView = (AgendaCalendarView) getView().findViewById(R.id.agenda_calendar_view_green);
         Calendar minDate = Calendar.getInstance();
         Calendar maxDate = Calendar.getInstance();
 
@@ -86,7 +86,7 @@ public class FieldViewFragment extends Fragment {
         endTime2.set(Calendar.HOUR_OF_DAY, 19);
         endTime2.set(Calendar.MINUTE, 0);
         BaseCalendarEvent event2 = new BaseCalendarEvent("Prenotazione: "+startTime2.get(Calendar.HOUR_OF_DAY) + "-"+endTime2.get(Calendar.HOUR_OF_DAY), "", "Dalvík",
-                ContextCompat.getColor(this.getContext(), R.color.red), startTime2, endTime2, false);
+                ContextCompat.getColor(this.getContext(), R.color.theme_light_primary), startTime2, endTime2, false);
         eventList.add(event2);
         Calendar startTime3 = Calendar.getInstance();
         Calendar endTime3 = Calendar.getInstance();
@@ -95,7 +95,7 @@ public class FieldViewFragment extends Fragment {
         endTime3.set(Calendar.HOUR_OF_DAY, 15);
         endTime3.set(Calendar.MINUTE, 0);
         BaseCalendarEvent event3 = new BaseCalendarEvent("Prenotazione: "+startTime3.get(Calendar.HOUR_OF_DAY) + "-"+endTime3.get(Calendar.HOUR_OF_DAY), "", "Dalvík",
-                ContextCompat.getColor(this.getContext(), R.color.red), startTime3, endTime3, false);
+                ContextCompat.getColor(this.getContext(), R.color.theme_light_primary), startTime3, endTime3, false);
         eventList.add(event3);
         // ***Example finished***
         //TODO: fill the calendar with the correct reservations for this field

@@ -12,6 +12,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -25,6 +28,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -58,6 +62,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.threeten.bp.LocalTime;
 
+import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,6 +71,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -74,6 +81,10 @@ public class MainActivity extends AppCompatActivity
                     FieldViewFragment.OnFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener,
                     OnMapReadyCallback {
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -177,6 +188,19 @@ public class MainActivity extends AppCompatActivity
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+
+        // Start notification push service
+        startService(new Intent(this, PushService.class));
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Stop the service: this cause the Broadcast receiver to restart service
+        stopService(new Intent(this, PushService.class));
+        Log.i("MAINACT", "onDestroy!");
+        super.onDestroy();
+
     }
 
     @Override
@@ -208,18 +232,38 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        // Opening "My Reservations" if user clicked on Notification Reminder
-        if (user != null && getIntent().getStringExtra("reservationsFragment") != null) {
+        // Opening "My Reservations" or "My Fields" if user clicked on Notification
+        if (user != null && getIntent().getStringExtra("notificationFragment") != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
             fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
             navigation.setSelectedItemId(R.id.navigation_profile);
-            // Load My reservations fragment
-            MyReservationsFragment myReservationsFragment = new MyReservationsFragment();
-            fragmentTransaction.replace(R.id.fragment_container, myReservationsFragment)
-                    .addToBackStack(null).commit();
+            // Load My reservations fragment if user clicked on Reminder
+            if (getIntent().getStringExtra("notificationFragment").equals("myReservationsFragment")) {
+                MyReservationsFragment myReservationsFragment = new MyReservationsFragment();
+                fragmentTransaction.replace(R.id.fragment_container, myReservationsFragment)
+                        .addToBackStack(null).commit();
+            }
+            // Load My fields fragment if user clicked on Push notification
+            else if (getIntent().getStringExtra("notificationFragment").equals("myFieldsFragment")) {
+                MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
+                fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
+                        .addToBackStack(null).commit();
+            }
 
+        }
+        // Opening "My Fields" if user clicked on New Reservation Notification
+        if (user != null && getIntent().getStringExtra("newReservation") != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            // Load profile fragment
+            fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
+            navigation.setSelectedItemId(R.id.navigation_profile);
+            // Load My fields fragment
+            MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
+            fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
+                    .addToBackStack(null).commit();
 
         }
     }
@@ -357,7 +401,7 @@ public class MainActivity extends AppCompatActivity
                                             getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
                                             NotificationReceiver.class, delay, 0);
                                 }
-                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT);
+                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT).show();
                             }
                         })
                                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -411,13 +455,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
-        // Passing to the FieldViewFragment
-
-            FieldViewFragment fieldViewFragment = new FieldViewFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fieldViewFragment)
-                    .addToBackStack(null)
-                    .commit();
+       // THIS GOES TO MY RESERVATIONS RECYCLER VIEW
+        Double latitude = 44.054932231450536;
+        Double longitude = 8.212966918945312;
+        String fieldName = "Da Rossi";
+        String reservationTime = "19:00";
+        // Full string to send, including maps preview and plain text
+        String uri = "http://maps.google.com/maps?q=" +
+                latitude + ","+longitude + "\n\n" +
+                String.format(getResources().getString(R.string.share_action_text),
+                      fieldName, reservationTime);
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, uri);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
 
@@ -466,7 +517,7 @@ public class MainActivity extends AppCompatActivity
 
         // Intent related to current context and class
         Intent intent = new Intent(packageContext, classContext);
-        intent.putExtra("reservationsFragment", "myReservationsFragment");
+        intent.putExtra("notificationFragment", "myReservationsFragment");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
 
@@ -480,6 +531,7 @@ public class MainActivity extends AppCompatActivity
 
         // Schedule notification with two intents:
         // notificationIntent for attaching to the BroadcastReceiver
+        notificationId = notificationId + 1;
         Intent notificationIntent = new Intent(packageContext, notificationReceiver);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, notificationId);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION, notification);
@@ -499,16 +551,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public static void sendNotificationToUser(String user, final String message) {
-        Firebase ref = new Firebase( "https://fillfield-bc48e.firebaseio.com/");
-        final Firebase notifications = ref.child("notificationRequests");
-
-        Map notification = new HashMap<>();
-        notification.put("username", user);
-        notification.put("message", message);
-
-        notifications.push().setValue(notification);
-    }
 
     //Convert the date into a string that matches the pattern requested from LocalTime
     public String getDateFromPicker(int year, int month, int dayOfMonth) {
