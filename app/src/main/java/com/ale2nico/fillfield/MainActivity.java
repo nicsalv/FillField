@@ -12,6 +12,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -53,6 +56,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.threeten.bp.LocalTime;
 
+import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -60,6 +65,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -444,24 +450,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
-        // Passing to the FieldViewFragment
-
-            /*FieldViewFragment fieldViewFragment = new FieldViewFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fieldViewFragment)
-                    .addToBackStack(null)
-                    .commit();
-            */
-        Double latitude = 44.0569935;
-        Double longitude = 8.2103726;
+       // THIS GOES TO MY RESERVATIONS RECYCLER VIEW
+        Double latitude = 44.054932231450536;
+        Double longitude = 8.212966918945312;
         String fieldName = "Da Rossi";
         String reservationTime = "19:00";
+        // Full string to send, including maps preview and plain text
         String uri = "http://maps.google.com/maps?q=" +
                 latitude + ","+longitude + "\n\n" +
                 String.format(getResources().getString(R.string.share_action_text),
-                        fieldName, reservationTime);
-
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                      fieldName, reservationTime);
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, uri);
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -531,6 +530,7 @@ public class MainActivity extends AppCompatActivity
 
         // Schedule notification with two intents:
         // notificationIntent for attaching to the BroadcastReceiver
+        notificationId = notificationId + 1;
         Intent notificationIntent = new Intent(packageContext, notificationReceiver);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, notificationId);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION, notification);
@@ -549,16 +549,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public static void sendNotificationToUser(String user, final String message) {
-        Firebase ref = new Firebase( "https://fillfield-bc48e.firebaseio.com/");
-        final Firebase notifications = ref.child("notificationRequests");
-
-        Map notification = new HashMap<>();
-        notification.put("username", user);
-        notification.put("message", message);
-
-        notifications.push().setValue(notification);
-    }
 
     //Convert the date into a string that matches the pattern requested from LocalTime
     public String getDateFromPicker(int year, int month, int dayOfMonth) {
