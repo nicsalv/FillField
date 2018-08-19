@@ -12,9 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -62,17 +59,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.threeten.bp.LocalTime;
 
-import java.io.IOException;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
@@ -657,8 +649,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onMapReady(GoogleMap map) {
 
-            new AlertDialog.Builder(this).setMessage(R.string.googleMapTextDialog)
-                    .show();
+            Toast.makeText(this, "Tap on the marker in order to obtain directions", Toast.LENGTH_LONG).show();
 
             mMap = map;
 
@@ -675,7 +666,7 @@ public class MainActivity extends AppCompatActivity
             // Add a marker on the field, and move the camera.
             LatLng location = new LatLng(lat, lon);
             mMap.addMarker(new MarkerOptions().position(location).title("Field: "+fieldName));
-            float zoomLevel = 10.0f;
+            float zoomLevel = 12.0f;
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(0, 0))
