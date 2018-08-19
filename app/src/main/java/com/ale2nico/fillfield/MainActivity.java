@@ -40,6 +40,12 @@ import com.ale2nico.fillfield.models.Field;
 import com.ale2nico.fillfield.models.FieldAgenda;
 import com.ale2nico.fillfield.models.TimeTable;
 import com.firebase.client.Firebase;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -65,8 +71,9 @@ import java.util.TimeZone;
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
                     MyReservationsFragment.OnListFragmentInteractionListener,
+                    FieldViewFragment.OnFragmentInteractionListener,
                     MyFieldsFragment.OnListFragmentInteractionListener,
-                    FieldViewFragment.OnFragmentInteractionListener {
+                    OnMapReadyCallback {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -82,6 +89,11 @@ public class MainActivity extends AppCompatActivity
 
     //BottomNavigation
     BottomNavigationView navigation;
+
+    public MapFragment mMapFragment;
+
+    private GoogleMap mMap;
+    private Field actualMapField;
 
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
@@ -103,19 +115,21 @@ public class MainActivity extends AppCompatActivity
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             // Replace the current fragment with the selected fragment
-            FragmentTransaction transaction = getSupportFragmentManager()
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
+
+            if(mMapFragment != null){
+                Toast.makeText(getApplicationContext(), "bonaa", Toast.LENGTH_LONG);
+                android.app.FragmentTransaction fragmentTransaction =
+                        getFragmentManager().beginTransaction();
+                fragmentTransaction.remove(mMapFragment).commit();
+            }
 
             switch (item.getItemId()) {
 
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
                     transaction.replace(R.id.fragment_container, new HomeFragment());
-                    break;
-
-                case R.id.navigation_search_fields:
-                    transaction.replace(R.id.fragment_container, new SearchFragment());
-                    onSearchRequested();
                     break;
                 case R.id.navigation_favourites_fields:
                     // Replace the current fragment in the 'fragment_container'
@@ -163,7 +177,6 @@ public class MainActivity extends AppCompatActivity
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-
     }
 
     @Override
@@ -217,21 +230,6 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
-
-            Map<String, Object> fieldUpdate = new HashMap<>();
-            Map<String, Object> fieldAgendaUpdate = new HashMap<>();
-            for( int i = 0 ; i < 10 ; i++) {
-                Field field = new Field(user.getUid(), "Campo " + i, 44.0568495d, 8.1641088d, "08:00", "23:00");
-                FieldAgenda fieldAgenda = new FieldAgenda(field.getOpeningHour(), field.getClosingHour());
-                String key = mDatabase.child("fields").push().getKey();
-                Map<String, Object> fieldValues = field.toMap();
-                Map<String, Object> fieldAgendaValues = fieldAgenda.toMap();
-
-                fieldUpdate.put("/fields/" + key, fieldValues);
-                fieldAgendaUpdate.put("/agenda/" + key, fieldAgendaValues);
-            }
-            mDatabase.updateChildren(fieldUpdate);
-            mDatabase.updateChildren(fieldAgendaUpdate);
         }
     }
 
@@ -248,14 +246,6 @@ public class MainActivity extends AppCompatActivity
                         .add(R.id.fragment_container, new HomeFragment()).commit();
                 navigation.setSelectedItemId(R.id.navigation_home);
                 break;
-
-            case "Search":
-                SearchFragment searchFragment = new SearchFragment();
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, searchFragment).commit();
-                navigation.setSelectedItemId(R.id.navigation_search_fields);
-                break;
-
             case "Favourites":
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.fragment_container, new HomeFragment()).commit();
@@ -396,23 +386,22 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             case R.id.action_2_button:
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
 
-                //Create the bundle
-                Bundle bundle = new Bundle();
+                //let's start the map Fragment
+                mMapFragment = MapFragment.newInstance();
+                android.app.FragmentTransaction fragmentTransaction =
+                        getFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, mMapFragment).addToBackStack(null);
+                fragmentTransaction.commit();
 
-                //Add your data to bundle
-                bundle.putDouble("EXTRA_LAT", field.getLatitude());
-                bundle.putDouble("EXTRA_LON", field.getLongitude());
-                bundle.putString("EXTRA_FIELD_NAME", field.getName());
+                //Define the actual field that have triggered the event
+                actualMapField = field;
 
-                //Add the bundle to the intent
-                intent.putExtras(bundle);
-
-                //Fire that second activity
-                startActivity(intent);
+                //let's open the map
+                mMapFragment.getMapAsync(this);
 
                 break;
+
 
         }
 
@@ -440,25 +429,21 @@ public class MainActivity extends AppCompatActivity
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
             suggestions.saveRecentQuery(query, null);
-            //TODO: search the query on Firebase
 
             //creation of SearchFragment with search_query argument
-            SearchFragment searchFragment = new SearchFragment();
+            SearchingFragment searchingFragment = new SearchingFragment();
             Bundle args = new Bundle();
-            args.putString(SearchFragment.ARG_SEARCH_QUERY, query);
-            searchFragment.setArguments(args);
+            args.putString("ARG_SEARCH_QUERY", query);
+            searchingFragment.setArguments(args);
 
             // Replace the current fragment with the selected fragment --> showing result in a particular fragment
-            FragmentTransaction transaction = getSupportFragmentManager()
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
-            transaction.replace(R.id.fragment_container, searchFragment)
-                    .addToBackStack(null);
+            transaction.replace(R.id.fragment_container, searchingFragment).addToBackStack(null);
             transaction.commit();
 
         }
     }
-
-
 
 
     /**
@@ -625,4 +610,42 @@ public class MainActivity extends AppCompatActivity
         }
         return convertedDate;
     }
+
+
+        @Override
+        public void onMapReady(GoogleMap map) {
+
+            new AlertDialog.Builder(this).setMessage(R.string.googleMapTextDialog)
+                    .show();
+
+            mMap = map;
+
+            String fieldName = "";
+            Double lat = 0.0;
+            Double lon = 0.0;
+
+            if(actualMapField != null) {
+                lat = actualMapField.getLatitude();
+                lon = actualMapField.getLongitude();
+                fieldName = actualMapField.getName();
+            }
+
+            // Add a marker on the field, and move the camera.
+            LatLng location = new LatLng(lat, lon);
+            mMap.addMarker(new MarkerOptions().position(location).title("Field: "+fieldName));
+            float zoomLevel = 10.0f;
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
+            map.addMarker(new MarkerOptions()
+                    .position(new LatLng(0, 0))
+                    .title("Marker"));
+        }
+
+        @Override
+        public void onBackPressed() {
+            if (getFragmentManager().getBackStackEntryCount() > 0 ){
+                getFragmentManager().popBackStack();
+            } else {
+                super.onBackPressed();
+            }
+        }
 }

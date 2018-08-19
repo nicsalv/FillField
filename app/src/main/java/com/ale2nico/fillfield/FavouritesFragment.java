@@ -3,8 +3,6 @@ package com.ale2nico.fillfield;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,10 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ale2nico.fillfield.dummy.DummyContent;
-import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
 import com.ale2nico.fillfield.firebaselisteners.FavouriteChildEventListener;
-import com.ale2nico.fillfield.firebaselisteners.HomeChildEventListener;
 import com.google.firebase.database.ChildEventListener;
 
 /**
@@ -37,6 +32,12 @@ public class FavouritesFragment extends HomeFragment {
      * fragment (e.g. upon screen orientation changes).
      */
     public FavouritesFragment() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(false);
     }
 
     @Override

@@ -27,6 +27,8 @@
         android:layout_height="200sp"
 
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+
         android:layout_marginTop="-130sp"
         android:padding="20sp"
         android:scaleType="centerCrop"
@@ -43,6 +45,7 @@
         android:textSize="40sp"
         android:layout_alignBottom="@id/profile_background"
         android:textStyle="bold"
+        android:textColor="@color/black"
         />
 
     <LinearLayout
