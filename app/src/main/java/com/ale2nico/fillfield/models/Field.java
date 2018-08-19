@@ -1,16 +1,10 @@
 package com.ale2nico.fillfield.models;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.github.wrdlbrnft.sortedlistadapter.SortedListAdapter;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
-
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.format.DateTimeParseException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -120,14 +114,13 @@ public class Field implements SortedListAdapter.ViewModel {
                 Objects.equals(name, field.name) &&
                 Objects.equals(openingHour, field.openingHour) &&
                 Objects.equals(closingHour, field.closingHour) &&
-                Objects.equals(calendar, field.calendar) &&
                 Objects.equals(hearts, field.hearts);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(userId, name, latitude, longitude, openingHour, closingHour, calendar, heartsCount, hearts);
+        return Objects.hash(userId, name, latitude, longitude, openingHour, closingHour, heartsCount, hearts);
     }
 
     @Override
