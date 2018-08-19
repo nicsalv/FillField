@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FillField</string>
+    <string name="app_name" translatable="false">FillField</string>
     <string name="label_google_sign_in">Firebase + Google Sign In</string>
     <string name="desc_google_sign_in">Use a Google Sign In credential to authenticate with Firebase.</string>
 
@@ -90,7 +90,7 @@
     <string name="id_fmt">User ID: %s</string>
     <string name="email_fmt">Email: %s</string>
     <string name="title_activity_main">FillField</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">Nearest</string>
     <string name="title_profile">My profile</string>
     <string name="title_favourites_fields">Favourites</string>
     <string name="title_search_fields">Search</string>
@@ -121,10 +121,14 @@
     <!-- Empty view text displayed when there are no fields to show. -->
     <string name="field_list_empty">There aren\'t any fields to show.</string>
     <string name="my_fields_empty">It seems you don\'t own any fields.</string>
-    <string name="reservatins_empty_view">There aren\'t any reservations to show.</string>
+    <string name="reservatins_empty_view">There aren\'t any reservations to show on this day.</string>
 
     <!-- Text of the button inside the owner reservation list -->
     <string name="contact_button">Contact</string>
+
+    <!-- Menu item text inside reservation list -->
+    <string name="hide_calendar_menu_item">Hide calendar</string>
+    <string name="show_calendar_menu_item">Show calendar</string>
 
     <!-- Profile strings -->
     <string name="my_fields">My fields</string>

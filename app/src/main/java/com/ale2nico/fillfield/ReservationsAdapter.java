@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.models.TimeTable;
@@ -24,6 +25,11 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
 
     private static final String TAG = "ReservationsAdapter";
 
+    // Widgets reference so as to show loadings and empty view when needed
+    private RecyclerView mReservationsRecycler;
+    private ProgressBar loadingProgressBar;
+    private TextView emptyTextView;
+
     // Reference to the calendar into the database
     private DatabaseReference calendarRef;
     private ValueEventListener calendarListener;
@@ -34,7 +40,9 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
     // List of reservations on the selected day
     private List<String> reservations = new ArrayList<>();
 
-    public ReservationsAdapter(String fieldKey, final String selectedDate) {
+    public ReservationsAdapter(String fieldKey, String selectedDate,
+                               final ProgressBar loadingProgressBar, final TextView emptyTextView,
+                               RecyclerView mReservationsRecycler) {
         // Specific listener for retrieving reservation on a selected date
         calendarListener = new ValueEventListener() {
             @Override
@@ -52,6 +60,10 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
                     reservationTimes = new ArrayList<>();
                     reservations = new ArrayList<>();
 
+                    // Show empty view only
+                    loadingProgressBar.setVisibility(View.GONE);
+                    emptyTextView.setVisibility(View.VISIBLE);
+
                     // Notify the recycler to update its content
                     notifyDataSetChanged();
                 }
@@ -62,6 +74,11 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
                 Log.d(TAG, "It wasn't possible retrieve timetable for the selected date");
             }
         };
+
+        // Get reference to widgets
+        this.mReservationsRecycler = mReservationsRecycler;
+        this.loadingProgressBar = loadingProgressBar;
+        this.emptyTextView = emptyTextView;
 
         // This reference points to the timetable of the selected date of the selected field
         calendarRef = FirebaseDatabase.getInstance().getReference()
@@ -122,6 +139,11 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
 
                     // Update reservation info
                     reservations.set(reservations.indexOf(userKey), completeName);
+
+                    // Hide progress bar and show the list
+                    mReservationsRecycler.setVisibility(View.VISIBLE);
+                    loadingProgressBar.setVisibility(View.GONE);
+
                     notifyDataSetChanged();
                 }
 
