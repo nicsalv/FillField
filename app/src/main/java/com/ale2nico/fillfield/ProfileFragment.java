@@ -32,7 +32,7 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class ProfileFragment extends Fragment implements View.OnClickListener, Spinner.OnItemSelectedListener {
+public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     // [START declare_auth]
     private FirebaseAuth mAuth;
@@ -42,15 +42,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     private Button signOutButton;
     private TextView nameSurname;
     private CircleImageView profileImage;
-    private Spinner homeSpinner;
-    private SharedPreferences savedValues;
     private TextView contactUs;
     private ImageView backgroundImageView;
 
     // For pre-Lollipop devices
     private TextView myFields;
     private TextView myBookings;
-    private TextView settings;
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
@@ -60,7 +57,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
-        savedValues = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
     }
 
@@ -93,15 +89,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
         // For pre-Lollipop devices
         myFields = getView().findViewById(R.id.my_fields);
         myBookings = getView().findViewById(R.id.my_reservations);
-        settings = getView().findViewById(R.id.settings);
         myFields.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fields_icon), null, null, null);
         myBookings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_book_black_24dp), null, null, null);
-        settings.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_settings_black_24dp), null, null, null);
 
         //Listeners
         myFields.setOnClickListener(this);
         myBookings.setOnClickListener(this);
-        settings.setOnClickListener(this);
 
         // Set the background image
         Glide.with(this)
@@ -116,22 +109,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
                         .error(R.drawable.no_profile_pic))
                 .into(profileImage);
 
-       //Set spinner for preference
-       homeSpinner = (Spinner) getView().findViewById(R.id.home_screen_spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                Objects.requireNonNull(getActivity()), R.array.home_screen_preference, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        homeSpinner.setAdapter(adapter);
-        String choosen = savedValues.getString("home_spinner", "none");
 
-        if(choosen.equals("Home") || choosen.equals("none"))
-            homeSpinner.setSelection(0);
-        if (choosen.equals("Search"))
-            homeSpinner.setSelection(1);
-        if (choosen.equals("Favourites"))
-            homeSpinner.setSelection(2);
-
-        homeSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -147,27 +125,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, myReservationsFragment).addToBackStack(null).commit();
                 break;
-            case R.id.settings:
-                break;
             case R.id.sign_out:
                 signOut();
                break;
         }
     }
 
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String selectedItem = (String) homeSpinner.getItemAtPosition(position);
-        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).edit();
-        prefs.putString("home_spinner", selectedItem);
-        prefs.commit();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
 
 
     /**

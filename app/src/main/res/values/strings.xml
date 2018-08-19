@@ -66,7 +66,6 @@
     <string name="facebook_title_text">Facebook Login</string>
     <string name="facebook_login_button">Continue with Facebook</string>
     <string name="title_activity_facebook_login">Facebook Activity</string>
-    <string name="facebook_app_id">254099612085542</string>
     <string name="fb_login_protocol_scheme">fb254099612085542</string>
 
 
@@ -187,4 +186,6 @@
         <item> 23-00 </item>
     </string-array>
 
+    <string name="facebook_app_id">254099612085542</string>
+    <string name="share_action_text">Hi buddy, I have just reserved field \"%1$s\" at %2$s. Do not miss!</string>
 </resources>
