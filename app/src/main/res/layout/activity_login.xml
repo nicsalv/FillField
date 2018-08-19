@@ -8,24 +8,27 @@
     android:fitsSystemWindows="true">
 
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/upper_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/title_bottom_margin"
             android:fontFamily="@font/fff_tusj"
             android:text="@string/title_text"
-            android:theme="@style/ThemeOverlay.MyUpperTitleText" />
+            android:layout_marginTop="20dp"
+            android:textSize="85sp"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"/>
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/sign_in_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center_horizontal"
             android:layout_centerInParent="true"
             android:visibility="visible"
             tools:visibility="gone" />
-
+        
 
 
 </RelativeLayout>

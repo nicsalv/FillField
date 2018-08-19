@@ -52,6 +52,7 @@
     <style name="ThemeOverlay.MyUpperTitleText" parent="AppTheme">
         <item name="android:gravity">center</item>
         <item name="android:textSize">85sp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">

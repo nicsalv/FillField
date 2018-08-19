@@ -23,8 +23,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 
-        <activity android:name=".LoginActivity"
-            android:noHistory="true"/>
+        <activity android:name=".LoginActivity"/>
 
         <provider android:name=".MySuggestionProvider"
             android:authorities="com.ale2nico.MySuggestionProvider" />
