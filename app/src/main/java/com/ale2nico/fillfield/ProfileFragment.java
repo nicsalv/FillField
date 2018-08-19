@@ -56,6 +56,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, S
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(false);
+
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         savedValues = PreferenceManager.getDefaultSharedPreferences(getActivity());

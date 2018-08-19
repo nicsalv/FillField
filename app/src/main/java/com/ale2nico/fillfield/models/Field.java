@@ -1,8 +1,10 @@
 package com.ale2nico.fillfield.models;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.github.wrdlbrnft.sortedlistadapter.SortedListAdapter;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -12,12 +14,13 @@ import org.threeten.bp.format.DateTimeParseException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a soccer field.
  */
 @IgnoreExtraProperties
-public class Field {
+public class Field implements SortedListAdapter.ViewModel {
 
     private String userId;
     private String name;
@@ -36,6 +39,8 @@ public class Field {
     // Hearts put by users
     private int heartsCount = 0;
     private Map<String, Boolean> hearts = new HashMap<>();
+
+
 
     public Field() {
         // Default constructor required for calls to DataSnapshot.getValue(Field.class)
@@ -175,5 +180,47 @@ public class Field {
         result.put("hearts", hearts);
 
         return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Field field = (Field) o;
+        return Double.compare(field.latitude, latitude) == 0 &&
+                Double.compare(field.longitude, longitude) == 0 &&
+                heartsCount == field.heartsCount &&
+                Objects.equals(userId, field.userId) &&
+                Objects.equals(name, field.name) &&
+                Objects.equals(openingHour, field.openingHour) &&
+                Objects.equals(closingHour, field.closingHour) &&
+                Objects.equals(calendar, field.calendar) &&
+                Objects.equals(hearts, field.hearts);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(userId, name, latitude, longitude, openingHour, closingHour, calendar, heartsCount, hearts);
+    }
+
+    @Override
+    public <T> boolean isSameModelAs(@NonNull T model) {
+        if (model instanceof Field) {
+            final Field field = (Field) model;
+            return field.getName() == this.name;
+        }
+
+        return false;
+    }
+
+    @Override
+    public <T> boolean isContentTheSameAs(@NonNull T model) {
+        if (model instanceof Field) {
+            final Field other = (Field) model;
+            return name != null ? name.equals(other.name) : other.name == null;
+        }
+
+        return false;
     }
 }

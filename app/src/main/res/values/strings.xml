@@ -58,6 +58,9 @@
     <string name="firebase_status_fmt">Firebase User: %s</string>
     <string name="firebase_user_management">Firebase User Management</string>
 
+    <string name="googleMapTextDialog">Press on the marker to obtain directions</string>
+
+
     <string name="google_status_fmt">Google User: %s</string>
     <string name="google_title_text">Sign in with Google</string>
     <string name="title_text">Fill Field</string>

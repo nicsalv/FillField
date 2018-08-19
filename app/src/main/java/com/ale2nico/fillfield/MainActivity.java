@@ -2,7 +2,6 @@ package com.ale2nico.fillfield;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.Fragment;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -21,7 +20,6 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +35,12 @@ import android.widget.Toast;
 import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.models.Field;
 import com.firebase.client.Firebase;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -52,7 +56,8 @@ import java.util.TimeZone;
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
                     MyReservationsFragment.OnListFragmentInteractionListener,
-                    MyFieldsFragment.OnListFragmentInteractionListener {
+                    MyFieldsFragment.OnListFragmentInteractionListener,
+                    OnMapReadyCallback {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -68,6 +73,11 @@ public class MainActivity extends AppCompatActivity
 
     //BottomNavigation
     BottomNavigationView navigation;
+
+    public MapFragment mMapFragment;
+
+    private GoogleMap mMap;
+    private Field actualMapField;
 
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
@@ -89,19 +99,21 @@ public class MainActivity extends AppCompatActivity
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             // Replace the current fragment with the selected fragment
-            FragmentTransaction transaction = getSupportFragmentManager()
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
+
+            if(mMapFragment != null){
+                Toast.makeText(getApplicationContext(), "bonaa", Toast.LENGTH_LONG);
+                android.app.FragmentTransaction fragmentTransaction =
+                        getFragmentManager().beginTransaction();
+                fragmentTransaction.remove(mMapFragment).commit();
+            }
 
             switch (item.getItemId()) {
 
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
                     transaction.replace(R.id.fragment_container, new HomeFragment());
-                    break;
-
-                case R.id.navigation_search_fields:
-                    transaction.replace(R.id.fragment_container, new SearchFragment());
-                    onSearchRequested();
                     break;
                 case R.id.navigation_favourites_fields:
                     // Replace the current fragment in the 'fragment_container'
@@ -189,14 +201,6 @@ public class MainActivity extends AppCompatActivity
                         .add(R.id.fragment_container, new HomeFragment()).commit();
                 navigation.setSelectedItemId(R.id.navigation_home);
                 break;
-
-            case "Search":
-                SearchFragment searchFragment = new SearchFragment();
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, searchFragment).commit();
-                navigation.setSelectedItemId(R.id.navigation_search_fields);
-                break;
-
             case "Favourites":
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.fragment_container, new HomeFragment());
@@ -212,25 +216,20 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(this, "Button pressed", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.action_2_button:
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
 
-                //Create the bundle
-                Bundle bundle = new Bundle();
+                //let's start the map Fragment
+                mMapFragment = MapFragment.newInstance();
+                android.app.FragmentTransaction fragmentTransaction =
+                        getFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, mMapFragment).addToBackStack(null);
+                fragmentTransaction.commit();
 
-                //Add your data to bundle
-                bundle.putDouble("EXTRA_LAT", field.getLatitude());
-                bundle.putDouble("EXTRA_LON", field.getLongitude());
-                bundle.putString("EXTRA_FIELD_NAME", field.getName());
+                //Define the actual field that have triggered the event
+                actualMapField = field;
 
-                //Add the bundle to the intent
-                intent.putExtras(bundle);
+                //let's open the map
+                mMapFragment.getMapAsync(this);
 
-                //Fire that second activity
-                startActivity(intent);
-
-                //intent.putExtra(EXTRA_LAT,field.getLatitude());
-                //intent.putExtra(EXTRA_LON,field.getLongitude());
-                //startActivity(intent);
                 break;
 
         }
@@ -373,25 +372,21 @@ public class MainActivity extends AppCompatActivity
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
             suggestions.saveRecentQuery(query, null);
-            //TODO: search the query on Firebase (alredy made!)
 
             //creation of SearchFragment with search_query argument
-            SearchFragment searchFragment = new SearchFragment();
+            SearchingFragment searchingFragment = new SearchingFragment();
             Bundle args = new Bundle();
-            args.putString(SearchFragment.ARG_SEARCH_QUERY, query);
-            searchFragment.setArguments(args);
+            args.putString("ARG_SEARCH_QUERY", query);
+            searchingFragment.setArguments(args);
 
             // Replace the current fragment with the selected fragment --> showing result in a particular fragment
-            FragmentTransaction transaction = getSupportFragmentManager()
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
-            transaction.replace(R.id.fragment_container, searchFragment)
-                    .addToBackStack(null);
+            transaction.replace(R.id.fragment_container, searchingFragment).addToBackStack(null);
             transaction.commit();
 
         }
     }
-
-
 
 
     /**
@@ -450,35 +445,50 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPause() {
         // save the instance variables
-        /*
-        SharedPreferences.Editor editor = savedValues.edit();
-        editor.putString("billAmountString", billAmountString);
-        editor.putFloat("tipPercent", tipPercent);
-        editor.commit();
-        */
-
-        //get the actual fragments
-        if (getFragmentManager().getBackStackEntryCount() > 1) {
-            Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
-
-        }
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        /*
-        // get the instance variables
-        billAmountString = savedValues.getString("billAmountString", "");
-        tipPercent = savedValues.getFloat("tipPercent", 0.15f);
 
-        // set the bill amount on its widget
-        billAmountEditText.setText(billAmountString);
 
-        // calculate and display
-        calculateAndDisplay();
-        */
+    }
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+
+        new AlertDialog.Builder(this).setMessage(R.string.googleMapTextDialog)
+                .show();
+
+        mMap = map;
+
+        String fieldName = "";
+        Double lat = 0.0;
+        Double lon = 0.0;
+
+        if(actualMapField != null) {
+             lat = actualMapField.getLatitude();
+             lon = actualMapField.getLongitude();
+             fieldName = actualMapField.getName();
+        }
+
+        // Add a marker on the field, and move the camera.
+        LatLng location = new LatLng(lat, lon);
+        mMap.addMarker(new MarkerOptions().position(location).title("Field: "+fieldName));
+        float zoomLevel = 10.0f;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(0, 0))
+                .title("Marker"));
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0 ){
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

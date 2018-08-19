@@ -53,6 +53,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
     private Context context;
 
+
     public FieldAdapter(DatabaseReference ref,
                         HomeFragment.OnListFragmentInteractionListener listener) {
         mDatabaseReference = ref;
