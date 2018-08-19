@@ -38,7 +38,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/reservations_calendar"
         android:layout_marginTop="30dp"
-        android:text="@string/reservatins_empty_view"
+        android:text="@string/reservations_empty_view"
         android:visibility="gone"
          />
 

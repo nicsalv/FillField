@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_field_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="@dimen/card_margin"
+    card_view:cardCornerRadius="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/my_res_where_when_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#D2EDD3">
+
+            <LinearLayout
+                android:id="@+id/my_res_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/my_res_date_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_calendar_black_24dp" />
+
+                <TextView
+                    android:id="@+id/my_res_date_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="5dp"
+                    tools:text="Venerdì, 24 agosto 2018"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/my_res_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/my_res_time_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_clock_black_24dp"/>
+
+                <TextView
+                    android:id="@+id/my_res_time_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="5dp"
+                    tools:text="10:30"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/my_res_where"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/my_res_where_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_place_black_24dp"/>
+
+                <TextView
+                    android:id="@+id/my_res_where_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="5dp"
+                    tools:text="Via Aurelia 16, Bastia, SV"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/my_res_share_image"
+            app:srcCompat="@drawable/ic_share_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/my_res_where_when_wrapper"
+            android:layout_alignParentEnd="true"
+            android:background="?attr/selectableItemBackground"
+            android:padding="5dp"/>
+
+        <TextView
+            android:id="@+id/my_res_field_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/my_res_where_when_wrapper"
+            android:layout_marginStart="@dimen/card_text_left_margin"
+            android:layout_marginTop="@dimen/card_element_top_margin"
+            tools:text="Campetto di Bastia"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TextView
+            android:id="@+id/my_res_field_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/my_res_field_name"
+            android:layout_alignStart="@id/my_res_contact_button"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:textSize="25sp"
+            tools:text="50 €"/>
+
+        <Button
+            android:id="@+id/my_res_contact_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/my_res_field_price"
+            android:layout_marginEnd="10dp"
+            android:text="@string/contact_owner_button" />
+
+        <TextView
+            android:id="@+id/my_res_field_surface"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/my_res_field_name"
+            android:layout_marginStart="@dimen/card_text_left_margin"
+            android:layout_marginTop="15dp"
+            tools:text="Erba sintetica" />
+
+        <TextView
+            android:id="@+id/my_res_field_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/my_res_field_surface"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginStart="@dimen/card_text_left_margin"
+            tools:text="5 giocatori" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
