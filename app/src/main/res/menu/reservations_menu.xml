@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/hide_calendar"
+        android:title="@string/hide_calendar_menu_item"
+        android:icon="@drawable/ic_show_hide_calendar_white_24dp"
+        app:showAsAction="ifRoom"
+        android:onClick="changeCalendarViewHeight"/>
+
+</menu>
