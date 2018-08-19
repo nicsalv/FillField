@@ -1,5 +1,6 @@
 package com.ale2nico.fillfield.models;
 
+import android.location.Address;
 import android.support.annotation.NonNull;
 
 import com.github.wrdlbrnft.sortedlistadapter.SortedListAdapter;
@@ -23,6 +24,9 @@ public class Field implements SortedListAdapter.ViewModel {
     private double latitude;
     private double longitude;
 
+    //stimated address from coordinates
+    private Address address;
+
     // Working hours of the field. See TimeTable about why we use String.
     private String openingHour;
     private String closingHour;
@@ -37,8 +41,9 @@ public class Field implements SortedListAdapter.ViewModel {
         // Default constructor required for calls to DataSnapshot.getValue(Field.class)
     }
 
+
     public Field(String userId, String name, double latitude, double longitude,
-                 String openingHour, String closingHour) {
+                 String openingHour, String closingHour, Address address) {
 
         // Set field's owner and name
         this.userId = userId;
@@ -46,13 +51,17 @@ public class Field implements SortedListAdapter.ViewModel {
 
         // Set position
         this.latitude = latitude;
+
         this.longitude = longitude;
+        this.address = address;
 
         // Set working hours
         this.openingHour = openingHour;
         this.closingHour = closingHour;
 
     }
+
+    public Address getAddress() { return address; }
 
     public String getUserId() {
         return userId;

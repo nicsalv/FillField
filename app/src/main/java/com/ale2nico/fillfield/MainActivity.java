@@ -62,8 +62,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.threeten.bp.LocalTime;
 
-import java.io.IOException;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -658,8 +656,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onMapReady(GoogleMap map) {
 
-            new AlertDialog.Builder(this).setMessage(R.string.googleMapTextDialog)
-                    .show();
+            Toast.makeText(this, "Tap on the marker in order to obtain directions", Toast.LENGTH_LONG).show();
 
             mMap = map;
 
@@ -676,7 +673,7 @@ public class MainActivity extends AppCompatActivity
             // Add a marker on the field, and move the camera.
             LatLng location = new LatLng(lat, lon);
             mMap.addMarker(new MarkerOptions().position(location).title("Field: "+fieldName));
-            float zoomLevel = 10.0f;
+            float zoomLevel = 12.0f;
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(0, 0))

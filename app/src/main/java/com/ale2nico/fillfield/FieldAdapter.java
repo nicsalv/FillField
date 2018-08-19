@@ -1,11 +1,11 @@
 package com.ale2nico.fillfield;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +37,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Locale;
 import java.util.Map;
 
@@ -261,6 +260,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
             fieldNameTextView.setText(field.getName());
 
+            //TODO: substitute this AsyncTask with the address obtained from db (field.getAddress)
             new DiscoverAddress().execute(field.getLatitude(), field.getLongitude());
 
             fieldAddressTextView.setText(String
@@ -331,38 +331,38 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
         class DiscoverAddress extends AsyncTask<Double, Void, String>{
 
-            Double lat;
-            Double lon;
+                        Double lat;
+                        Double lon;
 
-            @Override
-            protected String doInBackground(Double... params) {
+                        @Override
+                        protected String doInBackground(Double... params) {
 
-                lat = params[0];
-                lon = params[1];
+                            lat = params[0];
+                            lon = params[1];
 
-                //A complete address -> addresses[0]
-                String addressLine = null;
+                            //A complete address -> addresses[0]
+                            String addressLine = null;
 
-                //obtained by splitting addressLine
-                String address = null;
+                            //obtained by splitting addressLine
+                            String address = null;
 
-                //Long vector filled by geocoder Object
-                Address locality = null;
+                            //Long vector filled by geocoder Object
+                            Address locality = null;
 
-                //A list of possible addresses
-                List<Address> addresses = null;
+                            //A list of possible addresses
+                            List<Address> addresses = null;
 
-                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
 
-                //try to get the location from lat e lon
-                try {
-                    addresses = geocoder.getFromLocation(lat, lon, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                            //try to get the location from lat e lon
+                            try {
+                                addresses = geocoder.getFromLocation(lat, lon, 1);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
 
-                if (addresses.size() > 0) {
-                    locality = addresses.get(0);
+                            if (addresses.size() > 0) {
+                                locality = addresses.get(0);
                     addressLine = locality.getAddressLine(0);
                     String[] addressLineSplitted = addressLine.split(",");
                     address = addressLineSplitted[2];
