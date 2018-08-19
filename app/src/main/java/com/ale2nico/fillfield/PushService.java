@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Random;
+
 public class PushService extends Service {
 
     @Nullable
@@ -59,7 +61,7 @@ public class PushService extends Service {
                         if (userId.equals(FirebaseAuth.getInstance().getUid())) {
                             sendNotification("ale2nico.FillField", getResources().getString(R.string.new_reservation),
                                     getResources().getString(R.string.new_reservation_text), getApplicationContext(), MainActivity.class,
-                                    NotificationReceiver.class, 0, 1);
+                                    NotificationReceiver.class, 0, new Random().nextInt(1000));
                         }
 
                     }

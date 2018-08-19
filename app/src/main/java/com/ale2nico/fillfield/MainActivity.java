@@ -73,6 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
@@ -399,9 +400,9 @@ public class MainActivity extends AppCompatActivity
                                 if (delay > 0) {
                                     sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
                                             getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
-                                            NotificationReceiver.class, delay, 0);
+                                            NotificationReceiver.class, delay, new Random().nextInt(1000));
                                 }
-                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_LONG).show();
                             }
                         })
                                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
