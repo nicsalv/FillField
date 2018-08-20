@@ -204,6 +204,31 @@ public class MainActivity extends AppCompatActivity
         // Start notification push service
         startService(new Intent(this, PushService.class));
 
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Stop the service: this cause the Broadcast receiver to restart service
+        stopService(new Intent(this, PushService.class));
+        Log.i("MAINACT", "onDestroy!");
+        super.onDestroy();
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            // Sign-in through the LoginActivity
+            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         // Place the initial fragment into the activity (the HomeFragment).
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -232,31 +257,6 @@ public class MainActivity extends AppCompatActivity
 
             }
         }
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        // Stop the service: this cause the Broadcast receiver to restart service
-        stopService(new Intent(this, PushService.class));
-        Log.i("MAINACT", "onDestroy!");
-        super.onDestroy();
-
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            // Sign-in through the LoginActivity
-            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivityForResult(loginIntent, REQUEST_USER_LOGIN);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         // Opening "My Reservations" or "My Fields" if user clicked on Notification
         if (user != null && getIntent().getStringExtra("notificationFragment") != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
