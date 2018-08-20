@@ -61,7 +61,6 @@ public class PushService extends Service {
                         String fieldName = field.getName();
                         // Send notification if reservation was made on one of user's fields
                         if (userId.equals(FirebaseAuth.getInstance().getUid())) {
-                         //TODO format notification
                             sendNotification("ale2nico.FillField", getResources().getString(R.string.new_reservation),
                                     String.format(getResources().getString(R.string.new_reservation_text), fieldName), getApplicationContext(), MainActivity.class,
                                     NotificationReceiver.class, 0, new Random().nextInt(1000));

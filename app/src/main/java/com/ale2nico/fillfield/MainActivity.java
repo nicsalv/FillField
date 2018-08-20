@@ -99,13 +99,16 @@ public class MainActivity extends AppCompatActivity
     // Firebase Database
     private DatabaseReference mDatabase;
 
-    //BottomNavigation
+    // BottomNavigation
     BottomNavigationView navigation;
 
     public MapFragment mMapFragment;
 
     private GoogleMap mMap;
     private Field actualMapField;
+
+    // Variable for saving actual fragment
+    String fragmentString = "container";
 
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
@@ -141,13 +144,16 @@ public class MainActivity extends AppCompatActivity
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
                     transaction.replace(R.id.fragment_container, new HomeFragment());
+                    fragmentString = "home";
                     break;
                 case R.id.navigation_favourites_fields:
                     // Replace the current fragment in the 'fragment_container'
                     transaction.replace(R.id.fragment_container, new FavouritesFragment());
+                    fragmentString = "favourites";
                     break;
                 case R.id.navigation_profile:
                     transaction.replace(R.id.fragment_container, new ProfileFragment());
+                    fragmentString = "profile";
                     break;
                 default:
                     return false;
@@ -192,6 +198,21 @@ public class MainActivity extends AppCompatActivity
         // Start notification push service
         startService(new Intent(this, PushService.class));
 
+        // Place the initial fragment into the activity (the HomeFragment).
+        // Check that the activity is using the layout version with
+        // the fragment_container FrameLayout
+        if (findViewById(R.id.fragment_container) == null) {
+
+            // Load initial fragment only if there is a signed-in user
+            if (user != null) {
+                // Replace the current fragment in the 'fragment_container'
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, new HomeFragment()).commit();
+                navigation.setSelectedItemId(R.id.navigation_home);
+
+            }
+        }
+
     }
 
     @Override
@@ -206,19 +227,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Place the initial fragment into the activity (the HomeFragment).
-        // Check that the activity is using the layout version with
-        // the fragment_container FrameLayout
-        if (findViewById(R.id.fragment_container) != null) {
-
-            // Load initial fragment only if there is a signed-in user
-            if (user != null) {
-                loadFragmentFromSharedPreferences();
-            }
-        }
     }
-
 
     @Override
     protected void onRestart() {
@@ -252,7 +261,6 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
                         .addToBackStack(null).commit();
             }
-
         }
         // Opening "My Fields" if user clicked on New Reservation Notification
         if (user != null && getIntent().getStringExtra("newReservation") != null) {
@@ -275,27 +283,6 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
-        }
-    }
-
-    private void loadFragmentFromSharedPreferences() {
-        // Get shared preferences
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        // If there isn't any preference, load the HomeFragment
-        String chosen = prefs.getString("home_spinner", "Home");
-
-        switch (chosen) {
-            case "Home":
-                // Replace the current fragment in the 'fragment_container'
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, new HomeFragment()).commit();
-                navigation.setSelectedItemId(R.id.navigation_home);
-                break;
-            case "Favourites":
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, new HomeFragment()).commit();
-                navigation.setSelectedItemId(R.id.navigation_favourites_fields);
-                break;
         }
     }
 
