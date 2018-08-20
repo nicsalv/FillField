@@ -26,6 +26,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MyReservationsAdapter
@@ -55,15 +56,16 @@ public class MyReservationsAdapter
 
                     // Indicates whether the reservation is past or not
                     boolean isPast = LocalDate.parse(currentRes.getDate()).isBefore(LocalDate.now())
+                            || LocalDate.parse(currentRes.getDate()).isEqual(LocalDate.now())
                             && LocalTime.parse(currentRes.getTime()).isBefore(LocalTime.now());
 
                     if (!isPast) {
                         // Add the reservation to the data set
                         reservations.add(currentRes);
-                    }
 
-                    // Get current reservation field info
-                    getReservationFieldInfo(currentRes.getFieldKey());
+                        // Get current reservation field info
+                        getReservationFieldInfo(currentRes.getFieldKey());
+                    }
                 }
                 if (reservations.isEmpty()) {
                     // Hide progress bar and show empty view
