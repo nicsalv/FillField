@@ -13,9 +13,13 @@ import java.util.Map;
 @IgnoreExtraProperties
 public class User {
 
-    private final String email;
-    private final String name;
-    private final String surname;
+    private String email;
+    private String name;
+    private String surname;
+
+    public User() {
+        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
 
     /**
      * costruttore con parametri

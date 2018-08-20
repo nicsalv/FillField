@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FillField</string>
+    <string name="app_name" translatable="false">FillField</string>
     <string name="label_google_sign_in">Firebase + Google Sign In</string>
     <string name="desc_google_sign_in">Use a Google Sign In credential to authenticate with Firebase.</string>
 
@@ -60,7 +60,6 @@
 
     <string name="googleMapTextDialog">Press on the marker to obtain directions</string>
 
-
     <string name="google_status_fmt">Google User: %s</string>
     <string name="google_title_text">Sign in with Google</string>
     <string name="title_text">Fill Field</string>
@@ -92,7 +91,7 @@
     <string name="id_fmt">User ID: %s</string>
     <string name="email_fmt">Email: %s</string>
     <string name="title_activity_main">FillField</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">Nearest</string>
     <string name="title_profile">My profile</string>
     <string name="title_favourites_fields">Favourites</string>
     <string name="title_search_fields">Search</string>
@@ -106,12 +105,11 @@
     <string name="search_info">Enter the name of the field or its location </string>
     <string name="search_result_number">0</string>
 
-
-    <!-- TODO: Remove or change these placeholder texts -->
-    <string name="home_fragment_title">Home Fragment</string>
-    <string name="search_fragment">Search fragment</string>
+    <!-- Fragment Titles -->
     <string name="favourite_fragment_title">Favourite Fields</string>
-    <string name="profile_fragment">Profile fragment</string>
+    <string name="search_fragment">Search Fragment</string>
+    <string name="my_reservations_fragment_title">My Reservations</string>
+    <string name="my_fields_title">My Fields</string>
 
     <!-- Sample text of the cards-->
     <string name="card_image_description">Picture of the field</string>
@@ -119,9 +117,29 @@
     <string name="card_field_title">Title of the field</string>
     <string name="card_reserve">Reserve</string>
     <string name="card_view_map">View map</string>
+    <string name="view_reservations_button">Reservations</string>
 
+    <!-- Reservation dialog texts -->
+    <string name="dialog_time_title">Choose an hour</string>
+    <string name="dialog_time_pos_button">Confirm</string>
+    <string name="dialog_time_neg_button">Cancel</string>
+    <string name="dialog_no_hours_available">There are no hours available on this day</string>
+
+    <!-- Empty view text displayed when there are no fields to show. -->
     <string name="field_list_empty">There aren\'t any fields to show.</string>
+    <string name="my_fields_empty">It seems you don\'t own any fields.</string>
+    <string name="reservations_empty_view">There aren\'t any reservations to show on this day.</string>
 
+    <!-- Text of contact button inside owner reservation list -->
+    <string name="contact_button">Contact</string>
+
+    <!-- User reservation card texts -->
+    <string name="contact_owner_button">Contact owner</string>
+    <string name="my_reservations_empty_view">You don\'t have any reservations.</string>
+
+    <!-- Menu item text inside reservation list -->
+    <string name="hide_calendar_menu_item">Hide calendar</string>
+    <string name="show_calendar_menu_item">Show calendar</string>
 
     <!-- Profile strings -->
     <string name="my_fields">My fields</string>
@@ -171,23 +189,6 @@
     <string name="reservation_success">Reservation made successfully</string>
     <string name="new_reservation"> <b>New Reservation!</b></string>
     <string name="new_reservation_text">Your field \"%1$s\" has a new reservation</string>
-    <string-array name="hours">
-
-        <item> 10-11 </item>
-        <item> 11-12 </item>
-        <item> 12-13 </item>
-        <item> 13-14 </item>
-        <item> 14-15 </item>
-        <item> 15-16 </item>
-        <item> 16-17 </item>
-        <item> 17-18 </item>
-        <item> 18-19 </item>
-        <item> 19-20 </item>
-        <item> 20-21 </item>
-        <item> 21-22 </item>
-        <item> 22-23 </item>
-        <item> 23-00 </item>
-    </string-array>
 
     <string name="facebook_app_id">254099612085542</string>
     <string name="share_action_text">Hi buddy, I have just reserved field \"%1$s\" at %2$s. Do not miss!</string>

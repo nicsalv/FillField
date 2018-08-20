@@ -6,17 +6,23 @@
 
     <android.support.v7.widget.RecyclerView
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/favourite_fields_list"
+        android:id="@+id/my_fields_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/field_card" />
+        tools:listitem="@layout/my_field_card" />
+
+    <ProgressBar
+        android:id="@+id/load_field_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 
     <TextView
-        android:id="@+id/favourite_fields_empty_view"
+        android:id="@+id/my_fields_list_empty_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/field_list_empty"
+        android:text="@string/my_fields_empty"
         android:visibility="gone"/>
 
 </FrameLayout>

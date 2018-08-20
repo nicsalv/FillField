@@ -1,115 +1,76 @@
 package com.ale2nico.fillfield;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.ale2nico.fillfield.dummy.DummyContent;
-import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
 
 /**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
+ * This Fragment displays user's reservations.
+ * Activities that contain this fragment must implement the
+ * {@link MyReservationsFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
  */
-public class MyReservationsFragment extends Fragment implements View.OnClickListener {
+public class MyReservationsFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    // No arguments required (so far)
 
-    //Parameters
-    private TextView fieldNameTextView;
-    private TextView reservationTimeTextView;
-    private Button viewFieldButton;
-    private Button shareBookingButton;
+    // Instance of the hosting activity
+    private OnFragmentInteractionListener mListener;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public MyReservationsFragment() {
-    }
-
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static MyReservationsFragment newInstance(int columnCount) {
-        MyReservationsFragment fragment = new MyReservationsFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
+        // Required empty public constructor
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_myreservations_list, container, false);
-        getActivity().setTitle(getContext().getResources().getString(R.string.my_reservations));
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new MyReservationsAdapter(DummyContent.ITEMS, mListener));
-        }
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_my_reservations, container, false);
+
+        // Get reference to views
+        ProgressBar progressBar = view.findViewById(R.id.my_reservations_progress_bar);
+        TextView emptyTextView = view.findViewById(R.id.my_reservations_empty_view);
+
+        // Initialize recycler
+        RecyclerView myResRecycler = view.findViewById(R.id.my_reservations_list);
+        myResRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
+        // Initialize adapter
+        MyReservationsAdapter myResAdapter = new MyReservationsAdapter(progressBar, emptyTextView);
+        myResRecycler.setAdapter(myResAdapter);
+
         return view;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        fieldNameTextView = getView().findViewById(R.id.field_name);
-        reservationTimeTextView = getView().findViewById(R.id.reservation_time);
-        viewFieldButton = getView().findViewById(R.id.view_map_button);
-        shareBookingButton = (Button) getView().findViewById(R.id.cancel_reservation_button);
-    }
-/*
-    private void share() {
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        String shareBody = "Share!";
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-    }*/
+        // Set the appbar title
+        getActivity().setTitle(getContext()
+                .getResources().getString(R.string.my_reservations_fragment_title));
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+/*        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+                    + " must implement OnFragmentInteractionListener");
         }
+*/
     }
 
     @Override
@@ -118,22 +79,8 @@ public class MyReservationsFragment extends Fragment implements View.OnClickList
         mListener = null;
     }
 
-    @Override
-    public void onClick(View v) {
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+    // TODO: manage button interactions
+    public interface OnFragmentInteractionListener {
+        void onFragmentInteraction(Uri uri);
     }
 }
