@@ -3,6 +3,7 @@ package com.ale2nico.fillfield;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -27,9 +28,6 @@ public class MyReservationsAdapter
 
     private static final String TAG = "MyReservationsAdapter";
 
-    // Field key needed to retrieve information about a field inside a reservation
-    private String currentFieldKey;
-
     // Reservation data set: it doesn't contain field info
     List<Reservation> reservations = new ArrayList<>();
 
@@ -37,7 +35,7 @@ public class MyReservationsAdapter
     Map<String, Field> reservationFields = new HashMap<>();
 
     public MyReservationsAdapter() {
-        // Reference to the user into the database
+        // Reference to the user's reservations into the database
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(getUid()).child("reservations");
 
@@ -92,17 +90,28 @@ public class MyReservationsAdapter
     @NonNull
     @Override
     public MyReservationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        // Inflate 'my_reservation_item' layout into the holder
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.my_reservation_item, parent, false);
+
+        return new MyReservationViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyReservationViewHolder holder, int position) {
+        // Bind reservation info through the reservation list
+        holder.myResDate.setText(reservations.get(position).getDate());
+        holder.myResTime.setText(reservations.get(position).getTime());
 
+        // The fieldkey allows us to obtain field info through the map dataset
+        String fieldKey = reservations.get(position).getFieldKey();
+        holder.myResFieldName.setText(reservationFields.get(fieldKey).getName());
+        // TODO: set all the views of the reservation card
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return reservations.size();
     }
 
     private String getUid() {

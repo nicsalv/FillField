@@ -24,7 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 /**
  * A fragment representing a list of Fields.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnFieldClickListener}
  * interface.
  */
 public class HomeFragment extends Fragment {
@@ -32,7 +32,7 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
     // Interaction listener that passes data to the hosting activity
-    protected HomeFragment.OnListFragmentInteractionListener mListener;
+    protected OnFieldClickListener mListener;
 
     // Firebase References
     protected DatabaseReference mFieldsReference;
@@ -101,8 +101,8 @@ public class HomeFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof OnFieldClickListener) {
+            mListener = (OnFieldClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -133,9 +133,20 @@ public class HomeFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(Field field, String fieldKey, int id);
+    public interface OnFieldClickListener {
+
+        /**
+         * Fired when the user clicks on the 'reserve' button.
+         * @param field The field whose reserve button was clicked
+         * @param fieldKey Fieldkey whose reserve button was clicked
+         */
+        void onReserveButtonClicked(Field field, String fieldKey);
+
+        /**
+         * Fired when the user clicks on the 'map' button.
+         * @param field The field whose map button was clicked
+         */
+        void onMapButtonClicked(Field field);
 
     }
 

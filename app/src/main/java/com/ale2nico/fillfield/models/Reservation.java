@@ -1,5 +1,10 @@
 package com.ale2nico.fillfield.models;
 
+import com.google.firebase.database.Exclude;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a user reservation with some important details.
  * It will be stored inside the user node.
@@ -33,5 +38,15 @@ public class Reservation {
 
     public String getTime() {
         return time;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("fieldKey", fieldKey);
+        result.put("date", date);
+        result.put("time", time);
+
+        return result;
     }
 }

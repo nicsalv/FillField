@@ -20,6 +20,7 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
@@ -35,10 +36,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ale2nico.fillfield.dummy.DummyContent;
 import com.ale2nico.fillfield.models.Field;
 import com.ale2nico.fillfield.models.FieldAgenda;
 import com.ale2nico.fillfield.models.TimeTable;
+import com.ale2nico.fillfield.HomeFragment.OnFieldClickListener;
+import com.ale2nico.fillfield.MyFieldsFragment.OnReservationsButtonClickedListener;
+
 import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -63,10 +66,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
-        implements HomeFragment.OnListFragmentInteractionListener,
-                    MyReservationsFragment.OnListFragmentInteractionListener,
-                    FieldViewFragment.OnFragmentInteractionListener,
-        MyFieldsFragment.OnReservationsButtonClickedListener {
+        implements OnFieldClickListener,
+        OnReservationsButtonClickedListener, DatePickerDialog.OnDateSetListener {
 
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
@@ -82,6 +83,10 @@ public class MainActivity extends AppCompatActivity
 
     //BottomNavigation
     BottomNavigationView navigation;
+
+    // Selected field and fieldKey mantain reservation state.
+    private Field selectedField;
+    private String selectedFieldKey;
 
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
@@ -265,172 +270,181 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(final Field field, final String fieldKey, int id) {
-        switch (id){
-            case R.id.action_1_button:
+    public void onReserveButtonClicked(final Field field, final String fieldKey) {
+        // Save the selected field in order to be able to get it later
+        this.selectedField = field;
+        this.selectedFieldKey = fieldKey;
 
-                // [START] Reservation
-                final DatabaseReference mFieldAgendaRef = mDatabase.child("agenda").child(fieldKey);
-                mFieldAgendaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Show date picker for the reservation
+        showDatePickerDialog();
+
+        // ----------------------------------------
+
+        // [START] Reservation
+        final DatabaseReference mFieldAgendaRef = mDatabase.child("agenda").child(fieldKey);
+        mFieldAgendaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue(FieldAgenda.class) == null) {
+                    mDatabase.child("agenda").child(fieldKey)
+                            .setValue(new FieldAgenda(field.getOpeningHour(), field.getClosingHour()));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        // This array stores the Date in the first cell, and the Time in the second one
+        final String[] reservationDateTime = new String[2];
+
+        // Set listener for DatePickerDialog
+        DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(final DatePicker view, int year, int month, int dayOfMonth) {
+                // Save the chosen Date in the array
+                reservationDateTime[0] = getDateFromPicker(year, month, dayOfMonth);
+
+                final Calendar reservationDay = Calendar.getInstance();
+                reservationDay.set(year, month, dayOfMonth);
+                // Create dialog for selecting reservation time
+                final AlertDialog.Builder reservationDialogBuilder = new AlertDialog.Builder(MainActivity.this,
+                        R.style.Theme_AppCompat_Light_Dialog);
+                // [START] Create centered custom title for dialog
+                TextView title = new TextView(MainActivity.this);
+                title.setText(R.string.reservation_time);
+                title.setGravity(Gravity.CENTER);
+                title.setTextSize(20);
+                title.setTextColor(Color.BLACK);
+                reservationDialogBuilder.setCustomTitle(title);
+                // [END] Create centered custom title for dialog
+
+                // [START] Get free hours
+                List<String> hours = new ArrayList<>();
+                final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                        R.layout.reservation_dialog, hours);
+                getFreeHoursFromDatabase(adapter, hours, fieldKey, reservationDateTime[0]);
+                // [END] Get free hours
+
+                //Set dialog with correct hours
+                reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
+
+                    private int colorOrg = 0x00000000;
+                    private int colorSelected = 0xFF00FF00;
+                    private View previousView;
+
+
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue(FieldAgenda.class) == null) {
-                            mDatabase.child("agenda").child(fieldKey)
-                                    .setValue(new FieldAgenda(field.getOpeningHour(), field.getClosingHour()));
+                    public void onClick(DialogInterface dialog, int which) {
+                        // User clicked on entry, save the choice
+                        ListView listView = ((AlertDialog) dialog).getListView();
+                        // Needed in case of scrolling listView
+                        final int firstListItemPosition = listView.getFirstVisiblePosition();
+
+                        reservationDateTime[1] = adapter.getItem(which).toString();
+                        // Change background color of previously selected item
+                        if(previousView != null) {
+                            previousView.setBackgroundColor(colorOrg);
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                        // Change background color of selected item
+                        listView.getChildAt(which - firstListItemPosition).setBackgroundColor(colorSelected);
+                        previousView = listView.getChildAt(which-firstListItemPosition);
                     }
                 });
 
-                // This array stores the Date in the first cell, and the Time in the second one
-                final String[] reservationDateTime = new String[2];
 
-                // Set listener for DatePickerDialog
-                DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(final DatePicker view, int year, int month, int dayOfMonth) {
-                        // Save the chosen Date in the array
-                        reservationDateTime[0] = getDateFromPicker(year, month, dayOfMonth);
+                // Set confirm and cancel button for reservation
+                reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //TODO add reservation and send notification
+                        // Get reservation data
+                        String date = reservationDateTime[0];
+                        String time = reservationDateTime[1];
+                        onInsertedReservation(mFieldAgendaRef, date, time, user.getUid());
 
-                        final Calendar reservationDay = Calendar.getInstance();
-                        reservationDay.set(year, month, dayOfMonth);
-                        // Create dialog for selecting reservation time
-                        final AlertDialog.Builder reservationDialogBuilder = new AlertDialog.Builder(MainActivity.this,
-                                R.style.Theme_AppCompat_Light_Dialog);
-                        // [START] Create centered custom title for dialog
-                        TextView title = new TextView(MainActivity.this);
-                        title.setText(R.string.reservation_time);
-                        title.setGravity(Gravity.CENTER);
-                        title.setTextSize(20);
-                        title.setTextColor(Color.BLACK);
-                        reservationDialogBuilder.setCustomTitle(title);
-                        // [END] Create centered custom title for dialog
+                        // Reservation done, send notification
 
-                        // [START] Get free hours
-                        List<String> hours = new ArrayList<>();
-                        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
-                                R.layout.reservation_dialog, hours);
-                        getFreeHoursFromDatabase(adapter, hours, fieldKey, reservationDateTime[0]);
-                        // [END] Get free hours
-
-                        //Set dialog with correct hours
-                        reservationDialogBuilder.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
-
-                            private int colorOrg = 0x00000000;
-                            private int colorSelected = 0xFF00FF00;
-                            private View previousView;
-
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // User clicked on entry, save the choice
-                                ListView listView = ((AlertDialog) dialog).getListView();
-                                // Needed in case of scrolling listView
-                                final int firstListItemPosition = listView.getFirstVisiblePosition();
-
-                                reservationDateTime[1] = adapter.getItem(which).toString();
-                                // Change background color of previously selected item
-                                if(previousView != null) {
-                                    previousView.setBackgroundColor(colorOrg);
-                                }
-
-                                // Change background color of selected item
-                                listView.getChildAt(which - firstListItemPosition).setBackgroundColor(colorSelected);
-                                previousView = listView.getChildAt(which-firstListItemPosition);
+                        // Calculate delay
+                        Date reservationDate = convertToDate(reservationDateTime[0], reservationDateTime[1] );
+                        long currentTimeMillis = System.currentTimeMillis();
+                        long reservationTimeMillis = reservationDate.getTime();
+                        // Send the notification one hour before the reservation
+                        long delay = (reservationTimeMillis - 60*60*1000 ) - currentTimeMillis;
+                        if (delay > 0) {
+                            sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
+                                    getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
+                                    NotificationReceiver.class, delay, 0);
+                        }
+                        Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT);
+                    }
+                })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
                             }
                         });
 
-
-                        // Set confirm and cancel button for reservation
-                        reservationDialogBuilder.setPositiveButton(R.string.confirm_reservation, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //TODO add reservation and send notification
-                                // Get reservation data
-                                String date = reservationDateTime[0];
-                                String time = reservationDateTime[1];
-                                onInsertedReservation(mFieldAgendaRef, date, time, user.getUid());
-
-                                // Reservation done, send notification
-
-                                // Calculate delay
-                                Date reservationDate = convertToDate(reservationDateTime[0], reservationDateTime[1] );
-                                long currentTimeMillis = System.currentTimeMillis();
-                                long reservationTimeMillis = reservationDate.getTime();
-                                // Send the notification one hour before the reservation
-                                long delay = (reservationTimeMillis - 60*60*1000 ) - currentTimeMillis;
-                                if (delay > 0) {
-                                    sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
-                                            getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
-                                            NotificationReceiver.class, delay, 0);
-                                }
-                                Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_SHORT);
-                            }
-                        })
-                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // User cancelled the dialog
-                                    }
-                                });
-
-                        // Show the dialog for selecting reservation hour
-                        reservationDialogBuilder.show();
-                    }
-                };
+                // Show the dialog for selecting reservation hour
+                reservationDialogBuilder.show();
+            }
+        };
 
 
-                // Creation of calendar for today date and DatePickerDialog
-                Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-                DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, 0,
-                        onDateSetListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH));
-                datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
-                datePickerDialog.show();
+        // Creation of calendar for today date and DatePickerDialog
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, 0,
+                onDateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.show();
 
-                //  [END] Reservation
-
-                break;
-            case R.id.action_2_button:
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-
-                //Create the bundle
-                Bundle bundle = new Bundle();
-
-                //Add your data to bundle
-                bundle.putDouble("EXTRA_LAT", field.getLatitude());
-                bundle.putDouble("EXTRA_LON", field.getLongitude());
-                bundle.putString("EXTRA_FIELD_NAME", field.getName());
-
-                //Add the bundle to the intent
-                intent.putExtras(bundle);
-
-                //Fire that second activity
-                startActivity(intent);
-
-                break;
-
-        }
-
+        //  [END] Reservation
     }
 
-    // TODO: remove this method
+    public void showDatePickerDialog() {
+        DialogFragment datePickerFragment = new DateDialogFragment();
+        datePickerFragment.show(getSupportFragmentManager(), "datePickerDialog");
+    }
+
+    /**
+     * This method is called when the user selects a date inside the date picker.
+     * It shows another dialog containing reservation times available for the field.
+     * @param view The DatePicker displayed
+     * @param year Reservation year selected
+     * @param month Reservation month selected
+     * @param dayOfMonth Reservation day selected
+     */
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        // User selected a date in the date picker.
+        // Show reservation times available for the selected field in another dialog.
 
-        // Passing to the FieldViewFragment
 
-            FieldViewFragment fieldViewFragment = new FieldViewFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fieldViewFragment)
-                    .addToBackStack(null)
-                    .commit();
     }
 
+    @Override
+    public void onMapButtonClicked(Field field) {
+        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+
+        //Create the bundle
+        Bundle bundle = new Bundle();
+
+        //Add your data to bundle
+        bundle.putDouble("EXTRA_LAT", field.getLatitude());
+        bundle.putDouble("EXTRA_LON", field.getLongitude());
+        bundle.putString("EXTRA_FIELD_NAME", field.getName());
+
+        //Add the bundle to the intent
+        intent.putExtras(bundle);
+
+        //Fire that second activity
+        startActivity(intent);
+    }
 
     @Override
     public void onNewIntent(Intent intent){
@@ -652,4 +666,5 @@ public class MainActivity extends AppCompatActivity
         // Commit the transaction
         transaction.commit();
     }
+
 }

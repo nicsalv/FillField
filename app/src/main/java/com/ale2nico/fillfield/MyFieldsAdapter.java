@@ -18,6 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.models.Field;
+import com.ale2nico.fillfield.MyFieldsFragment.OnReservationsButtonClickedListener;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,7 +51,7 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
     private Map<String, ByteBuffer> myFieldsImage = new HashMap<>();
 
     // Instance of the hosting activity
-    private MyFieldsFragment.OnReservationsButtonClickedListener mListener;
+    private OnReservationsButtonClickedListener mListener;
 
     // Reference to the empty view: it'll be hidden when there is at least one field to show.
     private TextView emptyTextView;
@@ -58,7 +60,7 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
     Context mContext;
 
     public MyFieldsAdapter(Context context,
-                           MyFieldsFragment.OnReservationsButtonClickedListener listener,
+                           OnReservationsButtonClickedListener listener,
                            View rootView,
                            final ProgressBar progressBar) {
         mContext = context;

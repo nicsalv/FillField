@@ -17,8 +17,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ale2nico.fillfield.HomeFragment.OnListFragmentInteractionListener;
-import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
+import com.ale2nico.fillfield.HomeFragment.OnFieldClickListener;
 import com.ale2nico.fillfield.models.Field;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,11 +40,6 @@ import java.util.Locale;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHolder> {
 
     public static final String TAG = "FieldAdapter";
@@ -62,12 +56,12 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     private Map<String, ByteBuffer> mFieldImage = new HashMap<>();
 
     // Interaction listener passes data to the hosting activity
-    private final HomeFragment.OnListFragmentInteractionListener mListener;
+    private final OnFieldClickListener mListener;
 
     private Context context;
 
     public FieldAdapter(DatabaseReference ref,
-                        HomeFragment.OnListFragmentInteractionListener listener) {
+                        OnFieldClickListener listener) {
         mDatabaseReference = ref;
         mListener = listener;
     }
@@ -117,7 +111,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(mFields.get(position), fieldKey, v.getId());
+                    mListener.onReserveButtonClicked(mFields.get(position), fieldKey);
                 }
             }
         });
@@ -127,7 +121,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(mFields.get(position), fieldKey, v.getId());
+                    mListener.onMapButtonClicked(mFields.get(position));
                 }
             }
         });

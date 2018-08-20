@@ -1,28 +1,22 @@
 package com.ale2nico.fillfield;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ale2nico.fillfield.dummy.DummyContent;
-import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
 import com.ale2nico.fillfield.firebaselisteners.FavouriteChildEventListener;
-import com.ale2nico.fillfield.firebaselisteners.HomeChildEventListener;
 import com.google.firebase.database.ChildEventListener;
 
 /**
  * A fragment representing a list of Fields that are marked
  * as favourite by the user.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the
+ * {@link com.ale2nico.fillfield.HomeFragment.OnFieldClickListener}
  * interface.
  */
 public class FavouritesFragment extends HomeFragment {
