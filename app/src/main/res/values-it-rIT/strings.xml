@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FillField</string>
+    <string name="sign_in">Accedi</string>
+    <string name="sign_out">Esci</string>
+    <string name="title_home">I più vicini</string>
+    <string name="title_profile">Il mio profilo</string>
+    <string name="title_favourites_fields">Preferiti</string>
+    <string name="title_search_fields">Cerca</string>
+    <string name="search_hint">Cerca un campo</string>
+    <string name="search_title">Cerca</string>
+    <string name="result_text">Risultati:</string>
+    <string name="favourite_fragment_title">Campi preferiti</string>
+    <string name="my_profile">Il mio profilo</string>
+    <string name="my_fields_title">I miei campi</string>
+    <string name="card_reserve">Prenota</string>
+    <string name="card_view_map">Mappa</string>
+    <string name="view_reservations_button">Prenotazioni</string>
+    <string name="field_list_empty">Nessun campo da mostrare.</string>
+    <string name="my_fields_empty">Non sei il proprietario di alcun campo.</string>
+    <string name="reservatins_empty_view">Nessuna prenotazione da mostrare per questo giorno.</string>
+    <string name="contact_button">Contatta</string>
+    <string name="hide_calendar_menu_item">Nascondi il calendario</string>
+    <string name="show_calendar_menu_item">Mostra il calendario</string>
+    <string name="my_fields">I miei campi</string>
+    <string name="settings">Impostazioni</string>
+    <string name="sign_out_message">Vuoi davvero uscire da questo account?</string>
+    <string name="sign_out_title">Esci</string>
+    <string name="sign_out_confirm">Esci</string>
+    <string name="cancel">Annulla</string>
+    <string name="contact_us">Vuoi aggiungere il tuo campo? <a href="mailto:ale2nico.fillfield@gmail.com">Contattaci!</a></string>
+    <string name="my_reservations">Le mie prenotazioni</string>
+    <string name="search_fragment_title">Cerca</string>
+    <string name="reservation_time">Ora della prenotazione</string>
+    <string name="specific_field">Campo</string>
+    <string name="final_dialog_reservation">Vuoi confermare la prenotazione?</string>
+    <string name="confirm_reservation">Conferma</string>
+    <string name="field_price">Prezzo</string>
+    <string name="field_dimen">Dimensione</string>
+    <string name="field_surface">Superficie</string>
+    <string name="remember_reservation"><b>Ricorda la tua prenotazione!</b></string>
+    <string name="remember_reservation_text">La tua prenotazione comincia tra un\'ora</string>
+    <string name="reservation_success">Prenotazione effettuata</string>
+</resources>

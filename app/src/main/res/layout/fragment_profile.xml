@@ -15,8 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="240sp"
         android:scaleType="centerCrop"
-        android:contentDescription="@string/profile_picture"
-        />
+        android:contentDescription="@string/profile_picture" />
+
     <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
 
@@ -33,8 +33,7 @@
         android:scaleType="centerCrop"
         android:layout_alignBottom="@id/profile_background"
         android:layout_marginBottom="40sp"
-        app:srcCompat="@drawable/no_profile_pic"
-        />
+        app:srcCompat="@drawable/no_profile_pic" />
 
     <TextView
         android:id="@+id/name_surname"
@@ -44,16 +43,14 @@
         android:textSize="35sp"
         android:layout_alignBottom="@id/profile_background"
         android:textStyle="bold"
-        android:gravity="center_horizontal"
-        />
+        android:gravity="center_horizontal" />
 
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_below="@id/name_surname"
         android:orientation="vertical"
-        android:background="@color/grey_100"
-        >
+        android:background="@color/grey_100">
 
     <TextView
         android:id="@+id/my_fields"
@@ -67,7 +64,7 @@
         android:text="@string/my_fields"
         app:srcCompat="@drawable/ic_fields_icon"
         android:drawablePadding="8dp"
-        />
+        android:background="?attr/selectableItemBackground" />
 
         <View
             android:layout_width="match_parent"

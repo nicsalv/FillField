@@ -1,108 +1,282 @@
 package com.ale2nico.fillfield;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.ale2nico.fillfield.MyFieldsFragment.OnListFragmentInteractionListener;
-import com.ale2nico.fillfield.dummy.DummyContent.DummyItem;
+import com.ale2nico.fillfield.models.Field;
+import com.ale2nico.fillfield.MyFieldsFragment.OnReservationsButtonClickedListener;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
-public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.ViewHolder> {
+public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFieldViewHolder> {
 
-    private final List<DummyItem> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private static final String TAG = "MyFieldsAdapter";
 
-    public MyFieldsAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
-        mValues = items;
+    // List of the fields stored into the database
+    private List<String> myFieldsIds = new ArrayList<>();
+    private List<Field> myFields = new ArrayList<>();
+
+    // Field images stored as byte array keyed by fieldKey
+    private Map<String, ByteBuffer> myFieldsImage = new HashMap<>();
+
+    // Instance of the hosting activity
+    private OnReservationsButtonClickedListener mListener;
+
+    // Reference to the empty view: it'll be hidden when there is at least one field to show.
+    private TextView emptyTextView;
+
+    // Used into the AsyncTask
+    Context mContext;
+
+    public MyFieldsAdapter(Context context,
+                           OnReservationsButtonClickedListener listener,
+                           View rootView,
+                           final ProgressBar progressBar) {
+        mContext = context;
         mListener = listener;
+
+        // Get a reference of the empty view from the fragment layout
+        emptyTextView = rootView.findViewById(R.id.my_fields_list_empty_view);
+
+        // This listener gains all the fields that the currently signed-in user owns.
+        ValueEventListener myFieldsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // Add every field that the user owns into the list
+                for (DataSnapshot fieldSnap : dataSnapshot.getChildren()) {
+                    String currentFieldKey = fieldSnap.getKey();
+                    Field currentField = fieldSnap.getValue(Field.class);
+
+                    if (currentField.getUserId().equals(getUid())) {
+                        // Signed-in user owns this field. Add it to the list.
+                        myFieldsIds.add(currentFieldKey);
+                        int fieldIndex = myFieldsIds.indexOf(currentFieldKey);
+                        if (fieldIndex != -1) {
+                            myFields.add(fieldIndex, currentField);
+                            notifyItemInserted(fieldIndex);
+                        }
+                    }
+                }
+                // Hide the progress bar
+                progressBar.setVisibility(View.GONE);
+
+                // If there are no fields to show, display empty view
+                if (myFields.isEmpty()) {
+                    emptyTextView.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "It wasn't possible to get user's fields.");
+            }
+        };
+
+        // Reference to the 'fields' node into the database
+        DatabaseReference mFieldsReference;
+        mFieldsReference = FirebaseDatabase.getInstance().getReference().child("fields");
+
+        // Add the listener to the reference
+        mFieldsReference.addListenerForSingleValueEvent(myFieldsListener);
+    }
+
+    @NonNull
+    @Override
+    public MyFieldViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Inflate the layout for the field card
+        View fieldCard = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.my_field_card, parent, false);
+
+        return new MyFieldViewHolder(fieldCard);
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.field_card, parent, false);
-        return new ViewHolder(view);
-    }
+    public void onBindViewHolder(@NonNull MyFieldViewHolder holder, int position) {
+        final String fieldKey = myFieldsIds.get(position);
+        Field field = myFields.get(position);
 
-    @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        // Set the content inside the ViewHolder
-        holder.mItem = mValues.get(position);
-        holder.fieldPositionTextView.setText(mValues.get(position).id);
-        holder.fieldTitleTextView.setText(mValues.get(position).content);
-
-        // Set the listeners to the action buttons
-        holder.action1Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
-
-                }
-            }
-        });
-        holder.action2Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
-                }
-            }
-        });
+        holder.bindToField(field, fieldKey);
     }
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return myFields.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    private String getUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
 
-        // Card
-        public final View fieldView;
+    public class MyFieldViewHolder extends RecyclerView.ViewHolder {
 
-        // Elements of the card
-        public final ImageView favoriteImageButton;
-        public final TextView fieldPositionTextView;
-        public final TextView fieldTitleTextView;
-        // TODO: rename these buttons
-        public final Button action1Button;
-        public final Button action2Button;
+        // View elements of the card
+        public ImageView myFieldImage;
+        public TextView myFieldAddress;
+        public TextView myFieldName;
+        public Button viewReservationButton;
+        public TextView myFieldPrice;
+        public TextView myFieldSurface;
+        public TextView myFieldSize;
 
-        // Contains the data that will fill the view
-        public DummyItem mItem;
+        public MyFieldViewHolder(View v) {
+            super(v);
 
-        public ViewHolder(View view) {
-            super(view);
-            // Get references of the 'view' so as to edit their contents later
-            fieldView = view;
-            favoriteImageButton = (ImageView) view.findViewById(R.id.heart);
-            fieldPositionTextView = (TextView) view.findViewById(R.id.card_field_address);
-            fieldTitleTextView = (TextView) view.findViewById(R.id.card_field_name);
-            action1Button = (Button) view.findViewById(R.id.action_1_button);
-            action2Button = (Button) view.findViewById(R.id.action_2_button);
-
+            myFieldImage = v.findViewById(R.id.card_my_field_image);
+            myFieldAddress = v.findViewById(R.id.card_my_field_address);
+            myFieldName = v.findViewById(R.id.card_my_field_name);
+            viewReservationButton = v.findViewById(R.id.view_reservations);
+            myFieldPrice = v.findViewById(R.id.my_field_price);
+            myFieldSurface = v.findViewById(R.id.my_field_surface);
+            myFieldSize = v.findViewById(R.id.my_field_size);
         }
 
-        @Override
-        public String toString() {
-            return super.toString() + " '" + fieldTitleTextView.getText() + "'";
+        private void bindToField(Field field, final String fieldKey) {
+            // Download and set the picture of the field (done at first because it can take much time).
+            downloadAndSetFieldImage(fieldKey);
+
+            // Find a human-readable address to display into the card
+            new DiscoverAddress().execute(field.getLatitude(), field.getLongitude());
+
+            // Add listener to the reservations button
+            viewReservationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null) {
+                        mListener.onReservationsButtonClicked(fieldKey);
+                    }
+                }
+            });
+
+            // TODO: set all the field's fields
+            myFieldName.setText(field.getName());
         }
+
+        private void downloadAndSetFieldImage(final String fieldKey) {
+            // Check if the image has already been downloaded
+            if (myFieldsImage.containsKey(fieldKey)) {
+                // No need to download, just set it into the view
+                setFieldImage(myFieldsImage.get(fieldKey).array());
+                return;
+            }
+
+            // Get reference to the image on the cloud
+            StorageReference fieldImageRef
+                    = FirebaseStorage.getInstance().getReference().child(fieldKey + ".jpg");
+
+            // Declare maximum size for download, otherwise it could fill the memory and
+            // make the app crash.
+            final long ONE_MEGABYTE = 1024 * 1024;
+
+            // Start the image download with the method 'getBytes' and set
+            // it into the ImageView once it has finished.
+            fieldImageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] fieldImageBytes) {
+                    // Store the image into the adapter so as to avoid downloading it again
+                    ByteBuffer imageByteBuffer = ByteBuffer.wrap(fieldImageBytes);
+                    myFieldsImage.put(fieldKey, imageByteBuffer);
+
+                    setFieldImage(fieldImageBytes);
+                }
+
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("Firebase Cloud Storage",
+                            "A problem occured when trying to fetch image.");
+                }
+            });
+        }
+
+        private void setFieldImage(byte[] fieldImageBytes) {
+            // Generate a bitmap image from the byte array
+            Bitmap fieldImageBitmap = BitmapFactory
+                    .decodeByteArray(fieldImageBytes, 0, fieldImageBytes.length);
+
+            // Set the image into the field card after having removed the grey background
+            myFieldImage.setBackground(null);
+            myFieldImage.setImageBitmap(fieldImageBitmap);
+        }
+
+        class DiscoverAddress extends AsyncTask<Double, Void, String> {
+
+            Double lat;
+            Double lon;
+
+            @Override
+            protected String doInBackground(Double... params) {
+
+                lat = params[0];
+                lon = params[1];
+
+                //A complete address -> addresses[0]
+                String addressLine = null;
+
+                //obtained by splitting addressLine
+                String address = null;
+
+                //Long vector filled by geocoder Object
+                Address locality = null;
+
+                //A list of possible addresses
+                List<Address> addresses = null;
+
+                Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+
+                //try to get the location from lat e lon
+                try {
+                    addresses = geocoder.getFromLocation(lat, lon, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (addresses.size() > 0) {
+                    locality = addresses.get(0);
+                    addressLine = locality.getAddressLine(0);
+                    String[] addressLineSplitted = addressLine.split(",");
+                    address = addressLineSplitted[2];
+                }
+
+
+                return address;
+            }
+
+            @Override
+            protected void onPostExecute(String result){
+                myFieldAddress.setText(result);
+            }
+        }
+
     }
 }

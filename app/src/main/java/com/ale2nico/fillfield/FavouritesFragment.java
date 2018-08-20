@@ -1,10 +1,8 @@
 package com.ale2nico.fillfield;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +15,8 @@ import com.google.firebase.database.ChildEventListener;
  * A fragment representing a list of Fields that are marked
  * as favourite by the user.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the
+ * {@link com.ale2nico.fillfield.HomeFragment.OnFieldClickListener}
  * interface.
  */
 public class FavouritesFragment extends HomeFragment {
@@ -48,15 +47,14 @@ public class FavouritesFragment extends HomeFragment {
         View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
 
         // Initializing RecyclerView and its layout
-        mFieldsRecycler = view.findViewById(R.id.list);
+        mFieldsRecycler = view.findViewById(R.id.favourite_fields_list);
         mFieldsRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // Initializing adapter
         mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
 
-        // Register an observer for the adapter
+        // Initialize an observer for the adapter: it'll be registered in onStart().
         fieldAdapterObserver = mFieldAdapter.new FieldAdapterObserver(view);
-        mFieldAdapter.registerAdapterDataObserver(fieldAdapterObserver);
 
         // Attach a listener to the adapter for communicating with Firebase
         ChildEventListener favoriteChildEventListener
@@ -84,6 +82,14 @@ public class FavouritesFragment extends HomeFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        // Register the adapter observer
+        mFieldAdapter.registerAdapterDataObserver(fieldAdapterObserver);
+    }
+
+    @Override
     public void onStop() {
         // Unregister the adapter observer
         mFieldAdapter.unregisterAdapterDataObserver(fieldAdapterObserver);
@@ -96,7 +102,7 @@ public class FavouritesFragment extends HomeFragment {
     }
 
     private void showEmptyView(View rootView) {
-        TextView emptyTextView = (TextView) rootView.findViewById(R.id.field_list_empty_text_view);
+        TextView emptyTextView = (TextView) rootView.findViewById(R.id.favourite_fields_empty_view);
         emptyTextView.setVisibility(View.VISIBLE);
     }
 }

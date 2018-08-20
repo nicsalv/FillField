@@ -47,7 +47,7 @@ public class FavouriteChildEventListener extends HomeChildEventListener {
             if (fieldIndex > -1) {
                 // Remove the field
                 fieldAdapter.getFieldsIds().remove(fieldIndex);
-                //fieldAdapter.getFields().remove(fieldIndex);
+                fieldAdapter.getFields().remove(fieldIndex);
 
                 // Update RecyclerView
                 fieldAdapter.notifyItemRemoved(fieldIndex);
