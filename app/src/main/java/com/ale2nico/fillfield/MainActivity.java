@@ -131,7 +131,6 @@ public class MainActivity extends AppCompatActivity
                     .beginTransaction();
 
             if(mMapFragment != null){
-                Toast.makeText(getApplicationContext(), "bonaa", Toast.LENGTH_LONG);
                 android.app.FragmentTransaction fragmentTransaction =
                         getFragmentManager().beginTransaction();
                 fragmentTransaction.remove(mMapFragment).commit();
@@ -219,6 +218,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
 
     @Override
     protected void onRestart() {

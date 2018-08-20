@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import com.ale2nico.fillfield.models.Field;
+import com.ale2nico.fillfield.models.FieldAgenda;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -57,10 +58,12 @@ public class PushService extends Service {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         Field field = dataSnapshot.getValue(Field.class);
                         String userId = field.getUserId();
+                        String fieldName = field.getName();
                         // Send notification if reservation was made on one of user's fields
                         if (userId.equals(FirebaseAuth.getInstance().getUid())) {
+                         //TODO format notification
                             sendNotification("ale2nico.FillField", getResources().getString(R.string.new_reservation),
-                                    getResources().getString(R.string.new_reservation_text), getApplicationContext(), MainActivity.class,
+                                    String.format(getResources().getString(R.string.new_reservation_text), fieldName), getApplicationContext(), MainActivity.class,
                                     NotificationReceiver.class, 0, new Random().nextInt(1000));
                         }
 
