@@ -288,6 +288,7 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack(null).commit();
 
         }
+
     }
 
     @Override
@@ -470,6 +471,8 @@ public class MainActivity extends AppCompatActivity
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, uri);
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
+
+
     }
 
 
@@ -532,7 +535,6 @@ public class MainActivity extends AppCompatActivity
 
         // Schedule notification with two intents:
         // notificationIntent for attaching to the BroadcastReceiver
-        notificationId = notificationId + 1;
         Intent notificationIntent = new Intent(packageContext, notificationReceiver);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, notificationId);
         notificationIntent.putExtra(NotificationReceiver.NOTIFICATION, notification);
