@@ -1,6 +1,7 @@
 package com.ale2nico.fillfield;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -54,6 +55,9 @@ public class ReservationsFragment extends Fragment
     // Reference to the calendar widget in order to be able to hide it
     private CalendarView calendarView;
 
+    // Instance of the hosting activity in order to send email with contact button
+    private OnContactButtonClickListener contactButtonListener;
+
     public ReservationsFragment() {
         // Required empty public constructor
     }
@@ -71,6 +75,24 @@ public class ReservationsFragment extends Fragment
         args.putString(ARG_FIELD_KEY, fieldKey);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnContactButtonClickListener) {
+            contactButtonListener = (OnContactButtonClickListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnReservationsButtonClickedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        contactButtonListener = null;
     }
 
     @Override
@@ -104,7 +126,7 @@ public class ReservationsFragment extends Fragment
 
         // Initialing adapter for the RecyclerView. At first it'll get reservations for today.
         mReservationsAdapter = new ReservationsAdapter(fieldKey, LocalDate.now().toString(),
-                loadingProgressBar, emptyTextView, mReservationsRecycler);
+                loadingProgressBar, emptyTextView, mReservationsRecycler, contactButtonListener);
         mReservationsRecycler.setAdapter(mReservationsAdapter);
 
         return view;
@@ -179,5 +201,10 @@ public class ReservationsFragment extends Fragment
 
         // Set selected date into the adapter
         mReservationsAdapter.setSelectedDate(selectedDate);
+    }
+
+    public interface OnContactButtonClickListener {
+
+        public void onContactButtonClick(String userEmail);
     }
 }

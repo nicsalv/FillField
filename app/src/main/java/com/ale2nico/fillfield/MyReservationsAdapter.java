@@ -6,12 +6,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.models.Field;
 import com.ale2nico.fillfield.models.Reservation;
+import com.ale2nico.fillfield.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,13 +38,17 @@ public class MyReservationsAdapter
 
     private ProgressBar progressBar;
 
+    private ReservationsFragment.OnContactButtonClickListener contactButtonClickListener;
+
     // Reservation data set: it doesn't contain field info
     List<Reservation> reservations = new ArrayList<>();
 
     // Fields inside reservations
     Map<String, Field> reservationFields = new HashMap<>();
+    Map<String, String> reservationOwnerEmails = new HashMap<>();
 
-    public MyReservationsAdapter(final ProgressBar progressBar, final TextView emptyTextView) {
+    public MyReservationsAdapter(final ProgressBar progressBar, final TextView emptyTextView,
+                                 ReservationsFragment.OnContactButtonClickListener listener) {
         // Reference to the user's reservations into the database
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(getUid()).child("reservations");
@@ -81,6 +87,7 @@ public class MyReservationsAdapter
         });
 
         this.progressBar = progressBar;
+        this.contactButtonClickListener = listener;
     }
 
     private void getReservationFieldInfo(final String fieldKey) {
@@ -96,6 +103,30 @@ public class MyReservationsAdapter
                 // Add the field to the data set so as to be displayed by the adapter
                 reservationFields.put(fieldKey, field);
 
+                getOwnerInfo(fieldKey, field.getUserId());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "Cannot retrieve field information inside reservation");
+            }
+        });
+    }
+
+    private void getOwnerInfo(String fieldKey, String userKey) {
+        // Database reference to the user
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
+                .child("users").child(userKey);
+
+        // Get user info
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User ownerUser = dataSnapshot.getValue(User.class);
+
+                // Store the user email into the map
+                reservationOwnerEmails.put(fieldKey, ownerUser.getEmail());
+
                 // Hide progress bar
                 progressBar.setVisibility(View.GONE);
 
@@ -106,7 +137,7 @@ public class MyReservationsAdapter
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d(TAG, "Cannot retrieve field information inside reservation");
+
             }
         });
     }
@@ -130,6 +161,13 @@ public class MyReservationsAdapter
         // The fieldKey allows us to obtain field info through the map data set
         String fieldKey = reservations.get(position).getFieldKey();
         holder.myResFieldName.setText(reservationFields.get(fieldKey).getName());
+
+        holder.contactOwnerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                contactButtonClickListener.onContactButtonClick(reservationOwnerEmails.get(fieldKey));
+            }
+        });
         // TODO: set all the views of the reservation card
     }
 
@@ -150,6 +188,7 @@ public class MyReservationsAdapter
         public TextView myResPlace;
         public ImageView myResShareImageView;
         public TextView myResFieldName;
+        public Button contactOwnerButton;
 
         public MyReservationViewHolder(View view) {
             super(view);
@@ -160,6 +199,7 @@ public class MyReservationsAdapter
             myResPlace = view.findViewById(R.id.my_res_where_text);
             myResShareImageView = view.findViewById(R.id.my_res_share_image);
             myResFieldName = view.findViewById(R.id.my_res_field_name);
+            contactOwnerButton = view.findViewById(R.id.my_res_contact_button);
         }
 
         public String formatDate(String dateToFormat) {

@@ -25,7 +25,7 @@ public class MyReservationsFragment extends Fragment {
     // No arguments required (so far)
 
     // Instance of the hosting activity
-    private OnFragmentInteractionListener mListener;
+    private ReservationsFragment.OnContactButtonClickListener contactButtonClickListener;
 
     public MyReservationsFragment() {
         // Required empty public constructor
@@ -46,7 +46,8 @@ public class MyReservationsFragment extends Fragment {
         myResRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // Initialize adapter
-        MyReservationsAdapter myResAdapter = new MyReservationsAdapter(progressBar, emptyTextView);
+        MyReservationsAdapter myResAdapter
+                = new MyReservationsAdapter(progressBar, emptyTextView, contactButtonClickListener);
         myResRecycler.setAdapter(myResAdapter);
 
         return view;
@@ -64,23 +65,18 @@ public class MyReservationsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-/*        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof ReservationsFragment.OnContactButtonClickListener) {
+            contactButtonClickListener = (ReservationsFragment.OnContactButtonClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-*/
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    // TODO: manage button interactions
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+        contactButtonClickListener = null;
     }
 }

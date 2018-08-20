@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
         implements OnFieldClickListener,
         OnReservationsButtonClickedListener,
         DatePickerDialog.OnDateSetListener, OnTimeDialogClickListener,
-        OnMapReadyCallback{
+        OnMapReadyCallback, ReservationsFragment.OnContactButtonClickListener {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -622,4 +622,13 @@ public class MainActivity extends AppCompatActivity
                 super.onBackPressed();
             }
         }
+
+    @Override
+    public void onContactButtonClick(String userEmail) {
+        // Open email app
+        Intent contactIntent = new Intent(Intent.ACTION_SENDTO,
+                Uri.fromParts("mailto", userEmail, null));
+
+        startActivity(contactIntent);
+    }
 }

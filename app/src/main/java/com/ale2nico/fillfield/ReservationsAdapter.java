@@ -1,7 +1,9 @@
 package com.ale2nico.fillfield;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +32,8 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
     private ProgressBar loadingProgressBar;
     private TextView emptyTextView;
 
+    private ReservationsFragment.OnContactButtonClickListener contactButtonClickListener;
+
     // Reference to the calendar into the database
     private DatabaseReference calendarRef;
     private ValueEventListener calendarListener;
@@ -42,7 +46,8 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
 
     public ReservationsAdapter(String fieldKey, String selectedDate,
                                final ProgressBar loadingProgressBar, final TextView emptyTextView,
-                               RecyclerView mReservationsRecycler) {
+                               RecyclerView mReservationsRecycler,
+                               ReservationsFragment.OnContactButtonClickListener contactButtonListener) {
         // Specific listener for retrieving reservation on a selected date
         calendarListener = new ValueEventListener() {
             @Override
@@ -54,6 +59,7 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
                 if (currentTimeTable != null) {
                     reservationTimes = currentTimeTable.timesToList();
                     reservations = currentTimeTable.toList(reservationTimes);
+
                     getUsersInfo();
                 } else {
                     // Empty the two lists
@@ -79,6 +85,7 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
         this.mReservationsRecycler = mReservationsRecycler;
         this.loadingProgressBar = loadingProgressBar;
         this.emptyTextView = emptyTextView;
+        this.contactButtonClickListener = contactButtonListener;
 
         // This reference points to the timetable of the selected date of the selected field
         calendarRef = FirebaseDatabase.getInstance().getReference()
@@ -108,12 +115,20 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
     public void onBindViewHolder(@NonNull ReservationViewHolder holder, int position) {
         // Retrieve reservation info from the adapter list
         String reservationTime = reservationTimes.get(position).substring(0, 2); // Don't display minutes
-        String reservationUser = reservations.get(position);
+        String reservationUser = reservations.get(position).split(",")[0];
+        String reservationUserEmail = reservations.get(position).split(",")[1];
 
         // Bind info to the view
         holder.reservationStartTime.setText(reservationTime);
         holder.reservationUser.setText(reservationUser);
-        // TODO: connect contact_button
+
+        holder.contactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Write email to user
+                contactButtonClickListener.onContactButtonClick(reservationUserEmail);
+            }
+        });
         // TODO: get user information (so far you just print the userId)
     }
 
@@ -135,7 +150,11 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
 
                     // Get name and surname
                     String completeName
-                            = reservationUser.getSurname() + " " + reservationUser.getName();
+                            = reservationUser.getSurname() + " " + reservationUser.getName() + ","
+                            + reservationUser.getEmail();
+
+                    // Get email
+                    String email = reservationUser.getEmail();
 
                     // Update reservation info
                     reservations.set(reservations.indexOf(userKey), completeName);
