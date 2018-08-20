@@ -25,7 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnListFragmentInteractionListener} interface
+ * {@link HomeFragment.OnFieldClickListener} interface
  * to handle interaction events.
  * Use the {@link SearchFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -60,7 +60,7 @@ public class SearchFragment extends Fragment {
     // The layout manager is provided inside the 'onCreateView' method.
     // It depends on the number of column of the list.
 
-    private HomeFragment.OnListFragmentInteractionListener mListener;
+    private HomeFragment.OnFieldClickListener mListener;
 
 
     public SearchFragment() {
@@ -144,8 +144,8 @@ public class SearchFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof HomeFragment.OnListFragmentInteractionListener) {
-            mListener = (HomeFragment.OnListFragmentInteractionListener) context;
+        if (context instanceof HomeFragment.OnFieldClickListener) {
+            mListener = (HomeFragment.OnFieldClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
