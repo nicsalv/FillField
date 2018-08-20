@@ -2,6 +2,7 @@ package com.ale2nico.fillfield;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.Fragment;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -48,6 +49,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -90,6 +92,9 @@ public class MainActivity extends AppCompatActivity
     // Request login code
     public static final int REQUEST_USER_LOGIN = 1;
 
+    public static final String HOME_FRAGMENT = "HOME_FRAGMENT";
+    public static final String PROFILE_FRAGMENT = "PROFILE_FRAGMENT";
+    public static final String FAVOURITES_FRAGMENT = "FAVOURITES_FRAGMENT";
     // Firebase Authentication
     private FirebaseAuth mAuth;
 
@@ -107,8 +112,6 @@ public class MainActivity extends AppCompatActivity
     private GoogleMap mMap;
     private Field actualMapField;
 
-    // Variable for saving actual fragment
-    String fragmentString = "container";
 
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
@@ -138,22 +141,18 @@ public class MainActivity extends AppCompatActivity
                         getFragmentManager().beginTransaction();
                 fragmentTransaction.remove(mMapFragment).commit();
             }
-
             switch (item.getItemId()) {
 
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
-                    transaction.replace(R.id.fragment_container, new HomeFragment());
-                    fragmentString = "home";
+                    transaction.replace(R.id.fragment_container, new HomeFragment(),HOME_FRAGMENT);
                     break;
                 case R.id.navigation_favourites_fields:
                     // Replace the current fragment in the 'fragment_container'
-                    transaction.replace(R.id.fragment_container, new FavouritesFragment());
-                    fragmentString = "favourites";
+                    transaction.replace(R.id.fragment_container, new FavouritesFragment(), FAVOURITES_FRAGMENT);
                     break;
                 case R.id.navigation_profile:
-                    transaction.replace(R.id.fragment_container, new ProfileFragment());
-                    fragmentString = "profile";
+                    transaction.replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
                     break;
                 default:
                     return false;
@@ -201,14 +200,28 @@ public class MainActivity extends AppCompatActivity
         // Place the initial fragment into the activity (the HomeFragment).
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
-        if (findViewById(R.id.fragment_container) == null) {
-
+        if (findViewById(R.id.fragment_container) != null) {
+            android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             // Load initial fragment only if there is a signed-in user
             if (user != null) {
                 // Replace the current fragment in the 'fragment_container'
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, new HomeFragment()).commit();
-                navigation.setSelectedItemId(R.id.navigation_home);
+                if (fragment instanceof ProfileFragment || fragment instanceof FavouritesFragment
+                        || fragment instanceof MyFieldsFragment || fragment instanceof MyReservationsFragment
+                        || fragment instanceof SearchingFragment || fragment instanceof FieldViewFragment
+                        || fragment instanceof SupportMapFragment) {
+                    Log.d("HOME FRAGMENT", "Load correct fragment");
+                }
+                else {
+                    Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
+                    if (f instanceof MapFragment) {
+                        Log.d("HOME FRAGMENT", "Inside map fragment");
+                    }
+                    else {
+                        getSupportFragmentManager().beginTransaction()
+                                .add(R.id.fragment_container, new HomeFragment(), HOME_FRAGMENT).commit();
+                        navigation.setSelectedItemId(R.id.navigation_home);
+                    }
+                }
 
             }
         }
@@ -674,7 +687,8 @@ public class MainActivity extends AppCompatActivity
         public void onBackPressed() {
             if (getFragmentManager().getBackStackEntryCount() > 0 ){
                 getFragmentManager().popBackStack();
-            } else {
+                }
+                else {
                 super.onBackPressed();
             }
         }
