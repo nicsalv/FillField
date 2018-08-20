@@ -107,6 +107,7 @@
     <!-- Fragment Titles -->
     <string name="favourite_fragment_title">Favourite Fields</string>
     <string name="search_fragment">Search Fragment</string>
+    <string name="my_reservations_fragment_title">My Reservations</string>
     <string name="my_profile">My profile</string>
     <string name="my_fields_title">My Fields</string>
 
@@ -122,6 +123,7 @@
     <string name="dialog_time_title">Choose an hour</string>
     <string name="dialog_time_pos_button">Confirm</string>
     <string name="dialog_time_neg_button">Cancel</string>
+    <string name="dialog_no_hours_available">There are no hours available on this day</string>
 
     <!-- Empty view text displayed when there are no fields to show. -->
     <string name="field_list_empty">There aren\'t any fields to show.</string>

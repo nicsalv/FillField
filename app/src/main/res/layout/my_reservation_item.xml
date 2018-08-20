@@ -33,6 +33,7 @@
                     android:id="@+id/my_res_date_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     app:srcCompat="@drawable/ic_calendar_black_24dp" />
 
                 <TextView
@@ -40,8 +41,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginStart="5dp"
-                    tools:text="Venerdì, 24 agosto 2018"/>
+                    android:layout_marginStart="15dp"
+                    android:textSize="18sp"
+                    tools:text="Venerdì, 24 agosto 2018" />
 
             </LinearLayout>
 
@@ -56,6 +58,7 @@
                     android:id="@+id/my_res_time_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     app:srcCompat="@drawable/ic_clock_black_24dp"/>
 
                 <TextView
@@ -63,8 +66,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginStart="5dp"
-                    tools:text="10:30"/>
+                    android:layout_marginStart="15dp"
+                    android:textSize="18sp"
+                    tools:text="10:30" />
 
             </LinearLayout>
 
@@ -79,6 +83,7 @@
                     android:id="@+id/my_res_where_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     app:srcCompat="@drawable/ic_place_black_24dp"/>
 
                 <TextView
@@ -86,7 +91,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginStart="5dp"
+                    android:layout_marginStart="15dp"
                     tools:text="Via Aurelia 16, Bastia, SV"/>
 
             </LinearLayout>

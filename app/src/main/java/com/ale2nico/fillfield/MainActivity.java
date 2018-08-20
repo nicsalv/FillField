@@ -367,11 +367,13 @@ public class MainActivity extends AppCompatActivity
         String yearStr = Integer.toString(year);
 
         // Months are numbered from 0 to 11, that's why there's an eight and not a nine..
-        String monthStr = month > 8 ? Integer.toString(month + 1) : "0" + Integer.toString(month + 1);
+        String monthStr = month > 8 ?
+                Integer.toString(month + 1) : "0" + Integer.toString(month + 1);
 
-        String dayofMonthStr = dayOfMonth > 9 ? Integer.toString(dayOfMonth) : "0" + Integer.toString(dayOfMonth);
+        String dayOfMonthStr = dayOfMonth > 9 ?
+                Integer.toString(dayOfMonth) : "0" + Integer.toString(dayOfMonth);
 
-        return yearStr + "-" + monthStr + "-" + dayofMonthStr;
+        return yearStr + "-" + monthStr + "-" + dayOfMonthStr;
     }
 
     public void insertReservationIntoAgenda() {
@@ -446,6 +448,17 @@ public class MainActivity extends AppCompatActivity
         transaction.commit();
     }
 
+    /**
+     * This method is implemented here for allowing this activity obtain
+     * the selected time from the {@link TimeDialogAdapter}.
+     * It's defined in the {@link OnTimeDialogClickListener}.
+     * @param selectedTime Selected time in the dialog
+     */
+    @Override
+    public void onTimeDialogClick(String selectedTime) {
+        this.selectedTime = selectedTime;
+    }
+
     @Override
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
@@ -466,17 +479,6 @@ public class MainActivity extends AppCompatActivity
             default:
                 break;
         }
-    }
-
-    /**
-     * This method is implemented here for allowing this activity to obtain
-     * the selected time from the {@link TimeDialogAdapter}.
-     * It's defined in the {@link OnTimeDialogClickListener}
-     * @param selectedTime Selected time in the dialog
-     */
-    @Override
-    public void onTimeDialogClick(String selectedTime) {
-        this.selectedTime = selectedTime;
     }
 
     /**

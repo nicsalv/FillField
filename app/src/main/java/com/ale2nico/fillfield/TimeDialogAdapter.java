@@ -1,9 +1,12 @@
 package com.ale2nico.fillfield;
 
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.ale2nico.fillfield.models.FieldAgenda;
 import com.ale2nico.fillfield.models.TimeTable;
@@ -23,6 +26,9 @@ public class TimeDialogAdapter extends ArrayAdapter<String> {
 
     private static final String TAG = "TimeDialogAdapter";
 
+    // Reference to the dialog
+    private AlertDialog timeDialog;
+
     public TimeDialogAdapter(@NonNull Context context, int resource,
                              final String selectedDate, String fieldKey) {
         super(context, resource);
@@ -40,14 +46,9 @@ public class TimeDialogAdapter extends ArrayAdapter<String> {
                 if (mFieldAgenda.getTimeTable(selectedDate) == null) {
                     // There are no reservation on this day, all times are available.
 
-                    // Build available hours list and add them to the data set
+                    // Build available hours list
                     List<String> availableHours = buildHoursList(mFieldAgenda.getOpeningHour(),
-                            mFieldAgenda.getClosingHour(), new ArrayList<String>());
-
-                    if (LocalDate.parse(selectedDate).isEqual(LocalDate.now())) {
-                        // Selected date is today: remove past hours
-                        removeTodayPastHours(availableHours);
-                    }
+                            mFieldAgenda.getClosingHour(), new ArrayList<String>(), selectedDate);
 
                     // Add available hours to data set
                     addAll(availableHours);
@@ -59,14 +60,9 @@ public class TimeDialogAdapter extends ArrayAdapter<String> {
                     // Build unavailable hours list
                     List<String> busyHours = buildBusyHoursList(timeTable);
 
-                    // Build available hours list and add them to the data set
+                    // Build available hours list
                     List<String> availableHours = buildHoursList(mFieldAgenda.getOpeningHour(),
-                            mFieldAgenda.getClosingHour(), busyHours);
-
-                    if (LocalDate.parse(selectedDate).isEqual(LocalDate.now())) {
-                        // Selected date is today: remove past hours
-                        removeTodayPastHours(availableHours);
-                    }
+                            mFieldAgenda.getClosingHour(), busyHours, selectedDate);
 
                     // Add available hours to data set
                     addAll(availableHours);
@@ -74,6 +70,14 @@ public class TimeDialogAdapter extends ArrayAdapter<String> {
 
                 // Notify the AdapterView that it should refresh itself
                 notifyDataSetChanged();
+
+                if (!isEmpty()) {
+                    // If there is at least one hour available, enable positive button
+                    timeDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+                } else {
+                    // Display a toast to inform that there are no hours available
+                    Toast.makeText(getContext(), R.string.dialog_no_hours_available, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -81,6 +85,10 @@ public class TimeDialogAdapter extends ArrayAdapter<String> {
                 Log.d(TAG, "Cannot retrieve available hours from Firebase");
             }
         });
+    }
+
+    public void setTimeDialog(AlertDialog timeDialog) {
+        this.timeDialog = timeDialog;
     }
 
     /**
@@ -91,16 +99,23 @@ public class TimeDialogAdapter extends ArrayAdapter<String> {
      * @param busyHours Busy hour on selected date
      * @return a list with available reservation times on the selected date
      */
-    public List<String> buildHoursList(String openingHour, String closingHour, List<String> busyHours) {
+    public List<String> buildHoursList(String openingHour, String closingHour,
+                                       List<String> busyHours, String selectedDate) {
         List<String> result = new ArrayList<>();
+
+        // Check if the reservation is for today
+        boolean dateIsToday = LocalDate.parse(selectedDate).isEqual(LocalDate.now());
 
         // Check available hours from opening time
         String currentHour = openingHour;
 
         while (LocalTime.parse(currentHour).isBefore(LocalTime.parse(closingHour))) {
             if (busyHours.indexOf(currentHour) == -1) {
-                // currentHour is available, add it to result.
-                result.add(currentHour);
+                // currentHour is available...
+                if (!dateIsToday || LocalTime.parse(currentHour).isAfter(LocalTime.now())) {
+                    // ...currentHour is still in the future, add it to result
+                    result.add(currentHour);
+                }
             }
 
             // Increment currentHour of one
@@ -132,16 +147,5 @@ public class TimeDialogAdapter extends ArrayAdapter<String> {
         }
 
         return result;
-    }
-
-    private void removeTodayPastHours(List<String> hoursList) {
-        List<String> pastHours = new ArrayList<>();
-
-        for (String time : hoursList) {
-            if (LocalTime.parse(time).isBefore(LocalTime.now())) {
-                // 'time' is past, so it has no sense to show it as available
-                pastHours.add(time);
-            }
-        }
     }
 }

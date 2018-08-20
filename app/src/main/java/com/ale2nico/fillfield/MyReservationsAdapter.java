@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.models.Field;
@@ -18,6 +19,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +32,15 @@ public class MyReservationsAdapter
 
     private static final String TAG = "MyReservationsAdapter";
 
+    private ProgressBar progressBar;
+
     // Reservation data set: it doesn't contain field info
     List<Reservation> reservations = new ArrayList<>();
 
     // Fields inside reservations
     Map<String, Field> reservationFields = new HashMap<>();
 
-    public MyReservationsAdapter() {
+    public MyReservationsAdapter(final ProgressBar progressBar, final TextView emptyTextView) {
         // Reference to the user's reservations into the database
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(getUid()).child("reservations");
@@ -49,17 +55,23 @@ public class MyReservationsAdapter
                     // Add the reservation to the list
                     reservations.add(currentRes);
 
-                    // Get field info of current reservation
+                    // Get current reservation field info
                     getReservationFieldInfo(currentRes.getFieldKey());
+                }
+                if (reservations.isEmpty()) {
+                    // Hide progress bar and show empty view
+                    progressBar.setVisibility(View.GONE);
+                    emptyTextView.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Log.d(TAG, "Cannot retrieve reservation information from Firebase");
             }
         });
 
+        this.progressBar = progressBar;
     }
 
     private void getReservationFieldInfo(final String fieldKey) {
@@ -74,6 +86,9 @@ public class MyReservationsAdapter
 
                 // Add the field to the data set so as to be displayed by the adapter
                 reservationFields.put(fieldKey, field);
+
+                // Hide progress bar
+                progressBar.setVisibility(View.GONE);
 
                 // Now both reservation and field are ready to display,
                 // so we can notify the adapter to update its content.
@@ -100,10 +115,10 @@ public class MyReservationsAdapter
     @Override
     public void onBindViewHolder(@NonNull MyReservationViewHolder holder, int position) {
         // Bind reservation info through the reservation list
-        holder.myResDate.setText(reservations.get(position).getDate());
+        holder.myResDate.setText(holder.formatDate(reservations.get(position).getDate()));
         holder.myResTime.setText(reservations.get(position).getTime());
 
-        // The fieldkey allows us to obtain field info through the map dataset
+        // The fieldKey allows us to obtain field info through the map data set
         String fieldKey = reservations.get(position).getFieldKey();
         holder.myResFieldName.setText(reservationFields.get(fieldKey).getName());
         // TODO: set all the views of the reservation card
@@ -136,6 +151,14 @@ public class MyReservationsAdapter
             myResPlace = view.findViewById(R.id.my_res_where_text);
             myResShareImageView = view.findViewById(R.id.my_res_share_image);
             myResFieldName = view.findViewById(R.id.my_res_field_name);
+        }
+
+        public String formatDate(String dateToFormat) {
+            // Format date with a specified formatter
+            LocalDate result = LocalDate.parse(dateToFormat);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy");
+
+            return result.format(formatter);
         }
     }
 }

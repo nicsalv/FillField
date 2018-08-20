@@ -16,6 +16,9 @@ public class TimeDialogFragment extends DialogFragment {
     private static final String ARG_SELECTED_DATE = "selectedDate";
     private static final String ARG_FIELD_KEY = "fieldKey";
 
+    // Reference to the alert dialog
+    private AlertDialog timeDialog;
+
     // Selected date chosen by the user in the previous date picker dialog
     private String selectedDate;
 
@@ -72,6 +75,20 @@ public class TimeDialogFragment extends DialogFragment {
                     }
                 });
 
-        return builder.create();
+        // Save reference to dialog in order to modify it later
+        timeDialog = builder.create();
+
+        // Attach the dialog to the adapter so it can be modified later
+        timeDialogAdapter.setTimeDialog(timeDialog);
+
+        timeDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                // Disable confirm button while adapter fetches available hours
+                timeDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+            }
+        });
+
+        return timeDialog;
     }
 }
