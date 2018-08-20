@@ -490,6 +490,8 @@ public class MainActivity extends AppCompatActivity
 
                 // Insert the reservation into the database
                 insertReservation(newRes);
+                // Send notification reminder
+                sendNotification();
                 break;
             case DialogInterface.BUTTON_NEGATIVE:
                 // Clear the reservation state
@@ -566,6 +568,21 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
         return convertedDate;
+    }
+
+    public void sendNotification() {
+        // Calculate delay
+        Date reservationDate = convertToDate(selectedDate, selectedTime);
+        long currentTimeMillis = System.currentTimeMillis();
+        long reservationTimeMillis = reservationDate.getTime();
+        // Send the notification one hour before the reservation
+        long delay = (reservationTimeMillis - 60*60*1000 ) - currentTimeMillis;
+        if (delay > 0) {
+            sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
+                    getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
+                    NotificationReceiver.class, delay, new Random().nextInt(1000));
+        }
+        Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_LONG).show();
     }
 
 
