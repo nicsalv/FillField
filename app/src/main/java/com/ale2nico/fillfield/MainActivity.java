@@ -1,5 +1,7 @@
 package com.ale2nico.fillfield;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Notification;
@@ -11,10 +13,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
-import android.net.Uri;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -23,6 +27,7 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
@@ -44,6 +49,8 @@ import com.ale2nico.fillfield.models.Field;
 import com.ale2nico.fillfield.models.FieldAgenda;
 import com.ale2nico.fillfield.models.TimeTable;
 import com.firebase.client.Firebase;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -67,19 +74,21 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.TimeZone;
 
+import static android.location.LocationManager.GPS_PROVIDER;
+
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnListFragmentInteractionListener,
-                    MyReservationsFragment.OnListFragmentInteractionListener,
-                    FieldViewFragment.OnFragmentInteractionListener,
-                    MyFieldsFragment.OnListFragmentInteractionListener,
-                    OnMapReadyCallback {
+        MyReservationsFragment.OnListFragmentInteractionListener,
+        FieldViewFragment.OnFragmentInteractionListener,
+        MyFieldsFragment.OnListFragmentInteractionListener,
+        OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -105,6 +114,14 @@ public class MainActivity extends AppCompatActivity
     private GoogleMap mMap;
     private Field actualMapField;
 
+    private Location lastKnownLocation;
+    private static final int MY_PERMISSIONS_REQUEST_LOCALIZATION = 200;
+    private LocationManager locationManager;
+
+    // Acquire a reference to the system Location Manager
+
+    String locationProvider;
+
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
             = new FirebaseAuth.AuthStateListener() {
@@ -128,7 +145,7 @@ public class MainActivity extends AppCompatActivity
             android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
 
-            if(mMapFragment != null){
+            if (mMapFragment != null) {
                 Toast.makeText(getApplicationContext(), "bonaa", Toast.LENGTH_LONG);
                 android.app.FragmentTransaction fragmentTransaction =
                         getFragmentManager().beginTransaction();
@@ -139,7 +156,14 @@ public class MainActivity extends AppCompatActivity
 
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
-                    transaction.replace(R.id.fragment_container, new HomeFragment());
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        //there are not permissions
+                        transaction.replace(R.id.fragment_container, new HomeFragment());
+                    }else {
+                        //permissions are granted
+                        checkPermissionsAndFindPosition();
+                    }
+
                     break;
                 case R.id.navigation_favourites_fields:
                     // Replace the current fragment in the 'fragment_container'
@@ -154,13 +178,131 @@ public class MainActivity extends AppCompatActivity
 
             // Clear the back stack
             FragmentManager fm = getSupportFragmentManager();
-            for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
                 fm.popBackStack();
             }
             transaction.commit();
             return true;
         }
     };
+
+
+
+    private LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+            lastKnownLocation = location;
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCALIZATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
+                    checkPermissionsAndFindPosition();
+
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getApplicationContext(), "non ci sono i permessi", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+
+        }
+
+    }
+
+    public void checkPermissionsAndFindPosition(){
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        String locationProvider = LocationManager.GPS_PROVIDER;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,  new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCALIZATION);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+
+            }
+
+        }else{
+            //Toast.makeText(getApplicationContext(), "ci sono gia i permessi", Toast.LENGTH_SHORT).show();
+
+            locationManager.requestLocationUpdates(locationProvider, 0,
+                    0, mLocationListener);
+            lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            Toast.makeText(getApplicationContext(), "Localization: "+lastKnownLocation.getLatitude()+", "+lastKnownLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+            // Remove the listener you previously added
+            locationManager.removeUpdates(mLocationListener);
+
+            //creation of SearchFragment with search_query argument
+            HomeFragment homeFragment = new HomeFragment();
+            Bundle args = new Bundle();
+            args.putDouble("ARG_LAT", lastKnownLocation.getLatitude());
+            args.putDouble("ARG_LON", lastKnownLocation.getLongitude());
+            homeFragment.setArguments(args);
+
+            // Replace the current fragment with the selected fragment --> showing result in a particular fragment
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction();
+            transaction.replace(R.id.fragment_container, homeFragment).commit();
+
+
+
+        }
+
+    }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,6 +356,9 @@ public class MainActivity extends AppCompatActivity
             // Load initial fragment only if there is a signed-in user
             if (user != null) {
                 loadFragmentFromSharedPreferences();
+                //new FindUserAccuracy().execute();
+                // Acquire a reference to the system Location Manager
+                checkPermissionsAndFindPosition();
             }
         }
     }
@@ -236,7 +381,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
-            fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
+            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment());
             navigation.setSelectedItemId(R.id.navigation_profile);
             // Load My reservations fragment if user clicked on Reminder
             if (getIntent().getStringExtra("notificationFragment").equals("myReservationsFragment")) {
@@ -257,7 +402,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
-            fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
+            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment());
             navigation.setSelectedItemId(R.id.navigation_profile);
             // Load My fields fragment
             MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
@@ -299,7 +444,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(final Field field, final String fieldKey, int id) {
-        switch (id){
+        switch (id) {
             case R.id.action_1_button:
 
                 // [START] Reservation
@@ -367,13 +512,13 @@ public class MainActivity extends AppCompatActivity
 
                                 reservationDateTime[1] = adapter.getItem(which).toString();
                                 // Change background color of previously selected item
-                                if(previousView != null) {
+                                if (previousView != null) {
                                     previousView.setBackgroundColor(colorOrg);
                                 }
 
                                 // Change background color of selected item
                                 listView.getChildAt(which - firstListItemPosition).setBackgroundColor(colorSelected);
-                                previousView = listView.getChildAt(which-firstListItemPosition);
+                                previousView = listView.getChildAt(which - firstListItemPosition);
                             }
                         });
 
@@ -390,11 +535,11 @@ public class MainActivity extends AppCompatActivity
                                 // Reservation done, send notification
 
                                 // Calculate delay
-                                Date reservationDate = convertToDate(reservationDateTime[0], reservationDateTime[1] );
+                                Date reservationDate = convertToDate(reservationDateTime[0], reservationDateTime[1]);
                                 long currentTimeMillis = System.currentTimeMillis();
                                 long reservationTimeMillis = reservationDate.getTime();
                                 // Send the notification one hour before the reservation
-                                long delay = (reservationTimeMillis - 60*60*1000 ) - currentTimeMillis;
+                                long delay = (reservationTimeMillis - 60 * 60 * 1000) - currentTimeMillis;
                                 if (delay > 0) {
                                     sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
                                             getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
@@ -454,16 +599,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
-       // THIS GOES TO MY RESERVATIONS RECYCLER VIEW
+        // THIS GOES TO MY RESERVATIONS RECYCLER VIEW
         Double latitude = 44.054932231450536;
         Double longitude = 8.212966918945312;
         String fieldName = "Da Rossi";
         String reservationTime = "19:00";
         // Full string to send, including maps preview and plain text
         String uri = "http://maps.google.com/maps?q=" +
-                latitude + ","+longitude + "\n\n" +
+                latitude + "," + longitude + "\n\n" +
                 String.format(getResources().getString(R.string.share_action_text),
-                      fieldName, reservationTime);
+                        fieldName, reservationTime);
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, uri);
@@ -472,9 +617,9 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public void onNewIntent(Intent intent){
+    public void onNewIntent(Intent intent) {
         setIntent(intent);
-        if(Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
@@ -540,10 +685,10 @@ public class MainActivity extends AppCompatActivity
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         long futureInMillis = SystemClock.elapsedRealtime() + delay;
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Do something for marshmallow and above versions
-            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,  futureInMillis, pendingIntent);
-        } else{
+            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+        } else {
             // do something for phones running an SDK before marshmallow
             alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
         }
@@ -553,11 +698,11 @@ public class MainActivity extends AppCompatActivity
 
     //Convert the date into a string that matches the pattern requested from LocalTime
     public String getDateFromPicker(int year, int month, int dayOfMonth) {
-       String yearStr = Integer.toString(year);
-       String monthStr = month > 9 ? Integer.toString(month) : "0" + Integer.toString(month);
-       String dayofMonthStr = dayOfMonth > 9 ? Integer.toString(dayOfMonth) : "0" + Integer.toString(dayOfMonth);
+        String yearStr = Integer.toString(year);
+        String monthStr = month > 9 ? Integer.toString(month) : "0" + Integer.toString(month);
+        String dayofMonthStr = dayOfMonth > 9 ? Integer.toString(dayOfMonth) : "0" + Integer.toString(dayOfMonth);
 
-       return yearStr + "-" + monthStr + "-" + dayofMonthStr;
+        return yearStr + "-" + monthStr + "-" + dayofMonthStr;
     }
 
     public void getFreeHoursFromDatabase(final ArrayAdapter<String> adapter, final List<String> freeHours, final String fieldKey, final String date) {
@@ -653,32 +798,95 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-        @Override
-        public void onMapReady(GoogleMap map) {
+    @Override
+    public void onMapReady(GoogleMap map) {
 
-            Toast.makeText(this, "Tap on the marker in order to obtain directions", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Tap on the marker in order to obtain directions", Toast.LENGTH_LONG).show();
 
-            mMap = map;
+        mMap = map;
 
-            String fieldName = "";
-            Double lat = 0.0;
-            Double lon = 0.0;
+        String fieldName = "";
+        Double lat = 0.0;
+        Double lon = 0.0;
 
-            if(actualMapField != null) {
-                lat = actualMapField.getLatitude();
-                lon = actualMapField.getLongitude();
-                fieldName = actualMapField.getName();
-            }
-
-            // Add a marker on the field, and move the camera.
-            LatLng location = new LatLng(lat, lon);
-            mMap.addMarker(new MarkerOptions().position(location).title("Field: "+fieldName));
-            float zoomLevel = 12.0f;
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
-            map.addMarker(new MarkerOptions()
-                    .position(new LatLng(0, 0))
-                    .title("Marker"));
+        if (actualMapField != null) {
+            lat = actualMapField.getLatitude();
+            lon = actualMapField.getLongitude();
+            fieldName = actualMapField.getName();
         }
+
+        // Add a marker on the field, and move the camera.
+        LatLng location = new LatLng(lat, lon);
+        mMap.addMarker(new MarkerOptions().position(location).title("Field: " + fieldName));
+        float zoomLevel = 12.0f;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(0, 0))
+                .title("Marker"));
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    class FindUserAccuracy extends AsyncTask<Double, Void, Location> {
+
+        Double lat;
+        Double lon;
+
+        @SuppressLint("MissingPermission")
+        @Override
+        protected Location doInBackground(Double... params) {
+
+            final Location[] lastKnownLocation = new Location[1];
+
+            // Acquire a reference to the system Location Manager
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+            // Define a listener that responds to location updates
+            LocationListener locationListener = new LocationListener() {
+                public void onLocationChanged(Location location) {
+                    // Called when a new location is found by the network location provider.
+                    //makeUseOfNewLocation(location);
+                    lastKnownLocation[0] = location;
+                }
+
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+
+                public void onProviderEnabled(String provider) {
+                }
+
+                public void onProviderDisabled(String provider) {
+                }
+            };
+
+
+            String locationProvider = GPS_PROVIDER;
+            locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+            lastKnownLocation[0] = locationManager.getLastKnownLocation(locationProvider);
+
+
+            return lastKnownLocation[0];
+        }
+
+        @Override
+        protected void onPostExecute(Location result){
+            Toast.makeText(getApplicationContext(), "Location: "+result.getLatitude()+", "+result.getLongitude(), Toast.LENGTH_SHORT).show();
+
+        }
+    }
 
         @Override
         public void onBackPressed() {

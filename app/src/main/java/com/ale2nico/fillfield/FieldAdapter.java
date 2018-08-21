@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.HomeFragment.OnListFragmentInteractionListener;
@@ -65,11 +66,28 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
     private Context context;
 
+    private ProgressBar progressBar;
+
+    //getting user position for sorting
+    private Double lat = null;
+    private Double lon = null;
+
 
     public FieldAdapter(DatabaseReference ref,
                         HomeFragment.OnListFragmentInteractionListener listener) {
         mDatabaseReference = ref;
         mListener = listener;
+    }
+    public FieldAdapter(DatabaseReference ref,
+                        HomeFragment.OnListFragmentInteractionListener listener, Double lat, Double lon) {
+        mDatabaseReference = ref;
+        mListener = listener;
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    public void setProgressBar(ProgressBar progressBar){
+        this.progressBar = progressBar;
     }
 
     @Override
@@ -176,6 +194,10 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         return mFieldsIds;
     }
 
+    public void setmFields(List<Field> mFields) {
+        this.mFields = mFields;
+    }
+
     public List<Field> getFields() {
         return mFields;
     }
@@ -213,6 +235,10 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             // Hide the empty view
             TextView emptyViewText = layoutView.findViewById(R.id.field_list_empty_text_view);
             emptyViewText.setVisibility(View.GONE);
+
+            if(progressBar != null){
+                progressBar.setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -221,6 +247,11 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             if (getItemCount() == 0) {
                 TextView emptyTextView = (TextView) layoutView
                         .findViewById(R.id.field_list_empty_text_view);
+
+                if(progressBar != null){
+                    progressBar.setVisibility(View.GONE);
+                }
+
                 emptyTextView.setVisibility(View.VISIBLE);
             }
         }
