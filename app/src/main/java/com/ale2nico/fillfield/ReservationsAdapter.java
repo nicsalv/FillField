@@ -116,17 +116,21 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
         // Retrieve reservation info from the adapter list
         String reservationTime = reservationTimes.get(position).substring(0, 2); // Don't display minutes
         String reservationUser = reservations.get(position).split(",")[0];
-        String reservationUserEmail = reservations.get(position).split(",")[1];
+        String reservationUserEmail = null;
+        if(reservations.get(position).contains(",")) {
+            reservationUserEmail = reservations.get(position).split(",")[1];
+        }
 
         // Bind info to the view
         holder.reservationStartTime.setText(reservationTime);
         holder.reservationUser.setText(reservationUser);
 
+        String finalReservationUserEmail = reservationUserEmail;
         holder.contactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Write email to user
-                contactButtonClickListener.onContactButtonClick(reservationUserEmail);
+                contactButtonClickListener.onContactButtonClick(finalReservationUserEmail);
             }
         });
         // TODO: get user information (so far you just print the userId)

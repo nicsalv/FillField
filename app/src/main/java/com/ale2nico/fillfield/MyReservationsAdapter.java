@@ -40,6 +40,7 @@ public class MyReservationsAdapter
 
     private ReservationsFragment.OnContactButtonClickListener contactButtonClickListener;
 
+    private ReservationsFragment.ShareImageClickListener shareImageClickListener;
     // Reservation data set: it doesn't contain field info
     List<Reservation> reservations = new ArrayList<>();
 
@@ -48,7 +49,8 @@ public class MyReservationsAdapter
     Map<String, String> reservationOwnerEmails = new HashMap<>();
 
     public MyReservationsAdapter(final ProgressBar progressBar, final TextView emptyTextView,
-                                 ReservationsFragment.OnContactButtonClickListener listener) {
+                                 ReservationsFragment.OnContactButtonClickListener listener,
+                                 ReservationsFragment.ShareImageClickListener shareListener) {
         // Reference to the user's reservations into the database
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(getUid()).child("reservations");
@@ -88,6 +90,7 @@ public class MyReservationsAdapter
 
         this.progressBar = progressBar;
         this.contactButtonClickListener = listener;
+        this.shareImageClickListener = shareListener;
     }
 
     private void getReservationFieldInfo(final String fieldKey) {
@@ -157,7 +160,6 @@ public class MyReservationsAdapter
         // Bind reservation info through the reservation list
         holder.myResDate.setText(holder.formatDate(reservations.get(position).getDate()));
         holder.myResTime.setText(reservations.get(position).getTime());
-
         // The fieldKey allows us to obtain field info through the map data set
         String fieldKey = reservations.get(position).getFieldKey();
         holder.myResFieldName.setText(reservationFields.get(fieldKey).getName());
@@ -168,7 +170,13 @@ public class MyReservationsAdapter
                 contactButtonClickListener.onContactButtonClick(reservationOwnerEmails.get(fieldKey));
             }
         });
-        // TODO: set all the views of the reservation card
+        holder.myResShareImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareImageClickListener.onShareImageClick((String) holder.myResFieldName.getText(),
+                        (String) holder.myResDate.getText(), (String) holder.myResTime.getText());
+            }
+        });
     }
 
     @Override
@@ -186,9 +194,9 @@ public class MyReservationsAdapter
         public TextView myResDate;
         public TextView myResTime;
         public TextView myResPlace;
-        public ImageView myResShareImageView;
         public TextView myResFieldName;
         public Button contactOwnerButton;
+        public ImageView myResShareImageView;
 
         public MyReservationViewHolder(View view) {
             super(view);
@@ -200,6 +208,8 @@ public class MyReservationsAdapter
             myResShareImageView = view.findViewById(R.id.my_res_share_image);
             myResFieldName = view.findViewById(R.id.my_res_field_name);
             contactOwnerButton = view.findViewById(R.id.my_res_contact_button);
+            myResShareImageView = view.findViewById(R.id.my_res_share_image);
+
         }
 
         public String formatDate(String dateToFormat) {

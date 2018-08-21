@@ -191,5 +191,6 @@
     <string name="new_reservation_text">Your field \"%1$s\" has a new reservation</string>
 
     <string name="facebook_app_id">254099612085542</string>
-    <string name="share_action_text">Hi buddy, I have just reserved field \"%1$s\" at %2$s. Do not miss!</string>
+    <string name="share_action_text">Hi buddy, I have just reserved field \"%1$s\" for %2$s at %3$s. Do not miss!</string>
+    <string name="share_via">Share via</string>
 </resources>

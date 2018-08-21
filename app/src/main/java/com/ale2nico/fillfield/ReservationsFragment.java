@@ -19,6 +19,7 @@ import android.widget.CalendarView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ale2nico.fillfield.models.Field;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -206,5 +207,9 @@ public class ReservationsFragment extends Fragment
     public interface OnContactButtonClickListener {
 
         public void onContactButtonClick(String userEmail);
+    }
+
+    public interface ShareImageClickListener {
+        public void onShareImageClick(String fieldName, String reservationDay, String reservationTime);
     }
 }

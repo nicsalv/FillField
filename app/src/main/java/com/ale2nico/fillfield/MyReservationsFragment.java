@@ -26,6 +26,7 @@ public class MyReservationsFragment extends Fragment {
 
     // Instance of the hosting activity
     private ReservationsFragment.OnContactButtonClickListener contactButtonClickListener;
+    private ReservationsFragment.ShareImageClickListener shareImageClickListener;
 
     public MyReservationsFragment() {
         // Required empty public constructor
@@ -47,7 +48,8 @@ public class MyReservationsFragment extends Fragment {
 
         // Initialize adapter
         MyReservationsAdapter myResAdapter
-                = new MyReservationsAdapter(progressBar, emptyTextView, contactButtonClickListener);
+                = new MyReservationsAdapter(progressBar, emptyTextView,
+                        contactButtonClickListener, shareImageClickListener);
         myResRecycler.setAdapter(myResAdapter);
 
         return view;
@@ -71,6 +73,12 @@ public class MyReservationsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        if (context instanceof ReservationsFragment.ShareImageClickListener) {
+            shareImageClickListener = (ReservationsFragment.ShareImageClickListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
 
     }
 
@@ -78,5 +86,6 @@ public class MyReservationsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         contactButtonClickListener = null;
+        shareImageClickListener = null;
     }
 }

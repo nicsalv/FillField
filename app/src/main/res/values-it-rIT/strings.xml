@@ -41,4 +41,22 @@
     <string name="remember_reservation"><b>Ricorda la tua prenotazione!</b></string>
     <string name="remember_reservation_text">La tua prenotazione comincia tra un\'ora</string>
     <string name="reservation_success">Prenotazione effettuata</string>
+    <string name="share_action_text">Ciao! Ho appena prenotato il campo \"%1$s\" per il giorno %2$s alle %3$s. Non mancare!</string>
+    <string name="new_reservation_text">Il tuo campo \"%1$s\" ha una nuova prenotazione</string>
+    <string name="new_reservation"><b> Nuova prenotazione! </b></string>
+    <string name="sign_in_with_google">Accedi con Google</string>
+    <string name="view_field_map">Vedi mappa</string>
+    <string name="my_reservations_empty_view">Non hai nessuna prenotazione.</string>
+    <string name="contact_owner_button">Contatta il proprietario</string>
+    <string name="reservations_empty_view">Non ci sono prenotazioni da mostrare per questo giorno.</string>
+    <string name="dialog_no_hours_available">Non ci sono ore disponibili per questo giorno</string>
+    <string name="dialog_time_pos_button">Conferma</string>
+    <string name="dialog_time_neg_button">Annulla</string>
+    <string name="dialog_time_title">Scegli un\'ora</string>
+    <string name="my_reservations_fragment_title">Le mie prenotazioni</string>
+    <string name="search_info">Inserisci il nome del campo o la sua posizione</string>
+    <string name="string_result">Risultati:</string>
+    <string name="string_description">Inserisci il nome della città in cui vuoi cercare</string>
+    <string name="googleMapTextDialog">Premi sul marker per ottenere informazioni</string>
+    <string name="share_via">Condividi con</string>
 </resources>

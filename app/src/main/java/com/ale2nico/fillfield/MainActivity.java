@@ -24,6 +24,8 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -37,6 +39,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,7 +88,8 @@ public class MainActivity extends AppCompatActivity
         implements OnFieldClickListener,
         OnReservationsButtonClickedListener,
         DatePickerDialog.OnDateSetListener, OnTimeDialogClickListener,
-        OnMapReadyCallback, ReservationsFragment.OnContactButtonClickListener {
+        OnMapReadyCallback, ReservationsFragment.OnContactButtonClickListener,
+        ReservationsFragment.ShareImageClickListener {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -589,7 +594,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onMapReady(GoogleMap map) {
 
-            Toast.makeText(this, "Tap on the marker in order to obtain directions", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getResources().getString(R.string.googleMapTextDialog), Toast.LENGTH_LONG).show();
 
             mMap = map;
 
@@ -605,7 +610,7 @@ public class MainActivity extends AppCompatActivity
 
             // Add a marker on the field, and move the camera.
             LatLng location = new LatLng(lat, lon);
-            mMap.addMarker(new MarkerOptions().position(location).title("Field: "+fieldName));
+            mMap.addMarker(new MarkerOptions().position(location).title(fieldName));
             float zoomLevel = 12.0f;
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
             map.addMarker(new MarkerOptions()
@@ -629,6 +634,23 @@ public class MainActivity extends AppCompatActivity
         Intent contactIntent = new Intent(Intent.ACTION_SENDTO,
                 Uri.fromParts("mailto", userEmail, null));
 
-        startActivity(contactIntent);
+        startActivity(Intent.createChooser(contactIntent, getResources().getString(R.string.share_via)));
+    }
+
+
+    @Override
+    public void onShareImageClick(String fieldName, String reservationDate, String reservationTime) {
+        //TODO get correct position of the field
+        Double latitude = 44.054932231450536;
+        Double longitude = 8.212966918945312;
+        // Full string to send, including maps preview and plain text
+        String uri = "http://maps.google.com/maps?q=" +
+                latitude + ","+longitude + "\n\n" +
+                String.format(getResources().getString(R.string.share_action_text),
+                        fieldName, reservationDate, reservationTime);
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, uri);
+        startActivity(Intent.createChooser(sharingIntent, getResources().getString(R.string.share_via)));
     }
 }
