@@ -585,7 +585,7 @@ public class MainActivity extends AppCompatActivity
         if (delay > 0) {
             sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
                     getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
-                    NotificationReceiver.class, delay, new Random().nextInt(1000));
+                    NotificationReceiver.class, delay, 1);
         }
         Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_LONG).show();
     }
@@ -643,9 +643,10 @@ public class MainActivity extends AppCompatActivity
         //TODO get correct position of the field
         Double latitude = 44.054932231450536;
         Double longitude = 8.212966918945312;
+        String string = "Aquila D'Arroscia";
         // Full string to send, including maps preview and plain text
         String uri = "http://maps.google.com/maps?q=" +
-                latitude + ","+longitude + "\n\n" +
+                string.replace(" ", "+") + "\n\n" +
                 String.format(getResources().getString(R.string.share_action_text),
                         fieldName, reservationDate, reservationTime);
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
