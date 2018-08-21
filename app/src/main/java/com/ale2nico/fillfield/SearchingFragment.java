@@ -53,6 +53,8 @@ public class SearchingFragment extends Fragment {
     FieldAdapter.FieldAdapterObserver fieldAdapterObserver;
     ProgressBar progressBar ;
 
+    private TextView emptyTextView;
+
 
     public SearchingFragment() {
         // Required empty public constructor
@@ -87,6 +89,7 @@ public class SearchingFragment extends Fragment {
         rootView = inflater.inflate(R.layout.search_result, container, false);
         view = rootView.findViewById(R.id.result_list);
         progressBar = rootView.findViewById(R.id.progressBar);
+        emptyTextView = rootView.findViewById(R.id.field_list_empty_text_view);
 
 
         // Set the adapter
@@ -94,6 +97,7 @@ public class SearchingFragment extends Fragment {
             Context context = rootView.getContext();
             mFieldsRecycler = (RecyclerView) view;
             mFieldsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+            mFieldsRecycler.setVisibility(View.VISIBLE);
             //TODO: build an appropriate listener in order to pass it to the adapter
 
             mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
@@ -110,7 +114,7 @@ public class SearchingFragment extends Fragment {
             // Initial check in order to show empty view if there are no fields.
             if (isFavouriteListEmpty()) {
                 new progressCheck(progressBar).execute();
-                showEmptyView(rootView);
+                //showEmptyView(rootView);
             }
 
         }
@@ -174,13 +178,12 @@ public class SearchingFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             mProgressBar.setVisibility(View.GONE);
+            emptyTextView.setVisibility(View.VISIBLE);
+
+
 
         }
 
-        @Override
-        protected void onPreExecute() {
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
     }
 }
 
