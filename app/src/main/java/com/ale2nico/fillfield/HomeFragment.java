@@ -42,7 +42,11 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnFieldClickListener}
  * interface.
  */
-public class HomeFragment extends Fragment implements SortedListAdapter.Callback{
+public class HomeFragment extends Fragment {
+
+    // Arguments for last known location coordinates
+    private static final String ARG_LAST_KNOWN_LAT = "lastKnownLat";
+    private static final String ARG_LAST_KNOWN_LNG = "lastKnownLng";
 
     private static final String TAG = "HomeFragment";
 
@@ -61,6 +65,7 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
     private List<Field> mFields;
     private List<String> mFieldsId;
 
+    // These coordinates are supplied on instantiation
     private Double userLat;
     private Double userLon;
 
@@ -75,21 +80,26 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
     }
 
+    public static HomeFragment newInstance(double lastKnownLat, double lastKnownLng) {
+        // Construct a new HomeFragment with required arguments
+        HomeFragment newFragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putDouble(ARG_LAST_KNOWN_LAT, lastKnownLat);
+        args.putDouble(ARG_LAST_KNOWN_LNG, lastKnownLng);
+        newFragment.setArguments(args);
+
+        return newFragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        //check if there are argouments
         if(getArguments() != null) {
-            userLat = getArguments().getDouble("ARG_LAT");
-            userLon = getArguments().getDouble("ARG_LON");
-
-            //Toast.makeText(getApplicationContext(), "LocalizationHome: "+userLat+", "+userLon, Toast.LENGTH_SHORT).show();
-
-
-            //mFields = mFieldAdapter.getFields();
-            //mFieldsId = mFieldAdapter.getFieldsIds();
+            // Get last known location
+            userLat = getArguments().getDouble(ARG_LAST_KNOWN_LAT);
+            userLon = getArguments().getDouble(ARG_LAST_KNOWN_LNG);
         }
 
         // Reference to the 'fields' object stored in the database
@@ -101,9 +111,9 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //check if there are argouments
+
         if(getArguments() == null) {
-            View view2 = getActivity().findViewById(R.id.list);
+            View view2 = view.findViewById(R.id.list);
             if(view2 != null)
                 view2.setVisibility(View.VISIBLE);
         }

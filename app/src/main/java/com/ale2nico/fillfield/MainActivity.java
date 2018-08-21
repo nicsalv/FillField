@@ -125,8 +125,15 @@ public class MainActivity extends AppCompatActivity
     private static final int MY_PERMISSIONS_REQUEST_LOCALIZATION = 200;
     private LocationManager locationManager;
 
-    // Acquire a reference to the system Location Manager
+    // Save last know location so as to supply it to HomeFragment when needed
+    private double lastKnownLat;
+    private double lastKnownLng;
 
+    // Key String for last known coordinates
+    private static final String KEY_LAST_KNOWN_LAT = "lastKnownLat";
+    private static final String KEY_LAST_KNOWN_LNG = "lastKnownLng";
+
+    // Acquire a reference to the system Location Manager
     String locationProvider;
 
     // Listens for actually signed-out user
@@ -149,8 +156,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             // Replace the current fragment with the selected fragment
-            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
-                    .beginTransaction();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             if(mMapFragment != null){
                 FragmentTransaction fragmentTransaction =
@@ -162,7 +168,7 @@ public class MainActivity extends AppCompatActivity
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        //there are not permissions
+                        // There are not permissions
                         transaction.replace(R.id.fragment_container, new HomeFragment());
                         View view = findViewById(R.id.list);
 
@@ -173,6 +179,11 @@ public class MainActivity extends AppCompatActivity
                     }else {
                         //permissions are granted
                         checkPermissionsAndFindPosition();
+
+                        // Start HomeFragment with last known coordinates
+                        HomeFragment homeFragment
+                                = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
+                        transaction.replace(R.id.fragment_container, homeFragment);
                     }
 
                     break;
@@ -235,7 +246,13 @@ public class MainActivity extends AppCompatActivity
                     //Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
                     checkPermissionsAndFindPosition();
 
+                    // Start HomeFragment with required arguments
+                    HomeFragment homeFragment
+                            = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
 
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, homeFragment)
+                            .commit();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -299,8 +316,12 @@ public class MainActivity extends AppCompatActivity
             // Remove the listener previously added
             locationManager.removeUpdates(mLocationListener);
 
+            // Save last known coordinates
+            lastKnownLat = lastKnownLocation.getLatitude();
+            lastKnownLng = lastKnownLocation.getLongitude();
+
             //creation of SearchFragment with search_query argument
-            HomeFragment homeFragment = new HomeFragment();
+/*            HomeFragment homeFragment = new HomeFragment();
             Bundle args = new Bundle();
             args.putDouble("ARG_LAT", lastKnownLocation.getLatitude());
             args.putDouble("ARG_LON", lastKnownLocation.getLongitude());
@@ -310,9 +331,7 @@ public class MainActivity extends AppCompatActivity
             android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
             transaction.replace(R.id.fragment_container, homeFragment).commit();
-
-
-
+*/
         }
 
     }
@@ -353,7 +372,7 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         // Stop the service: this cause the Broadcast receiver to restart service
         stopService(new Intent(this, PushService.class));
-        Log.i("MAINACT", "onDestroy!");
+
         super.onDestroy();
 
     }
@@ -383,33 +402,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        // Place the initial fragment into the activity (the HomeFragment).
-        // Check that the activity is using the layout version with
-        // the fragment_container FrameLayout
-        if (findViewById(R.id.fragment_container) != null) {
-            android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            // Load initial fragment only if there is a signed-in user
-            if (user != null) {
-                // Replace the current fragment in the 'fragment_container'
-                if (fragment instanceof ProfileFragment || fragment instanceof FavouritesFragment
-                        || fragment instanceof MyFieldsFragment || fragment instanceof MyReservationsFragment
-                        || fragment instanceof SearchingFragment || fragment instanceof ReservationsFragment
-                        || fragment instanceof SupportMapFragment) {
-                    Log.d("HOME FRAGMENT", "Load correct fragment");
-                }
-                else {
-                    android.app.Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
-                    if (f instanceof MapFragment) {
-                        Log.d("HOME FRAGMENT", "Inside map fragment");
-                    }
-                    else {
-                        getSupportFragmentManager().beginTransaction()
-                                .add(R.id.fragment_container, new HomeFragment(), HOME_FRAGMENT).commit();
-                        navigation.setSelectedItemId(R.id.navigation_home);
-                    }
-                }
-            }
-        }
+
         // Opening "My Reservations" or "My Fields" if user clicked on Notification
         if (user != null && getIntent().getStringExtra("notificationFragment") != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -456,6 +449,10 @@ public class MainActivity extends AppCompatActivity
         outState.putDouble(KEY_SELECTED_FIELD_LNG, selectedFieldLng);
         outState.putString(KEY_SELECTED_FIELD_NAME, selectedFieldName);
 
+        // Save last known coordinates
+        outState.putDouble(KEY_LAST_KNOWN_LAT, lastKnownLat);
+        outState.putDouble(KEY_LAST_KNOWN_LNG, lastKnownLng);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -473,6 +470,10 @@ public class MainActivity extends AppCompatActivity
             selectedFieldLat = savedInstanceState.getDouble(KEY_SELECTED_FIELD_LAT);
             selectedFieldLng = savedInstanceState.getDouble(KEY_SELECTED_FIELD_LNG);
             selectedFieldName = savedInstanceState.getString(KEY_SELECTED_FIELD_NAME);
+
+            // Restore last known coordinates
+            lastKnownLat = savedInstanceState.getDouble(KEY_LAST_KNOWN_LAT);
+            lastKnownLng = savedInstanceState.getDouble(KEY_LAST_KNOWN_LNG);
         }
     }
 
