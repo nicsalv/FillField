@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.ale2nico.fillfield.firebaselisteners.HomeChildEventListener;
 import com.ale2nico.fillfield.models.Field;
@@ -76,18 +77,23 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
         // Inflate fragment layout
         View view = inflater.inflate(R.layout.fragment_field_list, container, false);
+        RecyclerView recycler = view.findViewById(R.id.list);
 
         // Initializing the layout
-        if (view instanceof RecyclerView) {
+        if (recycler instanceof RecyclerView) {
             Context context = view.getContext();
 
+            // Reference to the progress bar
+            ProgressBar progressBar = view.findViewById(R.id.home_progress_bar);
+
             // Initializing RecyclerView and its layout
-            mFieldsRecycler = (RecyclerView) view;
+            mFieldsRecycler = recycler;
             mFieldsRecycler.setLayoutManager(new WrapContentLinearLayoutManager(context));
 
             // Initializing adapter with listener
             mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
-            ChildEventListener homeChildEventListener = new HomeChildEventListener(mFieldAdapter);
+            ChildEventListener homeChildEventListener
+                    = new HomeChildEventListener(mFieldAdapter, progressBar);
             mFieldAdapter.setChildEventListener(homeChildEventListener);
 
             // Set the adapter for the recycler

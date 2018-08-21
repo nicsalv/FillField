@@ -24,6 +24,7 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity
     public static final String HOME_FRAGMENT = "HOME_FRAGMENT";
     public static final String PROFILE_FRAGMENT = "PROFILE_FRAGMENT";
     public static final String FAVOURITES_FRAGMENT = "FAVOURITES_FRAGMENT";
+
     // Firebase Authentication
     private FirebaseAuth mAuth;
 
@@ -113,6 +115,11 @@ public class MainActivity extends AppCompatActivity
     private String selectedFieldKey;
     private String selectedDate;
     private String selectedTime;
+
+    // Key string for reservation state savings during config changes
+    private static final String KEY_SELECTED_FIELDKEY = "selectedFieldKey";
+    private static final String KEY_SELECTED_DATE = "selectedDate";
+    private static final String KEY_SELECTED_TIME = "selectedTime";
 
     public MapFragment mMapFragment;
 
@@ -254,7 +261,6 @@ public class MainActivity extends AppCompatActivity
                         navigation.setSelectedItemId(R.id.navigation_home);
                     }
                 }
-
             }
         }
         // Opening "My Reservations" or "My Fields" if user clicked on Notification
@@ -288,6 +294,28 @@ public class MainActivity extends AppCompatActivity
             MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
             fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
                     .addToBackStack(null).commit();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // Save currently active reservation, if any
+        outState.putString(KEY_SELECTED_FIELDKEY, selectedFieldKey);
+        outState.putString(KEY_SELECTED_DATE, selectedDate);
+        outState.putString(KEY_SELECTED_TIME, selectedTime);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore currently active reservation, if any
+        if (savedInstanceState != null) {
+            selectedFieldKey = savedInstanceState.getString(KEY_SELECTED_FIELDKEY);
+            selectedDate = savedInstanceState.getString(KEY_SELECTED_DATE);
+            selectedTime = savedInstanceState.getString(KEY_SELECTED_TIME);
         }
     }
 
@@ -490,8 +518,12 @@ public class MainActivity extends AppCompatActivity
 
                 // Insert the reservation into the database
                 insertReservation(newRes);
+
                 // Send notification reminder
                 sendNotification();
+
+                // Show reservation completed snackbar
+                showSnackbar();
                 break;
             case DialogInterface.BUTTON_NEGATIVE:
                 // Clear the reservation state
@@ -503,6 +535,32 @@ public class MainActivity extends AppCompatActivity
             default:
                 break;
         }
+    }
+
+    public void showSnackbar() {
+        // Construct the snackbar
+        Snackbar reservationSnackbar = Snackbar.make(findViewById(R.id.main_activity_container),
+                R.string.snackbar_reservation_done, Snackbar.LENGTH_LONG);
+
+        // Attach listener to the action button
+        reservationSnackbar.setAction(R.string.snackbar_view_action, (v) -> {
+            // Start 'MyReservationFragment' so as to let user view his new reservation
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MyReservationsFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+        // Show the snackbar
+        reservationSnackbar.show();
+    }
+
+    @Override
+    public void onContactButtonClick(String userEmail) {
+        // Open email app
+        Intent contactIntent = new Intent(Intent.ACTION_SENDTO,
+                Uri.fromParts("mailto", userEmail, null));
+
+        startActivity(contactIntent);
     }
 
     /**
@@ -622,13 +680,4 @@ public class MainActivity extends AppCompatActivity
                 super.onBackPressed();
             }
         }
-
-    @Override
-    public void onContactButtonClick(String userEmail) {
-        // Open email app
-        Intent contactIntent = new Intent(Intent.ACTION_SENDTO,
-                Uri.fromParts("mailto", userEmail, null));
-
-        startActivity(contactIntent);
-    }
 }
