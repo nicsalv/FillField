@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -48,6 +49,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity
     public static final String HOME_FRAGMENT = "HOME_FRAGMENT";
     public static final String PROFILE_FRAGMENT = "PROFILE_FRAGMENT";
     public static final String FAVOURITES_FRAGMENT = "FAVOURITES_FRAGMENT";
+
     // Firebase Authentication
     private FirebaseAuth mAuth;
 
@@ -100,18 +103,37 @@ public class MainActivity extends AppCompatActivity
     private String selectedDate;
     private String selectedTime;
 
-    public MapFragment mMapFragment;
+    // Key string for reservation state savings during config changes
+    private static final String KEY_SELECTED_FIELDKEY = "selectedFieldKey";
+    private static final String KEY_SELECTED_DATE = "selectedDate";
+    private static final String KEY_SELECTED_TIME = "selectedTime";
 
+    // References to map elements
+    public SupportMapFragment mMapFragment;
     private GoogleMap mMap;
-    private Field actualMapField;
+    private double selectedFieldLat;
+    private double selectedFieldLng;
+    private String selectedFieldName;
+
+    // Key string for saving marker in the map
+    private static final String KEY_SELECTED_FIELD_LAT = "selectedFieldLat";
+    private static final String KEY_SELECTED_FIELD_LNG = "selectedFieldLng";
+    private static final String KEY_SELECTED_FIELD_NAME = "selectedFieldName";
 
 
     private Location lastKnownLocation;
     private static final int MY_PERMISSIONS_REQUEST_LOCALIZATION = 200;
     private LocationManager locationManager;
 
-    // Acquire a reference to the system Location Manager
+    // Save last know location so as to supply it to HomeFragment when needed
+    private double lastKnownLat;
+    private double lastKnownLng;
 
+    // Key String for last known coordinates
+    private static final String KEY_LAST_KNOWN_LAT = "lastKnownLat";
+    private static final String KEY_LAST_KNOWN_LNG = "lastKnownLng";
+
+    // Acquire a reference to the system Location Manager
     String locationProvider;
 
     // Listens for actually signed-out user
@@ -134,21 +156,19 @@ public class MainActivity extends AppCompatActivity
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             // Replace the current fragment with the selected fragment
-            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
-                    .beginTransaction();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             if(mMapFragment != null){
-                android.app.FragmentTransaction fragmentTransaction =
-                        getFragmentManager().beginTransaction();
+                FragmentTransaction fragmentTransaction =
+                        getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.remove(mMapFragment).commit();
             }
-
             switch (item.getItemId()) {
 
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        //there are not permissions
+                        // There are not permissions
                         transaction.replace(R.id.fragment_container, new HomeFragment());
                         View view = findViewById(R.id.list);
 
@@ -159,6 +179,11 @@ public class MainActivity extends AppCompatActivity
                     }else {
                         //permissions are granted
                         checkPermissionsAndFindPosition();
+
+                        // Start HomeFragment with last known coordinates
+                        HomeFragment homeFragment
+                                = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
+                        transaction.replace(R.id.fragment_container, homeFragment);
                     }
 
                     break;
@@ -182,8 +207,6 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
     };
-
-
 
     private LocationListener mLocationListener = new LocationListener() {
         @Override
@@ -223,7 +246,13 @@ public class MainActivity extends AppCompatActivity
                     //Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
                     checkPermissionsAndFindPosition();
 
+                    // Start HomeFragment with required arguments
+                    HomeFragment homeFragment
+                            = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
 
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, homeFragment)
+                            .commit();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -287,8 +316,12 @@ public class MainActivity extends AppCompatActivity
             // Remove the listener previously added
             locationManager.removeUpdates(mLocationListener);
 
+            // Save last known coordinates
+            lastKnownLat = lastKnownLocation.getLatitude();
+            lastKnownLng = lastKnownLocation.getLongitude();
+
             //creation of SearchFragment with search_query argument
-            HomeFragment homeFragment = new HomeFragment();
+/*            HomeFragment homeFragment = new HomeFragment();
             Bundle args = new Bundle();
 
             if (lastKnownLocation != null ) {
@@ -302,15 +335,10 @@ public class MainActivity extends AppCompatActivity
             android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
             transaction.replace(R.id.fragment_container, homeFragment).commit();
-
-
-
+*/
         }
 
     }
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -348,7 +376,7 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         // Stop the service: this cause the Broadcast receiver to restart service
         stopService(new Intent(this, PushService.class));
-        Log.i("MAINACT", "onDestroy!");
+
         super.onDestroy();
 
     }
@@ -363,7 +391,6 @@ public class MainActivity extends AppCompatActivity
                 // Acquire a reference to the system Location Manager
                 checkPermissionsAndFindPosition();
             }
-
     }
 
     @Override
@@ -379,34 +406,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        // Place the initial fragment into the activity (the HomeFragment).
-        // Check that the activity is using the layout version with
-        // the fragment_container FrameLayout
-        if (findViewById(R.id.fragment_container) != null) {
-            android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            // Load initial fragment only if there is a signed-in user
-            if (user != null) {
-                // Replace the current fragment in the 'fragment_container'
-                if (fragment instanceof ProfileFragment || fragment instanceof FavouritesFragment
-                        || fragment instanceof MyFieldsFragment || fragment instanceof MyReservationsFragment
-                        || fragment instanceof SearchingFragment || fragment instanceof ReservationsFragment
-                        || fragment instanceof SupportMapFragment) {
-                    Log.d("HOME FRAGMENT", "Load correct fragment");
-                }
-                else {
-                    android.app.Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
-                    if (f instanceof MapFragment) {
-                        Log.d("HOME FRAGMENT", "Inside map fragment");
-                    }
-                    else {
-                        getSupportFragmentManager().beginTransaction()
-                                .add(R.id.fragment_container, new HomeFragment(), HOME_FRAGMENT).commit();
-                        navigation.setSelectedItemId(R.id.navigation_home);
-                    }
-                }
 
-            }
-        }
         // Opening "My Reservations" or "My Fields" if user clicked on Notification
         if (user != null && getIntent().getStringExtra("notificationFragment") != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -438,7 +438,46 @@ public class MainActivity extends AppCompatActivity
             MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
             fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
                     .addToBackStack(null).commit();
+        }
+    }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // Save currently active reservation, if any
+        outState.putString(KEY_SELECTED_FIELDKEY, selectedFieldKey);
+        outState.putString(KEY_SELECTED_DATE, selectedDate);
+        outState.putString(KEY_SELECTED_TIME, selectedTime);
+
+        // Save field coordinates for resuming marker on config changes
+        outState.putDouble(KEY_SELECTED_FIELD_LAT, selectedFieldLat);
+        outState.putDouble(KEY_SELECTED_FIELD_LNG, selectedFieldLng);
+        outState.putString(KEY_SELECTED_FIELD_NAME, selectedFieldName);
+
+        // Save last known coordinates
+        outState.putDouble(KEY_LAST_KNOWN_LAT, lastKnownLat);
+        outState.putDouble(KEY_LAST_KNOWN_LNG, lastKnownLng);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            // Restore currently active reservation
+            selectedFieldKey = savedInstanceState.getString(KEY_SELECTED_FIELDKEY);
+            selectedDate = savedInstanceState.getString(KEY_SELECTED_DATE);
+            selectedTime = savedInstanceState.getString(KEY_SELECTED_TIME);
+
+            // Restore currently active marker into the map
+            selectedFieldLat = savedInstanceState.getDouble(KEY_SELECTED_FIELD_LAT);
+            selectedFieldLng = savedInstanceState.getDouble(KEY_SELECTED_FIELD_LNG);
+            selectedFieldName = savedInstanceState.getString(KEY_SELECTED_FIELD_NAME);
+
+            // Restore last known coordinates
+            lastKnownLat = savedInstanceState.getDouble(KEY_LAST_KNOWN_LAT);
+            lastKnownLng = savedInstanceState.getDouble(KEY_LAST_KNOWN_LNG);
         }
     }
 
@@ -478,14 +517,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapButtonClicked(Field field) {
         // Start the map fragment
-        mMapFragment = MapFragment.newInstance();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, mMapFragment)
+        mMapFragment = SupportMapFragment.newInstance();
+        mMapFragment.setRetainInstance(true);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, mMapFragment)
                 .addToBackStack(null)
                 .commit();
 
         // Define the actual field that has triggered the event
-        actualMapField = field;
+        selectedFieldLat = field.getLatitude();
+        selectedFieldLng = field.getLongitude();
+        selectedFieldName = field.getName();
 
         // Open the map
         mMapFragment.getMapAsync(this);
@@ -641,8 +683,12 @@ public class MainActivity extends AppCompatActivity
 
                 // Insert the reservation into the database
                 insertReservation(newRes);
+
                 // Send notification reminder
                 sendNotification();
+
+                // Show reservation completed snackbar
+                showSnackbar();
                 break;
             case DialogInterface.BUTTON_NEGATIVE:
                 // Clear the reservation state
@@ -654,6 +700,23 @@ public class MainActivity extends AppCompatActivity
             default:
                 break;
         }
+    }
+
+    public void showSnackbar() {
+        // Construct the snackbar
+        Snackbar reservationSnackbar = Snackbar.make(findViewById(R.id.main_activity_container),
+                R.string.snackbar_reservation_done, Snackbar.LENGTH_LONG);
+
+        // Attach listener to the action button
+        reservationSnackbar.setAction(R.string.snackbar_view_action, (v) -> {
+            // Start 'MyReservationFragment' so as to let user view his new reservation
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MyReservationsFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+        // Show the snackbar
+        reservationSnackbar.show();
     }
 
     /**
@@ -709,7 +772,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
     public Date convertToDate(String dateString, String timeString) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
         Date convertedDate = new Date();
@@ -731,7 +793,7 @@ public class MainActivity extends AppCompatActivity
         if (delay > 0) {
             sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
                     getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
-                    NotificationReceiver.class, delay, new Random().nextInt(1000));
+                    NotificationReceiver.class, delay, 1);
         }
         Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_LONG).show();
     }
@@ -748,11 +810,10 @@ public class MainActivity extends AppCompatActivity
             Double lat = 0.0;
             Double lon = 0.0;
 
-            if(actualMapField != null) {
-                lat = actualMapField.getLatitude();
-                lon = actualMapField.getLongitude();
-                fieldName = actualMapField.getName();
-            }
+            // Get field info, they should always be available
+            lat = selectedFieldLat;
+            lon = selectedFieldLng;
+            fieldName = selectedFieldName != null ? selectedFieldName : "Unknown field";
 
             // Add a marker on the field, and move the camera.
             LatLng location = new LatLng(lat, lon);
@@ -788,9 +849,10 @@ public class MainActivity extends AppCompatActivity
         //TODO get correct position of the field
         Double latitude = 44.054932231450536;
         Double longitude = 8.212966918945312;
+        String string = "Aquila D'Arroscia";
         // Full string to send, including maps preview and plain text
         String uri = "http://maps.google.com/maps?q=" +
-                latitude + ","+longitude + "\n\n" +
+                string.replace(" ", "+") + "\n\n" +
                 String.format(getResources().getString(R.string.share_action_text),
                         fieldName, reservationDate, reservationTime);
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);

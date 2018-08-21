@@ -2,6 +2,8 @@ package com.ale2nico.fillfield.firebaselisteners;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.ale2nico.fillfield.FieldAdapter;
 import com.ale2nico.fillfield.models.Field;
@@ -12,8 +14,9 @@ public class FavouriteChildEventListener extends HomeChildEventListener {
     /**
      * Same constructor of the parent, but in Java constructors are not inherited.
      */
-    public FavouriteChildEventListener(FieldAdapter fieldAdapter) {
+    public FavouriteChildEventListener(FieldAdapter fieldAdapter, ProgressBar progressBar) {
         this.fieldAdapter = fieldAdapter;
+        this.progressBar = progressBar;
     }
 
     @Override
@@ -28,6 +31,9 @@ public class FavouriteChildEventListener extends HomeChildEventListener {
             fieldAdapter.getFields().add(field);
             fieldAdapter.getFieldsIds().add(dataSnapshot.getKey());
             fieldAdapter.notifyItemInserted(fieldAdapter.getFields().size() - 1);
+
+            // Hide progress bar
+            progressBar.setVisibility(View.GONE);
         }
 
     }

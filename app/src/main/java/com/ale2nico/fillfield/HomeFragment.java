@@ -6,17 +6,21 @@ import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.ale2nico.fillfield.firebaselisteners.HomeChildEventListener;
 import com.ale2nico.fillfield.models.Field;
@@ -26,6 +30,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,9 +43,15 @@ import java.util.Map;
  * Activities containing this fragment MUST implement the {@link OnFieldClickListener}
  * interface.
  */
-public class HomeFragment extends Fragment implements SortedListAdapter.Callback{
+public class HomeFragment extends Fragment {
+
+    // Arguments for last known location coordinates
+    private static final String ARG_LAST_KNOWN_LAT = "lastKnownLat";
+    private static final String ARG_LAST_KNOWN_LNG = "lastKnownLng";
 
     private static final String TAG = "HomeFragment";
+
+    protected static final String KEY_RECYCLER_STATE = "recyclerState";
 
     // Interaction listener that passes data to the hosting activity
     protected OnFieldClickListener mListener;
@@ -55,16 +66,12 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
     private List<Field> mFields;
     private List<String> mFieldsId;
 
+    // These coordinates are supplied on instantiation
     private Double userLat;
     private Double userLon;
 
-
-
-
-
     // The layout manager is provided inside the 'onCreateView' method.
     // It depends on the number of column of the list.
-
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -74,21 +81,26 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
     }
 
+    public static HomeFragment newInstance(double lastKnownLat, double lastKnownLng) {
+        // Construct a new HomeFragment with required arguments
+        HomeFragment newFragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putDouble(ARG_LAST_KNOWN_LAT, lastKnownLat);
+        args.putDouble(ARG_LAST_KNOWN_LNG, lastKnownLng);
+        newFragment.setArguments(args);
+
+        return newFragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        //check if there are argouments
         if(getArguments() != null) {
-            userLat = getArguments().getDouble("ARG_LAT");
-            userLon = getArguments().getDouble("ARG_LON");
-
-            //Toast.makeText(getApplicationContext(), "LocalizationHome: "+userLat+", "+userLon, Toast.LENGTH_SHORT).show();
-
-
-            //mFields = mFieldAdapter.getFields();
-            //mFieldsId = mFieldAdapter.getFieldsIds();
+            // Get last known location
+            userLat = getArguments().getDouble(ARG_LAST_KNOWN_LAT);
+            userLon = getArguments().getDouble(ARG_LAST_KNOWN_LNG);
         }
 
         // Reference to the 'fields' object stored in the database
@@ -100,65 +112,14 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //check if there are argouments
+
         if(getArguments() == null) {
-            View view2 = getActivity().findViewById(R.id.list);
+            View view2 = view.findViewById(R.id.list);
             if(view2 != null)
                 view2.setVisibility(View.VISIBLE);
         }
 
     }
-
-
-    /*
-
-    private LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(final Location location) {
-            //your code here
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCALIZATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(getApplicationContext(), "non ci sono i permessi", Toast.LENGTH_SHORT).show();
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
-
-        }
-    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -166,24 +127,35 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
         // Inflate fragment layout
         View view = inflater.inflate(R.layout.fragment_field_list, container, false);
-
+        RecyclerView recycler = view.findViewById(R.id.list);
 
         // Initializing the layout
-        if (view instanceof RecyclerView) {
+        if (recycler instanceof RecyclerView) {
             Context context = view.getContext();
 
+            // Reference to the progress bar
+            ProgressBar progressBar = view.findViewById(R.id.home_progress_bar);
+
             // Initializing RecyclerView and its layout
-            mFieldsRecycler = (RecyclerView) view;
+            mFieldsRecycler = recycler;
             mFieldsRecycler.setLayoutManager(new WrapContentLinearLayoutManager(context));
 
             // Initializing adapter with listener
             mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
-            ChildEventListener homeChildEventListener = new HomeChildEventListener(mFieldAdapter);
+            ChildEventListener homeChildEventListener
+                    = new HomeChildEventListener(mFieldAdapter, progressBar);
             mFieldAdapter.setChildEventListener(homeChildEventListener);
 
             // Set the adapter for the recycler
             mFieldsRecycler.setAdapter(mFieldAdapter);
 
+            new Handler().postDelayed(() -> {
+                if (savedInstanceState != null) {
+                    // Restore recycler state
+                    mFieldsRecycler.getLayoutManager()
+                            .onRestoreInstanceState(savedInstanceState.getParcelable(KEY_RECYCLER_STATE));
+                }
+            }, 1000);
 
             if(getArguments() != null){
                 //start an Asynctask for ordering the list
@@ -193,11 +165,7 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
                 new SortingList().execute(params);
             }
-
-
-
         }
-
         return view;
     }
 
@@ -309,17 +277,12 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        // Save recycler state
+        Parcelable recyclerState = mFieldsRecycler.getLayoutManager()
+                .onSaveInstanceState();
+        outState.putParcelable(KEY_RECYCLER_STATE, recyclerState);
+
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onEditStarted() {
-
-    }
-
-    @Override
-    public void onEditFinished() {
-
     }
 
     /**
@@ -362,31 +325,4 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
         super.onCreateOptionsMenu(menu,inflater);
     }
-
-
-    /**
-     *
-     * @param models
-     * @param query
-     * @return a filtered list starting with models according to the query
-     */
-    private  List<Field> filter(List<Field> models, String query) {
-        final String lowerCaseQuery = query.toLowerCase();
-
-        final List<Field> filteredModelList = new ArrayList<>();
-        for (int i=0; i<models.size(); ++i) {
-            Field model = models.get(i);
-            final String text = model.getName().toLowerCase();
-            if (!text.contains(lowerCaseQuery)) {
-                //need to remove this field
-                filteredModelList.add(model);
-            }
-        }
-
-        return  filteredModelList;
-    }
-
-
-
-
 }

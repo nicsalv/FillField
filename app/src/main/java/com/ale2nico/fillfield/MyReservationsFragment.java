@@ -17,7 +17,7 @@ import android.widget.TextView;
 /**
  * This Fragment displays user's reservations.
  * Activities that contain this fragment must implement the
- * {@link MyReservationsFragment.OnFragmentInteractionListener} interface
+ * {@link ReservationsFragment.OnContactButtonClickListener} interface
  * to handle interaction events.
  */
 public class MyReservationsFragment extends Fragment {
