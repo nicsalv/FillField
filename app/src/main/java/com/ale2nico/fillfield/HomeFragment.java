@@ -6,6 +6,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.ale2nico.fillfield.firebaselisteners.HomeChildEventListener;
 import com.ale2nico.fillfield.models.Field;
@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * A fragment representing a list of Fields.
@@ -85,7 +83,7 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
             userLat = getArguments().getDouble("ARG_LAT");
             userLon = getArguments().getDouble("ARG_LON");
 
-            Toast.makeText(getApplicationContext(), "LocalizationHome: "+userLat+", "+userLon, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "LocalizationHome: "+userLat+", "+userLon, Toast.LENGTH_SHORT).show();
 
 
             //mFields = mFieldAdapter.getFields();
@@ -96,6 +94,20 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
         mFieldsReference = FirebaseDatabase.getInstance().getReference()
                 .child("fields");
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        //check if there are argouments
+        if(getArguments() == null) {
+            View view2 = getActivity().findViewById(R.id.list);
+            if(view2 != null)
+                view2.setVisibility(View.VISIBLE);
+        }
+
+    }
+
 
     /*
 
@@ -181,6 +193,8 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
                 new SortingList().execute(params);
             }
 
+
+
         }
 
         return view;
@@ -194,27 +208,24 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
             //sorting the list
             LatLng userPosition = new LatLng(params[0], params[1]);
 
-            try {
-                Thread.sleep(3000);
+            try{
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
+
             List<Field> mFields = mFieldAdapter.getFields();
-            List<String> mFieldsId = mFieldAdapter.getFieldsIds();
 
             Collections.sort(mFields, createComparator(userPosition));
-            //TODO: notify changes
-            //mFieldAdapter.setmFields(mFields);
-            //mFieldAdapter.notifyDataSetChanged();
 
             return true;
         }
 
         @Override
         protected void onPostExecute(Boolean b){
-            //Toast.makeText(getApplicationContext(), "Location: "+result.getLatitude()+", "+result.getLongitude(), Toast.LENGTH_SHORT).show();
             mFieldAdapter.notifyDataSetChanged();
+            mFieldsRecycler.setVisibility(View.VISIBLE);
         }
 
     }

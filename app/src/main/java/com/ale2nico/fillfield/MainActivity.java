@@ -146,7 +146,6 @@ public class MainActivity extends AppCompatActivity
                     .beginTransaction();
 
             if (mMapFragment != null) {
-                Toast.makeText(getApplicationContext(), "bonaa", Toast.LENGTH_LONG);
                 android.app.FragmentTransaction fragmentTransaction =
                         getFragmentManager().beginTransaction();
                 fragmentTransaction.remove(mMapFragment).commit();
@@ -159,6 +158,12 @@ public class MainActivity extends AppCompatActivity
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         //there are not permissions
                         transaction.replace(R.id.fragment_container, new HomeFragment());
+                        View view = findViewById(R.id.list);
+
+                        if (view != null) {
+                            view.setVisibility(View.VISIBLE);
+                        }
+
                     }else {
                         //permissions are granted
                         checkPermissionsAndFindPosition();
@@ -223,14 +228,19 @@ public class MainActivity extends AppCompatActivity
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
                     checkPermissionsAndFindPosition();
 
 
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(getApplicationContext(), "non ci sono i permessi", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "non ci sono i permessi", Toast.LENGTH_SHORT).show();
+                    View view = findViewById(R.id.list);
+
+                    if (view != null) {
+                        view.setVisibility(View.VISIBLE);
+                    }
                 }
                 return;
             }
@@ -278,9 +288,11 @@ public class MainActivity extends AppCompatActivity
 
             locationManager.requestLocationUpdates(locationProvider, 0,
                     0, mLocationListener);
+
             lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-            Toast.makeText(getApplicationContext(), "Localization: "+lastKnownLocation.getLatitude()+", "+lastKnownLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-            // Remove the listener you previously added
+
+            //Toast.makeText(getApplicationContext(), "Localization: "+lastKnownLocation.getLatitude()+", "+lastKnownLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+            // Remove the listener previously added
             locationManager.removeUpdates(mLocationListener);
 
             //creation of SearchFragment with search_query argument
