@@ -56,6 +56,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -124,7 +125,14 @@ public class MainActivity extends AppCompatActivity
     // References to map elements
     public SupportMapFragment mMapFragment;
     private GoogleMap mMap;
-    private Field actualMapField;
+    private double selectedFieldLat;
+    private double selectedFieldLng;
+    private String selectedFieldName;
+
+    // Key string for saving marker in the map
+    private static final String KEY_SELECTED_FIELD_LAT = "selectedFieldLat";
+    private static final String KEY_SELECTED_FIELD_LNG = "selectedFieldLng";
+    private static final String KEY_SELECTED_FIELD_NAME = "selectedFieldName";
 
 
     // Listens for actually signed-out user
@@ -305,6 +313,11 @@ public class MainActivity extends AppCompatActivity
         outState.putString(KEY_SELECTED_DATE, selectedDate);
         outState.putString(KEY_SELECTED_TIME, selectedTime);
 
+        // Save field coordinates for resuming marker on config changes
+        outState.putDouble(KEY_SELECTED_FIELD_LAT, selectedFieldLat);
+        outState.putDouble(KEY_SELECTED_FIELD_LNG, selectedFieldLng);
+        outState.putString(KEY_SELECTED_FIELD_NAME, selectedFieldName);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -312,11 +325,16 @@ public class MainActivity extends AppCompatActivity
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        // Restore currently active reservation, if any
         if (savedInstanceState != null) {
+            // Restore currently active reservation
             selectedFieldKey = savedInstanceState.getString(KEY_SELECTED_FIELDKEY);
             selectedDate = savedInstanceState.getString(KEY_SELECTED_DATE);
             selectedTime = savedInstanceState.getString(KEY_SELECTED_TIME);
+
+            // Restore currently active marker into the map
+            selectedFieldLat = savedInstanceState.getDouble(KEY_SELECTED_FIELD_LAT);
+            selectedFieldLng = savedInstanceState.getDouble(KEY_SELECTED_FIELD_LNG);
+            selectedFieldName = savedInstanceState.getString(KEY_SELECTED_FIELD_NAME);
         }
     }
 
@@ -357,13 +375,16 @@ public class MainActivity extends AppCompatActivity
     public void onMapButtonClicked(Field field) {
         // Start the map fragment
         mMapFragment = SupportMapFragment.newInstance();
+        mMapFragment.setRetainInstance(true);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, mMapFragment)
                 .addToBackStack(null)
                 .commit();
 
         // Define the actual field that has triggered the event
-        actualMapField = field;
+        selectedFieldLat = field.getLatitude();
+        selectedFieldLng = field.getLongitude();
+        selectedFieldName = field.getName();
 
         // Open the map
         mMapFragment.getMapAsync(this);
@@ -656,11 +677,10 @@ public class MainActivity extends AppCompatActivity
             Double lat = 0.0;
             Double lon = 0.0;
 
-            if(actualMapField != null) {
-                lat = actualMapField.getLatitude();
-                lon = actualMapField.getLongitude();
-                fieldName = actualMapField.getName();
-            }
+            // Get field info, they should always be available
+            lat = selectedFieldLat;
+            lon = selectedFieldLng;
+            fieldName = selectedFieldName != null ? selectedFieldName : "Unknown field";
 
             // Add a marker on the field, and move the camera.
             LatLng location = new LatLng(lat, lon);
