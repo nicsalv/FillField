@@ -125,6 +125,10 @@
     <string name="dialog_time_neg_button">Cancel</string>
     <string name="dialog_no_hours_available">There are no hours available on this day</string>
 
+    <!-- Reservation snackbar message and action button -->
+    <string name="snackbar_reservation_done">Reservation made successfully</string>
+    <string name="snackbar_view_action">View</string>
+
     <!-- Empty view text displayed when there are no fields to show. -->
     <string name="field_list_empty">There aren\'t any fields to show.</string>
     <string name="my_fields_empty">It seems you don\'t own any fields.</string>
