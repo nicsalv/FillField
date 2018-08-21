@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity
     private static final String KEY_SELECTED_DATE = "selectedDate";
     private static final String KEY_SELECTED_TIME = "selectedTime";
 
-    public MapFragment mMapFragment;
-
+    // References to map elements
+    public SupportMapFragment mMapFragment;
     private GoogleMap mMap;
     private Field actualMapField;
 
@@ -150,11 +150,12 @@ public class MainActivity extends AppCompatActivity
             android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
 
-            if(mMapFragment != null){
+/*            if(mMapFragment != null){
                 android.app.FragmentTransaction fragmentTransaction =
                         getFragmentManager().beginTransaction();
                 fragmentTransaction.remove(mMapFragment).commit();
             }
+*/
             switch (item.getItemId()) {
 
                 case R.id.navigation_home:
@@ -355,9 +356,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapButtonClicked(Field field) {
         // Start the map fragment
-        mMapFragment = MapFragment.newInstance();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, mMapFragment)
+        mMapFragment = SupportMapFragment.newInstance();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, mMapFragment)
                 .addToBackStack(null)
                 .commit();
 

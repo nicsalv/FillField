@@ -71,6 +71,16 @@ public class FavouritesFragment extends HomeFragment {
         // Set the adapter for the recycler
         mFieldsRecycler.setAdapter(mFieldAdapter);
 
+        // Restore list state after one seconds so as to
+        // permit the adapter to gain all the data again.
+        new Handler().postDelayed(() -> {
+            if (savedInstanceState != null) {
+                // Restore recycler state
+                mFieldsRecycler.getLayoutManager()
+                        .onRestoreInstanceState(savedInstanceState.getParcelable(KEY_RECYCLER_STATE));
+            }
+        }, 1000);
+
         // Show empty view if in five seconds we didn't manage to get any favourite fields.
         new Handler().postDelayed(() -> {
             if (isFavouriteListEmpty()) {

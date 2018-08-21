@@ -3,11 +3,14 @@ package com.ale2nico.fillfield;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +26,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +39,8 @@ import java.util.List;
 public class HomeFragment extends Fragment implements SortedListAdapter.Callback{
 
     private static final String TAG = "HomeFragment";
+
+    protected static final String KEY_RECYCLER_STATE = "recyclerState";
 
     // Interaction listener that passes data to the hosting activity
     protected OnFieldClickListener mListener;
@@ -98,6 +104,14 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
             // Set the adapter for the recycler
             mFieldsRecycler.setAdapter(mFieldAdapter);
+
+            new Handler().postDelayed(() -> {
+                if (savedInstanceState != null) {
+                    // Restore recycler state
+                    mFieldsRecycler.getLayoutManager()
+                            .onRestoreInstanceState(savedInstanceState.getParcelable(KEY_RECYCLER_STATE));
+                }
+            }, 1000);
         }
 
         return view;
@@ -126,12 +140,20 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
     @Override
     public void onDetach() {
+        Log.d(TAG, "onDetach");
         super.onDetach();
         mListener = null;
     }
 
     @Override
+    public void onPause() {
+        Log.d(TAG, "onPause");
+        super.onPause();
+    }
+
+    @Override
     public void onStop() {
+        Log.d(TAG, "onStop");
         super.onStop();
 
         // Clean up fields listeners
@@ -140,6 +162,12 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState");
+        // Save recycler state
+        Parcelable recyclerState = mFieldsRecycler.getLayoutManager()
+                .onSaveInstanceState();
+        outState.putParcelable(KEY_RECYCLER_STATE, recyclerState);
+
         super.onSaveInstanceState(outState);
     }
 
