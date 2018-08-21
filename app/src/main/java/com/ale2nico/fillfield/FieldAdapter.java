@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.HomeFragment.OnFieldClickListener;
@@ -59,11 +60,17 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
     private Context context;
 
+    private ProgressBar progressBar;
+
 
     public FieldAdapter(DatabaseReference ref,
                         OnFieldClickListener listener) {
         mDatabaseReference = ref;
         mListener = listener;
+    }
+
+    public void setProgressBar(ProgressBar progressBar){
+        this.progressBar = progressBar;
     }
 
     @Override

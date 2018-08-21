@@ -1,7 +1,10 @@
 package com.ale2nico.fillfield;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,11 +21,14 @@ import android.view.ViewGroup;
 import com.ale2nico.fillfield.firebaselisteners.HomeChildEventListener;
 import com.ale2nico.fillfield.models.Field;
 import com.github.wrdlbrnft.sortedlistadapter.SortedListAdapter;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -44,8 +50,15 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
     // References to layout objects
     protected RecyclerView mFieldsRecycler;
     protected FieldAdapter mFieldAdapter;
+
     private List<Field> mFields;
     private List<String> mFieldsId;
+
+    private Double userLat;
+    private Double userLon;
+
+
+
 
 
     // The layout manager is provided inside the 'onCreateView' method.
@@ -65,10 +78,86 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
+        //check if there are argouments
+        if(getArguments() != null) {
+            userLat = getArguments().getDouble("ARG_LAT");
+            userLon = getArguments().getDouble("ARG_LON");
+
+            //Toast.makeText(getApplicationContext(), "LocalizationHome: "+userLat+", "+userLon, Toast.LENGTH_SHORT).show();
+
+
+            //mFields = mFieldAdapter.getFields();
+            //mFieldsId = mFieldAdapter.getFieldsIds();
+        }
+
         // Reference to the 'fields' object stored in the database
         mFieldsReference = FirebaseDatabase.getInstance().getReference()
                 .child("fields");
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        //check if there are argouments
+        if(getArguments() == null) {
+            View view2 = getActivity().findViewById(R.id.list);
+            if(view2 != null)
+                view2.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+
+    /*
+
+    private LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCALIZATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getApplicationContext(), "non ci sono i permessi", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+
+        }
+    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,6 +165,7 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
         // Inflate fragment layout
         View view = inflater.inflate(R.layout.fragment_field_list, container, false);
+
 
         // Initializing the layout
         if (view instanceof RecyclerView) {
@@ -92,10 +182,80 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
             // Set the adapter for the recycler
             mFieldsRecycler.setAdapter(mFieldAdapter);
+
+
+            if(getArguments() != null){
+                //start an Asynctask for ordering the list
+                 Double[] params = new Double[2];
+                 params[0] = userLat;
+                 params[1] = userLon;
+
+                new SortingList().execute(params);
+            }
+
+
+
         }
 
         return view;
     }
+
+    class SortingList extends AsyncTask<Double, Void, Boolean> {
+
+        @SuppressLint("MissingPermission")
+        @Override
+        protected Boolean doInBackground(Double... params) {
+            //sorting the list
+            LatLng userPosition = new LatLng(params[0], params[1]);
+
+            try{
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+            List<Field> mFields = mFieldAdapter.getFields();
+
+            Collections.sort(mFields, createComparator(userPosition));
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean b){
+            mFieldAdapter.notifyDataSetChanged();
+            mFieldsRecycler.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    private static Comparator<Field> createComparator(LatLng p)
+    {
+        return new Comparator<Field>()
+        {
+            @Override
+            public int compare(Field p0, Field p1)
+
+            {
+
+                float[] result1 = new float[1];
+                Location.distanceBetween(p0.getLatitude(), p.latitude,
+                        p0.getLongitude(), p.longitude, result1);
+
+                float[] result2 = new float[1];
+                Location.distanceBetween(p1.getLatitude(), p.latitude,
+                        p1.getLongitude(), p.longitude, result2);
+
+               // double ds0 = p0.distanceSq(finalP);
+                //double ds1 = p1.distanceSq(finalP);
+                return Float.compare(result1[0], result2[0]);
+            }
+
+        };
+    }
+
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

@@ -5,6 +5,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.ale2nico.fillfield.FieldAdapter;
 import com.ale2nico.fillfield.models.Field;
@@ -18,11 +20,14 @@ public class SearchChildEventListener extends HomeChildEventListener {
 
     private String searchQuery;
     private Context context;
+    private ProgressBar progressBar;
+    int i = 0;
 
-    public SearchChildEventListener(String searchQuery, FieldAdapter fieldAdapter, Context context) {
+    public SearchChildEventListener(String searchQuery, FieldAdapter fieldAdapter, Context context, ProgressBar progressbar) {
         this.searchQuery = searchQuery;
         this.fieldAdapter = fieldAdapter;
         this.context = context;
+        this.progressBar = progressbar;
     }
 
     @Override
@@ -65,6 +70,10 @@ public class SearchChildEventListener extends HomeChildEventListener {
             cityFlag = false;
         }
 
+        if (i != 0){
+            //hide progressBar
+            progressBar.setVisibility(View.GONE);
+        }
 
         //check su query
         if (searchQuery != null) {
@@ -74,6 +83,10 @@ public class SearchChildEventListener extends HomeChildEventListener {
                 fieldAdapter.getFields().add(field);
                 fieldAdapter.getFieldsIds().add(dataSnapshot.getKey());
                 fieldAdapter.notifyItemInserted(fieldAdapter.getFields().size() - 1);
+
+                //update counter for progressBar
+                ++i;
+
             }
         }
     }
