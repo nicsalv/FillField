@@ -24,6 +24,8 @@
         android:theme="@style/AppTheme"
         android:name=".InitTimeZone">
 
+
+
         <activity android:name=".LoginActivity"/>
 
         <provider android:name=".MySuggestionProvider"

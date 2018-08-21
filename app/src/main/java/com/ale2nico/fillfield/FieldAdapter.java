@@ -52,6 +52,8 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     private List<String> mFieldsIds = new ArrayList<>();
     private List<Field> mFields = new ArrayList<>();
 
+    private Map<Field, String> fieldKeyMap = new HashMap<>();
+
     // Field images stored as byte array keyed by fieldKey
     private Map<String, ByteBuffer> mFieldImage = new HashMap<>();
 
@@ -91,6 +93,8 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     public void onBindViewHolder(@NonNull final FieldViewHolder holder, final int position) {
         final String fieldKey = mFieldsIds.get(position);
         Field field = mFields.get(position);
+        //final String fieldKey = fieldKeyMap.get(field);
+
 
         // Determine if the current user has liked this field and set UI accordingly
         if (field.getHearts().containsKey(getUid())) {
@@ -179,6 +183,10 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
     public List<Field> getFields() {
         return mFields;
+    }
+
+    public Map<Field, String> getFieldKeyMap() {
+        return fieldKeyMap;
     }
 
     @Override

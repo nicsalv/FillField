@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A fragment representing a list of Fields.
@@ -209,15 +210,28 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
             LatLng userPosition = new LatLng(params[0], params[1]);
 
             try{
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
 
             List<Field> mFields = mFieldAdapter.getFields();
+            mFieldsId = mFieldAdapter.getFieldsIds();
+            Map<Field, String>  fieldKeyMap = mFieldAdapter.getFieldKeyMap();
+
 
             Collections.sort(mFields, createComparator(userPosition));
+
+            for (int i = 0; i < mFields.size(); ++i){
+                String currentFieldKey = fieldKeyMap.get(mFields.get(i));
+                int currentFieldKeyIndex = mFieldsId.indexOf(currentFieldKey);
+                String removedFieldKey = mFieldsId.get(i);
+                mFieldsId.set(i, currentFieldKey);
+                mFieldsId.set(currentFieldKeyIndex, removedFieldKey);
+            }
+
+
 
             return true;
         }
@@ -230,7 +244,7 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
 
     }
 
-    private static Comparator<Field> createComparator(LatLng p)
+    private  Comparator<Field> createComparator(LatLng p)
     {
         return new Comparator<Field>()
         {
@@ -247,8 +261,9 @@ public class HomeFragment extends Fragment implements SortedListAdapter.Callback
                 Location.distanceBetween(p1.getLatitude(), p.latitude,
                         p1.getLongitude(), p.longitude, result2);
 
-               // double ds0 = p0.distanceSq(finalP);
+                // double ds0 = p0.distanceSq(finalP);
                 //double ds1 = p1.distanceSq(finalP);
+
                 return Float.compare(result1[0], result2[0]);
             }
 

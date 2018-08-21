@@ -26,11 +26,14 @@ public class HomeChildEventListener implements ChildEventListener {
 
         // A new field has been added, add it to the displayed list
         Field field = dataSnapshot.getValue(Field.class);
+        String fieldKey = dataSnapshot.getKey();
 
         //TODO: filtering result by actul position.
 
         // Update RecyclerView
         fieldAdapter.getFields().add(field);
+        fieldAdapter.getFieldKeyMap().put(field, fieldKey);
+
         fieldAdapter.getFieldsIds().add(dataSnapshot.getKey());
         fieldAdapter.notifyItemInserted(fieldAdapter.getFields().size() - 1);
     }

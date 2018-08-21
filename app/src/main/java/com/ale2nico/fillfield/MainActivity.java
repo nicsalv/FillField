@@ -290,9 +290,13 @@ public class MainActivity extends AppCompatActivity
             //creation of SearchFragment with search_query argument
             HomeFragment homeFragment = new HomeFragment();
             Bundle args = new Bundle();
-            args.putDouble("ARG_LAT", lastKnownLocation.getLatitude());
-            args.putDouble("ARG_LON", lastKnownLocation.getLongitude());
-            homeFragment.setArguments(args);
+
+            if (lastKnownLocation != null ) {
+                args.putDouble("ARG_LAT", lastKnownLocation.getLatitude());
+                args.putDouble("ARG_LON", lastKnownLocation.getLongitude());
+                homeFragment.setArguments(args);
+            }
+
 
             // Replace the current fragment with the selected fragment --> showing result in a particular fragment
             android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
