@@ -23,8 +23,8 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -45,11 +45,9 @@ import com.ale2nico.fillfield.models.Reservation;
 import com.firebase.client.Firebase;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -65,7 +63,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
         implements OnFieldClickListener,
@@ -84,6 +81,8 @@ public class MainActivity extends AppCompatActivity
     public static final String HOME_FRAGMENT = "HOME_FRAGMENT";
     public static final String PROFILE_FRAGMENT = "PROFILE_FRAGMENT";
     public static final String FAVOURITES_FRAGMENT = "FAVOURITES_FRAGMENT";
+
+    private String activeFragmentTag = HOME_FRAGMENT;
 
     // Firebase Authentication
     private FirebaseAuth mAuth;
@@ -107,6 +106,9 @@ public class MainActivity extends AppCompatActivity
     private static final String KEY_SELECTED_FIELDKEY = "selectedFieldKey";
     private static final String KEY_SELECTED_DATE = "selectedDate";
     private static final String KEY_SELECTED_TIME = "selectedTime";
+
+    private static final String KEY_ACTIVE_FRAGMENT = "activeFragmentTag";
+
 
     // References to map elements
     public SupportMapFragment mMapFragment;
@@ -169,7 +171,8 @@ public class MainActivity extends AppCompatActivity
                     // Replace the current fragment in the 'fragment_container'
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         // There are not permissions
-                        transaction.replace(R.id.fragment_container, new HomeFragment());
+                        activeFragmentTag = HOME_FRAGMENT;
+                        transaction.replace(R.id.fragment_container, new HomeFragment(), HOME_FRAGMENT);
                         View view = findViewById(R.id.list);
 
                         if (view != null) {
@@ -183,15 +186,18 @@ public class MainActivity extends AppCompatActivity
                         // Start HomeFragment with last known coordinates
                         HomeFragment homeFragment
                                 = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
-                        transaction.replace(R.id.fragment_container, homeFragment);
+                        activeFragmentTag = HOME_FRAGMENT;
+                        transaction.replace(R.id.fragment_container, homeFragment, HOME_FRAGMENT);
                     }
 
                     break;
                 case R.id.navigation_favourites_fields:
                     // Replace the current fragment in the 'fragment_container'
+                    activeFragmentTag = FAVOURITES_FRAGMENT;
                     transaction.replace(R.id.fragment_container, new FavouritesFragment(), FAVOURITES_FRAGMENT);
                     break;
                 case R.id.navigation_profile:
+                    activeFragmentTag = PROFILE_FRAGMENT;
                     transaction.replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
                     break;
                 default:
@@ -249,9 +255,9 @@ public class MainActivity extends AppCompatActivity
                     // Start HomeFragment with required arguments
                     HomeFragment homeFragment
                             = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
-
+                    activeFragmentTag = HOME_FRAGMENT;
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, homeFragment)
+                            .replace(R.id.fragment_container, homeFragment, HOME_FRAGMENT)
                             .commit();
                 } else {
                     // permission denied, boo! Disable the
@@ -372,6 +378,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
     @Override
     protected void onDestroy() {
         // Stop the service: this cause the Broadcast receiver to restart service
@@ -390,6 +397,31 @@ public class MainActivity extends AppCompatActivity
                 //new FindUserAccuracy().execute();
                 // Acquire a reference to the system Location Manager
                 checkPermissionsAndFindPosition();
+
+
+                if (activeFragmentTag.equals(PROFILE_FRAGMENT)) {
+                    activeFragmentTag = PROFILE_FRAGMENT;
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT)
+                            .commit();
+
+                }else if (activeFragmentTag.equals(FAVOURITES_FRAGMENT)) {
+                    activeFragmentTag = FAVOURITES_FRAGMENT;
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, new FavouritesFragment(), FAVOURITES_FRAGMENT)
+                            .commit();
+
+                }else {
+                    HomeFragment homeFragment = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
+                    activeFragmentTag = HOME_FRAGMENT;
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, homeFragment, HOME_FRAGMENT)
+                            .commit();
+
+                }
+
+
+
             }
     }
 
@@ -412,7 +444,8 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
-            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment());
+            activeFragmentTag = PROFILE_FRAGMENT;
+            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
             navigation.setSelectedItemId(R.id.navigation_profile);
             // Load My reservations fragment if user clicked on Reminder
             if (getIntent().getStringExtra("notificationFragment").equals("myReservationsFragment")) {
@@ -432,7 +465,8 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
-            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment());
+            activeFragmentTag = PROFILE_FRAGMENT;
+            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
             navigation.setSelectedItemId(R.id.navigation_profile);
             // Load My fields fragment
             MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
@@ -457,6 +491,9 @@ public class MainActivity extends AppCompatActivity
         outState.putDouble(KEY_LAST_KNOWN_LAT, lastKnownLat);
         outState.putDouble(KEY_LAST_KNOWN_LNG, lastKnownLng);
 
+        //save the actual fragments tag
+        outState.putString(KEY_ACTIVE_FRAGMENT, activeFragmentTag);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -478,6 +515,8 @@ public class MainActivity extends AppCompatActivity
             // Restore last known coordinates
             lastKnownLat = savedInstanceState.getDouble(KEY_LAST_KNOWN_LAT);
             lastKnownLng = savedInstanceState.getDouble(KEY_LAST_KNOWN_LNG);
+
+            activeFragmentTag = savedInstanceState.getString(KEY_ACTIVE_FRAGMENT);
         }
     }
 
