@@ -35,5 +35,24 @@
         android:layout_height="match_parent"
         android:layout_below="@id/line_separator" />
 
+    <TextView
+        android:id="@+id/field_list_empty_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30sp"
+        android:text="@string/field_list_empty"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_marginTop="100sp"
+        android:layout_centerInParent="true"
+        />
+
 
 </RelativeLayout>

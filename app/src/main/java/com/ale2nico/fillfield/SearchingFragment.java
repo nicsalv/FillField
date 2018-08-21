@@ -1,6 +1,7 @@
 package com.ale2nico.fillfield;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.ale2nico.fillfield.firebaselisteners.SearchChildEventListener;
 import com.google.firebase.database.ChildEventListener;
@@ -20,7 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
  * Activities that contain this fragment must implement the
  * {@link HomeFragment.OnFieldClickListener} interface
  * to handle interaction events.
- * Use the {@link SearchingFragment#newInstance} factory method to
+ * Use the {@link SearchingFragment#} factory method to
  * create an instance of this fragment.
  */
 public class SearchingFragment extends Fragment {
@@ -40,10 +43,17 @@ public class SearchingFragment extends Fragment {
     // References to layout objects
     private RecyclerView mFieldsRecycler;
     private FieldAdapter mFieldAdapter;
+
     // The layout manager is provided inside the 'onCreateView' method.
     // It depends on the number of column of the list.
 
     private HomeFragment.OnFieldClickListener mListener;
+
+    // Reference to the adapter observer
+    FieldAdapter.FieldAdapterObserver fieldAdapterObserver;
+    ProgressBar progressBar ;
+
+    private TextView emptyTextView;
 
 
     public SearchingFragment() {
@@ -78,19 +88,34 @@ public class SearchingFragment extends Fragment {
 
         rootView = inflater.inflate(R.layout.search_result, container, false);
         view = rootView.findViewById(R.id.result_list);
+        progressBar = rootView.findViewById(R.id.progressBar);
+        emptyTextView = rootView.findViewById(R.id.field_list_empty_text_view);
+
 
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = rootView.getContext();
             mFieldsRecycler = (RecyclerView) view;
             mFieldsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+            mFieldsRecycler.setVisibility(View.VISIBLE);
             //TODO: build an appropriate listener in order to pass it to the adapter
 
             mFieldAdapter = new FieldAdapter(mFieldsReference, mListener);
+
+            // Register an observer for the adapter
+            fieldAdapterObserver = mFieldAdapter.new FieldAdapterObserver(rootView);
+            mFieldAdapter.registerAdapterDataObserver(fieldAdapterObserver);
+
             ChildEventListener childEventListener
-                    = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext());
+                    = new SearchChildEventListener(searchQuery, mFieldAdapter, getContext(), progressBar);
             mFieldAdapter.setChildEventListener(childEventListener);
             mFieldsRecycler.setAdapter(mFieldAdapter);
+
+            // Initial check in order to show empty view if there are no fields.
+            if (isFavouriteListEmpty()) {
+                new progressCheck(progressBar).execute();
+                //showEmptyView(rootView);
+            }
 
         }
         return rootView;
@@ -121,31 +146,48 @@ public class SearchingFragment extends Fragment {
 
 
     }
-/*
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the options menu from XML
-        menu.clear();
-        inflater.inflate(R.menu.search_menu, menu);
-        super.onCreateOptionsMenu(menu,inflater);
+
+    private boolean isFavouriteListEmpty() {
+        return mFieldAdapter.getItemCount() == 0;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.action_search:
-                //getActivity().onSearchRequested();
-                return true;
+    private void showEmptyView(View rootView) {
+        TextView emptyTextView = (TextView) rootView.findViewById(R.id.field_list_empty_text_view);
+        emptyTextView.setVisibility(View.VISIBLE);
+    }
 
-            default:
-                return super.onOptionsItemSelected(item);
+    public class progressCheck  extends AsyncTask<String, String, String> {
+
+        ProgressBar mProgressBar;
+
+        public progressCheck(ProgressBar p){
+            this.mProgressBar = p;
         }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            mProgressBar.setVisibility(View.GONE);
+            emptyTextView.setVisibility(View.VISIBLE);
+
+
+
+        }
+
     }
-    */
-
-
-
-
-
 }
+
+
+
+
+

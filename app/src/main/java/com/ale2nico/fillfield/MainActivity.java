@@ -1,8 +1,8 @@
 package com.ale2nico.fillfield;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.Fragment;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,47 +11,36 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ale2nico.fillfield.HomeFragment.OnFieldClickListener;
+import com.ale2nico.fillfield.MyFieldsFragment.OnReservationsButtonClickedListener;
 import com.ale2nico.fillfield.models.Field;
 import com.ale2nico.fillfield.models.FieldAgenda;
 import com.ale2nico.fillfield.models.Reservation;
-import com.ale2nico.fillfield.models.TimeTable;
-import com.ale2nico.fillfield.HomeFragment.OnFieldClickListener;
-import com.ale2nico.fillfield.MyFieldsFragment.OnReservationsButtonClickedListener;
-
 import com.firebase.client.Firebase;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -68,28 +57,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
-import com.google.firebase.database.ValueEventListener;
-
-import org.threeten.bp.LocalTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements OnFieldClickListener,
         OnReservationsButtonClickedListener,
         DatePickerDialog.OnDateSetListener, OnTimeDialogClickListener,
         OnMapReadyCallback, ReservationsFragment.OnContactButtonClickListener,
-        ReservationsFragment.ShareImageClickListener {
+        ReservationsFragment.ShareImageClickListener{
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -125,6 +106,14 @@ public class MainActivity extends AppCompatActivity
     private Field actualMapField;
 
 
+    private Location lastKnownLocation;
+    private static final int MY_PERMISSIONS_REQUEST_LOCALIZATION = 200;
+    private LocationManager locationManager;
+
+    // Acquire a reference to the system Location Manager
+
+    String locationProvider;
+
     // Listens for actually signed-out user
     private FirebaseAuth.AuthStateListener mAuthListener
             = new FirebaseAuth.AuthStateListener() {
@@ -153,11 +142,25 @@ public class MainActivity extends AppCompatActivity
                         getFragmentManager().beginTransaction();
                 fragmentTransaction.remove(mMapFragment).commit();
             }
+
             switch (item.getItemId()) {
 
                 case R.id.navigation_home:
                     // Replace the current fragment in the 'fragment_container'
-                    transaction.replace(R.id.fragment_container, new HomeFragment(),HOME_FRAGMENT);
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        //there are not permissions
+                        transaction.replace(R.id.fragment_container, new HomeFragment());
+                        View view = findViewById(R.id.list);
+
+                        if (view != null) {
+                            view.setVisibility(View.VISIBLE);
+                        }
+
+                    }else {
+                        //permissions are granted
+                        checkPermissionsAndFindPosition();
+                    }
+
                     break;
                 case R.id.navigation_favourites_fields:
                     // Replace the current fragment in the 'fragment_container'
@@ -179,6 +182,131 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
     };
+
+
+
+    private LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+            lastKnownLocation = location;
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCALIZATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    //Toast.makeText(getApplicationContext(), "ci sono i permessi", Toast.LENGTH_SHORT).show();
+                    checkPermissionsAndFindPosition();
+
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    //Toast.makeText(getApplicationContext(), "non ci sono i permessi", Toast.LENGTH_SHORT).show();
+                    View view = findViewById(R.id.list);
+
+                    if (view != null) {
+                        view.setVisibility(View.VISIBLE);
+                    }
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+
+        }
+
+    }
+
+    public void checkPermissionsAndFindPosition(){
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        String locationProvider = LocationManager.GPS_PROVIDER;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,  new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCALIZATION);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+
+            }
+
+        }else{
+            //Toast.makeText(getApplicationContext(), "ci sono gia i permessi", Toast.LENGTH_SHORT).show();
+
+            locationManager.requestLocationUpdates(locationProvider, 0,
+                    0, mLocationListener);
+
+            lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+
+            //Toast.makeText(getApplicationContext(), "Localization: "+lastKnownLocation.getLatitude()+", "+lastKnownLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+            // Remove the listener previously added
+            locationManager.removeUpdates(mLocationListener);
+
+            //creation of SearchFragment with search_query argument
+            HomeFragment homeFragment = new HomeFragment();
+            Bundle args = new Bundle();
+            args.putDouble("ARG_LAT", lastKnownLocation.getLatitude());
+            args.putDouble("ARG_LON", lastKnownLocation.getLongitude());
+            homeFragment.setArguments(args);
+
+            // Replace the current fragment with the selected fragment --> showing result in a particular fragment
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction();
+            transaction.replace(R.id.fragment_container, homeFragment).commit();
+
+
+
+        }
+
+    }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,6 +350,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+            // Load initial fragment only if there is a signed-in user
+            if (user != null) {
+                //new FindUserAccuracy().execute();
+                // Acquire a reference to the system Location Manager
+                checkPermissionsAndFindPosition();
+            }
+
+    }
+
+    @Override
     protected void onRestart() {
         super.onRestart();
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -249,7 +390,7 @@ public class MainActivity extends AppCompatActivity
                     Log.d("HOME FRAGMENT", "Load correct fragment");
                 }
                 else {
-                    Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
+                    android.app.Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
                     if (f instanceof MapFragment) {
                         Log.d("HOME FRAGMENT", "Inside map fragment");
                     }
@@ -267,7 +408,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
-            fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
+            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment());
             navigation.setSelectedItemId(R.id.navigation_profile);
             // Load My reservations fragment if user clicked on Reminder
             if (getIntent().getStringExtra("notificationFragment").equals("myReservationsFragment")) {
@@ -287,12 +428,13 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             // Load profile fragment
-            fragmentTransaction.replace(R.id.fragment_container,  new ProfileFragment());
+            fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment());
             navigation.setSelectedItemId(R.id.navigation_profile);
             // Load My fields fragment
             MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
             fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
                     .addToBackStack(null).commit();
+
         }
     }
 
@@ -306,9 +448,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNewIntent(Intent intent){
+    public void onNewIntent(Intent intent) {
         setIntent(intent);
-        if(Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
@@ -553,10 +695,10 @@ public class MainActivity extends AppCompatActivity
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         long futureInMillis = SystemClock.elapsedRealtime() + delay;
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Do something for marshmallow and above versions
-            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,  futureInMillis, pendingIntent);
-        } else{
+            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+        } else {
             // do something for phones running an SDK before marshmallow
             alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
         }
@@ -622,8 +764,7 @@ public class MainActivity extends AppCompatActivity
         public void onBackPressed() {
             if (getFragmentManager().getBackStackEntryCount() > 0 ){
                 getFragmentManager().popBackStack();
-                }
-                else {
+            } else {
                 super.onBackPressed();
             }
         }

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ale2nico.fillfield.HomeFragment.OnFieldClickListener;
@@ -59,11 +60,17 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
     private Context context;
 
+    private ProgressBar progressBar;
+
 
     public FieldAdapter(DatabaseReference ref,
                         OnFieldClickListener listener) {
         mDatabaseReference = ref;
         mListener = listener;
+    }
+
+    public void setProgressBar(ProgressBar progressBar){
+        this.progressBar = progressBar;
     }
 
     @Override
@@ -206,7 +213,10 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         public void onItemRangeInserted(int positionStart, int itemCount) {
             // Hide the empty view
             TextView emptyViewText = layoutView.findViewById(R.id.favourite_fields_empty_view);
-            emptyViewText.setVisibility(View.GONE);
+            if( emptyViewText == null) {
+                emptyViewText = layoutView.findViewById(R.id.field_list_empty_text_view);
+            }
+                emptyViewText.setVisibility(View.GONE);
         }
 
         @Override
