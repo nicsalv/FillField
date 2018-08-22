@@ -545,33 +545,6 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             // Get currently signed-in user
             user = mAuth.getCurrentUser();
-
-            // [START DATABASE SEEDING]
-            Map<String, Object> childUpdates = new HashMap<>();
-            for (int i = 0; i < 4; i++) {
-                // Construct new sample Field
-                Field field = new Field(user.getUid(), "Campo " + i,
-                        44.044760, 8.214601,
-                        "08:00", "23:00",
-                        "Via Della Costituzione 20, Albenga 17031",
-                        "erba sintetica", "5 giocatori", "50 €");
-
-                Map<String, Object> fieldValues = field.toMap();
-
-                // Construct new sample FieldAgenda related to Field
-                FieldAgenda fieldAgenda
-                        = new FieldAgenda(field.getOpeningHour(), field.getClosingHour());
-
-                Map<String, Object> fieldAgendaValues = fieldAgenda.toMap();
-
-                String key = FirebaseDatabase.getInstance().getReference()
-                        .child("fields").push().getKey();
-
-                childUpdates.put("/fields/" + key, fieldValues);
-                childUpdates.put("/agenda/" + key, fieldAgendaValues);
-            }
-            FirebaseDatabase.getInstance().getReference().updateChildren(childUpdates);
-            // [STOP DATABASE SEEDING]
         }
     }
 
