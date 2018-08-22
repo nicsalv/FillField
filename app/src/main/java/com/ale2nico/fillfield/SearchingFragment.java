@@ -112,10 +112,10 @@ public class SearchingFragment extends Fragment {
             mFieldsRecycler.setAdapter(mFieldAdapter);
 
             // Initial check in order to show empty view if there are no fields.
-            if (isFavouriteListEmpty()) {
-                new progressCheck(progressBar).execute();
-                //showEmptyView(rootView);
-            }
+
+            new progressCheck(progressBar).execute();
+            //showEmptyView(rootView);
+
 
         }
         return rootView;
@@ -178,8 +178,10 @@ public class SearchingFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             mProgressBar.setVisibility(View.GONE);
-            emptyTextView.setVisibility(View.VISIBLE);
 
+            if (isFavouriteListEmpty()) {
+                emptyTextView.setVisibility(View.VISIBLE);
+            }
 
 
         }

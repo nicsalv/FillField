@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity
 
             //Toast.makeText(getApplicationContext(), "Localization: "+lastKnownLocation.getLatitude()+", "+lastKnownLocation.getLongitude(), Toast.LENGTH_SHORT).show();
             // Remove the listener previously added
-            locationManager.removeUpdates(mLocationListener);
+            //locationManager.removeUpdates(mLocationListener);
 
             // Save last known coordinates
             lastKnownLat = lastKnownLocation.getLatitude();
@@ -350,6 +350,14 @@ public class MainActivity extends AppCompatActivity
 */
         }
 
+    }
+
+    @Override
+    protected void onPause() {
+        if(locationManager != null) {
+            locationManager.removeUpdates(mLocationListener);
+        }
+        super.onPause();
     }
 
     @Override
@@ -492,7 +500,13 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.fragment_container, homeFragment, HOME_FRAGMENT)
                     .commit();
         }
+
+
+
+
+
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
