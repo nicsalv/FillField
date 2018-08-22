@@ -102,7 +102,6 @@ public class ReservationsFragment extends Fragment
         if (getArguments() != null) {
             fieldKey = getArguments().getString(ARG_FIELD_KEY);
         }
-
         // Tell the activity that this fragment has a menu to show
         setHasOptionsMenu(true);
     }
