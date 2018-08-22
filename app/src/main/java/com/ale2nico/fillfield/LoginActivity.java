@@ -166,10 +166,11 @@ public class LoginActivity extends Activity implements
                             // This user is a new user
                             mDatabase.child("users").child(userId).setValue(newUser);
 
-                            // Return to MainActivity
-                            setResult(RESULT_OK);
-                            finish();
                         }
+
+                        // Return to MainActivity
+                        setResult(RESULT_OK);
+                        finish();
                     }
 
                     @Override
