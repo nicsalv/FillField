@@ -145,8 +145,8 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
         public TextView myFieldAddress;
         public TextView myFieldName;
         public Button viewReservationButton;
-        public TextView myFieldPrice;
         public TextView myFieldSurface;
+        public TextView myFieldPrice;
         public TextView myFieldSize;
 
         public MyFieldViewHolder(View v) {
@@ -156,17 +156,21 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
             myFieldAddress = v.findViewById(R.id.card_my_field_address);
             myFieldName = v.findViewById(R.id.card_my_field_name);
             viewReservationButton = v.findViewById(R.id.view_reservations);
-            myFieldPrice = v.findViewById(R.id.my_field_price);
             myFieldSurface = v.findViewById(R.id.my_field_surface);
             myFieldSize = v.findViewById(R.id.my_field_size);
+            myFieldPrice = v.findViewById(R.id.my_field_price);
         }
 
         private void bindToField(Field field, final String fieldKey) {
             // Download and set the picture of the field (done at first because it can take much time).
             downloadAndSetFieldImage(fieldKey);
 
-            // Find a human-readable address to display into the card
-            new DiscoverAddress().execute(field.getLatitude(), field.getLongitude());
+            // Set field features
+            myFieldName.setText(field.getName());
+            myFieldAddress.setText(field.getAddress());
+            myFieldSurface.setText(field.getSurface());
+            myFieldSize.setText(field.getSize());
+            myFieldPrice.setText(field.getPrice());
 
             // Add listener to the reservations button
             viewReservationButton.setOnClickListener(new View.OnClickListener() {
@@ -177,9 +181,6 @@ public class MyFieldsAdapter extends RecyclerView.Adapter<MyFieldsAdapter.MyFiel
                     }
                 }
             });
-
-            // TODO: set all the field's fields
-            myFieldName.setText(field.getName());
         }
 
         private void downloadAndSetFieldImage(final String fieldKey) {

@@ -160,9 +160,17 @@ public class MyReservationsAdapter
         // Bind reservation info through the reservation list
         holder.myResDate.setText(holder.formatDate(reservations.get(position).getDate()));
         holder.myResTime.setText(reservations.get(position).getTime());
+
         // The fieldKey allows us to obtain field info through the map data set
         String fieldKey = reservations.get(position).getFieldKey();
-        holder.myResFieldName.setText(reservationFields.get(fieldKey).getName());
+        Field field = reservationFields.get(fieldKey);
+
+        // Set field features
+        holder.myResPlace.setText(field.getAddress());
+        holder.myResFieldName.setText(field.getName());
+        holder.myResFieldSurface.setText(field.getSurface());
+        holder.myResFieldSize.setText(field.getSize());
+        holder.myResFieldPrice.setText(field.getPrice());
 
         holder.contactOwnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,6 +203,9 @@ public class MyReservationsAdapter
         public TextView myResTime;
         public TextView myResPlace;
         public TextView myResFieldName;
+        public TextView myResFieldSurface;
+        public TextView myResFieldSize;
+        public TextView myResFieldPrice;
         public Button contactOwnerButton;
         public ImageView myResShareImageView;
 
@@ -207,6 +218,9 @@ public class MyReservationsAdapter
             myResPlace = view.findViewById(R.id.my_res_where_text);
             myResShareImageView = view.findViewById(R.id.my_res_share_image);
             myResFieldName = view.findViewById(R.id.my_res_field_name);
+            myResFieldSurface = view.findViewById(R.id.my_res_field_surface);
+            myResFieldSize = view.findViewById(R.id.my_res_field_size);
+            myResFieldPrice = view.findViewById(R.id.my_res_field_price);
             contactOwnerButton = view.findViewById(R.id.my_res_contact_button);
             myResShareImageView = view.findViewById(R.id.my_res_share_image);
 

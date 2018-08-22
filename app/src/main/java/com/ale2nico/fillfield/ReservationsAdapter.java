@@ -133,7 +133,6 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
                 contactButtonClickListener.onContactButtonClick(finalReservationUserEmail);
             }
         });
-        // TODO: get user information (so far you just print the userId)
     }
 
     @Override
