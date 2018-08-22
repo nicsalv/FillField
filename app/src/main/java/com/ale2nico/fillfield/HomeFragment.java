@@ -13,7 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,14 +23,11 @@ import android.widget.ProgressBar;
 
 import com.ale2nico.fillfield.firebaselisteners.HomeChildEventListener;
 import com.ale2nico.fillfield.models.Field;
-import com.github.wrdlbrnft.sortedlistadapter.SortedListAdapter;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -222,12 +218,12 @@ public class HomeFragment extends Fragment {
             {
 
                 float[] result1 = new float[1];
-                Location.distanceBetween(p0.getLatitude(), p.latitude,
-                        p0.getLongitude(), p.longitude, result1);
+                Location.distanceBetween(p.latitude, p.longitude,
+                        p0.getLatitude(), p0.getLongitude(), result1);
 
                 float[] result2 = new float[1];
-                Location.distanceBetween(p1.getLatitude(), p.latitude,
-                        p1.getLongitude(), p.longitude, result2);
+                Location.distanceBetween(p.latitude, p.longitude,
+                        p1.getLatitude(), p1.getLongitude(), result2);
 
                 // double ds0 = p0.distanceSq(finalP);
                 //double ds1 = p1.distanceSq(finalP);
