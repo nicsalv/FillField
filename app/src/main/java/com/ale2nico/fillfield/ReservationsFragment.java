@@ -209,6 +209,7 @@ public class ReservationsFragment extends Fragment
     }
 
     public interface ShareImageClickListener {
-        public void onShareImageClick(String fieldName, String reservationDay, String reservationTime);
+        public void onShareImageClick(String fieldName, String reservationDay,
+                                      String reservationTime, String reservationPlace);
     }
 }

@@ -930,15 +930,14 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public void onShareImageClick(String fieldName, String reservationDate, String reservationTime) {
+    public void onShareImageClick(String fieldName, String reservationDate, String reservationTime,
+                                  String reservationPlace) {
         //TODO get correct position of the field
         activeFragmentTag = MY_RESERVATIONS_FRAGMENT;
-        Double latitude = 44.054932231450536;
-        Double longitude = 8.212966918945312;
-        String string = "Aquila D'Arroscia";
+
         // Full string to send, including maps preview and plain text
         String uri = "http://maps.google.com/maps?q=" +
-                string.replace(" ", "+") + "\n\n" +
+                reservationPlace.replace(" ", "+") + "\n\n" +
                 String.format(getResources().getString(R.string.share_action_text),
                         fieldName, reservationDate, reservationTime);
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);

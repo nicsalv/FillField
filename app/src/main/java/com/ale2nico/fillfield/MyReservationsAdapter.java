@@ -183,7 +183,8 @@ public class MyReservationsAdapter
             @Override
             public void onClick(View v) {
                 shareImageClickListener.onShareImageClick((String) holder.myResFieldName.getText(),
-                        (String) holder.myResDate.getText(), (String) holder.myResTime.getText());
+                        (String) holder.myResDate.getText(), (String) holder.myResTime.getText(),
+                        (String) holder.myResPlace.getText());
             }
         });
     }
