@@ -87,8 +87,8 @@ public class SearchingFragment extends Fragment {
         getActivity().setTitle(getContext().getResources().getString(R.string.search_fragment_title));
 
         rootView = inflater.inflate(R.layout.search_result, container, false);
-        view = rootView.findViewById(R.id.result_list);
-        progressBar = rootView.findViewById(R.id.progressBar);
+        view = rootView.findViewById(R.id.list);
+        progressBar = rootView.findViewById(R.id.home_progress_bar);
         emptyTextView = rootView.findViewById(R.id.field_list_empty_text_view);
 
 
