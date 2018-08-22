@@ -38,8 +38,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * Firebase Authentication using a Google ID Token.
@@ -147,17 +150,33 @@ public class LoginActivity extends Activity implements
 
         // Store the new user into the database
         insertNewUser(user.getUid(), name, surname, email);
-
-        // Return to MainActivity
-        setResult(RESULT_OK);
-        finish();
     }
 
     private void insertNewUser(String userId, String name, String surname, String email) {
         User newUser = new User(email, name, surname);
 
         // Insert a new record in /users/<ID>/
-        mDatabase.child("users").child(userId).setValue(newUser);
+        mDatabase.child("users").child(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        User previouslySignedInUser = dataSnapshot.getValue(User.class);
+
+                        if (previouslySignedInUser == null) {
+                            // This user is a new user
+                            mDatabase.child("users").child(userId).setValue(newUser);
+
+                            // Return to MainActivity
+                            setResult(RESULT_OK);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     // [START signin]

@@ -479,8 +479,7 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new MyReservationsFragment(), RESERVATIONS_FRAGMENT)
-                    .commit();
+                    .replace(R.id.fragment_container, new MyReservationsFragment(), RESERVATIONS_FRAGMENT);
         } else if (activeFragmentTag.equals(MY_FIELDS_FRAGMENT)) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
@@ -870,7 +869,6 @@ public class MainActivity extends AppCompatActivity
                     getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
                     NotificationReceiver.class, delay, new Random().nextInt(100));
         }
-        Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_LONG).show();
     }
 
 

@@ -19,6 +19,7 @@
             android:id="@+id/my_res_where_when_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingVertical="15dp"
             android:orientation="vertical"
             android:background="#D2EDD3">
 
@@ -105,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/my_res_where_when_wrapper"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp"
             android:background="?attr/selectableItemBackground"
             android:padding="7dp"/>
@@ -116,7 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/my_res_where_when_wrapper"
             android:layout_marginStart="@dimen/card_text_left_margin"
-            android:layout_marginTop="@dimen/card_element_top_margin"
+            android:layout_marginTop="20dp"
             tools:text="Campetto di Bastia"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
@@ -126,7 +127,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/my_res_field_name"
             android:layout_alignStart="@id/my_res_contact_button"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="30dp"
             android:layout_marginStart="10dp"
             android:textSize="25sp"
             tools:text="50 €"/>
@@ -139,6 +140,7 @@
             android:layout_alignParentEnd="true"
             android:layout_below="@id/my_res_field_price"
             android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             android:text="@string/contact_owner_button" />
 
         <TextView
@@ -147,7 +149,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/my_res_field_name"
             android:layout_marginStart="@dimen/card_text_left_margin"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="30dp"
             tools:text="Erba sintetica" />
 
         <TextView
@@ -155,7 +157,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/my_res_field_surface"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="5dp"
             android:layout_marginStart="@dimen/card_text_left_margin"
             tools:text="5 giocatori" />
