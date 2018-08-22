@@ -8,6 +8,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 
 public class InitTimeZone extends MultiDexApplication {
 
+    private String activeTAG ;
     @Override
     public void onCreate() {
         super.onCreate();

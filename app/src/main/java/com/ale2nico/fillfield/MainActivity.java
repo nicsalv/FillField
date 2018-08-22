@@ -63,6 +63,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
         implements OnFieldClickListener,
@@ -81,6 +82,11 @@ public class MainActivity extends AppCompatActivity
     public static final String HOME_FRAGMENT = "HOME_FRAGMENT";
     public static final String PROFILE_FRAGMENT = "PROFILE_FRAGMENT";
     public static final String FAVOURITES_FRAGMENT = "FAVOURITES_FRAGMENT";
+    public static final String MY_RESERVATIONS_FRAGMENT = "MY RESERVATIONS FRAGMENT";
+    public static final String MY_FIELDS_FRAGMENT = "MY FIELDS FRAGMENT";
+    public static final String SEARCHING_FRAGMENT = "SEARCHING_FRAGMENT";
+    public static final String RESERVATIONS_FRAGMENT = "RESERVATIONS FRAGMENT";
+    public static final String MAP_FRAGMENT = "MAP FRAGMENT";
 
     private String activeFragmentTag = HOME_FRAGMENT;
 
@@ -391,36 +397,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-
             // Load initial fragment only if there is a signed-in user
             if (user != null) {
                 //new FindUserAccuracy().execute();
                 // Acquire a reference to the system Location Manager
                 checkPermissionsAndFindPosition();
-
-
-                if (activeFragmentTag.equals(PROFILE_FRAGMENT)) {
-                    activeFragmentTag = PROFILE_FRAGMENT;
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT)
-                            .commit();
-
-                }else if (activeFragmentTag.equals(FAVOURITES_FRAGMENT)) {
-                    activeFragmentTag = FAVOURITES_FRAGMENT;
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, new FavouritesFragment(), FAVOURITES_FRAGMENT)
-                            .commit();
-
-                }else {
-                    HomeFragment homeFragment = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
-                    activeFragmentTag = HOME_FRAGMENT;
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, homeFragment, HOME_FRAGMENT)
-                            .commit();
-
-                }
-
-
 
             }
     }
@@ -450,14 +431,12 @@ public class MainActivity extends AppCompatActivity
             // Load My reservations fragment if user clicked on Reminder
             if (getIntent().getStringExtra("notificationFragment").equals("myReservationsFragment")) {
                 MyReservationsFragment myReservationsFragment = new MyReservationsFragment();
-                fragmentTransaction.replace(R.id.fragment_container, myReservationsFragment)
-                        .addToBackStack(null).commit();
+                activeFragmentTag = MY_RESERVATIONS_FRAGMENT;
             }
             // Load My fields fragment if user clicked on Push notification
             else if (getIntent().getStringExtra("notificationFragment").equals("myFieldsFragment")) {
                 MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
-                fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
-                        .addToBackStack(null).commit();
+                activeFragmentTag = MY_FIELDS_FRAGMENT;
             }
         }
         // Opening "My Fields" if user clicked on New Reservation Notification
@@ -470,8 +449,51 @@ public class MainActivity extends AppCompatActivity
             navigation.setSelectedItemId(R.id.navigation_profile);
             // Load My fields fragment
             MyFieldsFragment myFieldsFragment = new MyFieldsFragment();
+            activeFragmentTag = MY_FIELDS_FRAGMENT;
             fragmentTransaction.replace(R.id.fragment_container, myFieldsFragment)
                     .addToBackStack(null).commit();
+        }
+
+        // Opening correct fragment
+        if (activeFragmentTag.equals(PROFILE_FRAGMENT)) {
+            activeFragmentTag = PROFILE_FRAGMENT;
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT)
+                    .commit();
+
+        } else if (activeFragmentTag.equals(FAVOURITES_FRAGMENT)) {
+            activeFragmentTag = FAVOURITES_FRAGMENT;
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new FavouritesFragment(), FAVOURITES_FRAGMENT)
+                    .commit();
+
+        } else if (activeFragmentTag.equals(MY_RESERVATIONS_FRAGMENT)) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MyReservationsFragment(), RESERVATIONS_FRAGMENT)
+                    .addToBackStack(null).commit();
+        } else if (activeFragmentTag.equals(MY_FIELDS_FRAGMENT)) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MyFieldsFragment(), MY_FIELDS_FRAGMENT)
+                    .addToBackStack(null).commit();
+        } else if (activeFragmentTag.equals(RESERVATIONS_FRAGMENT)) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MyFieldsFragment(), MY_FIELDS_FRAGMENT)
+                    .addToBackStack(null);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ReservationsFragment(), RESERVATIONS_FRAGMENT)
+                    .addToBackStack(null).commit();
+        }else if(activeFragmentTag.equals(HOME_FRAGMENT)) {
+            HomeFragment homeFragment
+                    = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, homeFragment, HOME_FRAGMENT)
+                    .commit();
         }
     }
 
@@ -545,8 +567,9 @@ public class MainActivity extends AppCompatActivity
             searchingFragment.setArguments(args);
 
             // Replace the current fragment with the selected fragment --> showing result in a particular fragment
-            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager()
+            FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction();
+            activeFragmentTag = SEARCHING_FRAGMENT;
             transaction.replace(R.id.fragment_container, searchingFragment).addToBackStack(null);
             transaction.commit();
 
@@ -558,6 +581,7 @@ public class MainActivity extends AppCompatActivity
         // Start the map fragment
         mMapFragment = SupportMapFragment.newInstance();
         mMapFragment.setRetainInstance(true);
+        activeFragmentTag = MAP_FRAGMENT;
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, mMapFragment)
                 .addToBackStack(null)
@@ -749,6 +773,7 @@ public class MainActivity extends AppCompatActivity
         // Attach listener to the action button
         reservationSnackbar.setAction(R.string.snackbar_view_action, (v) -> {
             // Start 'MyReservationFragment' so as to let user view his new reservation
+            activeFragmentTag = MY_RESERVATIONS_FRAGMENT;
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new MyReservationsFragment())
                     .addToBackStack(null)
@@ -832,7 +857,7 @@ public class MainActivity extends AppCompatActivity
         if (delay > 0) {
             sendNotificationReminder("ale2nico.FillField", getResources().getString(R.string.remember_reservation),
                     getResources().getString(R.string.remember_reservation_text), getApplicationContext(), MainActivity.class,
-                    NotificationReceiver.class, delay, 1);
+                    NotificationReceiver.class, delay, new Random().nextInt(100));
         }
         Toast.makeText(getApplicationContext(), R.string.reservation_success, Toast.LENGTH_LONG).show();
     }

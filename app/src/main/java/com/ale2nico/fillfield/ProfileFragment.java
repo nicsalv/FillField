@@ -59,7 +59,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
-
     }
 
     @Override
