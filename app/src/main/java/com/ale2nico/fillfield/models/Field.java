@@ -65,6 +65,10 @@ public class Field implements SortedListAdapter.ViewModel {
         this.openingHour = openingHour;
         this.closingHour = closingHour;
 
+        this.surface = surface;
+        this.size = size;
+        this.price = price;
+
     }
 
     public String getAddress() {
@@ -128,6 +132,9 @@ public class Field implements SortedListAdapter.ViewModel {
         result.put("latitude", latitude);
         result.put("longitude", longitude);
         result.put("address", address);
+        result.put("surface", surface);
+        result.put("size", size);
+        result.put("price", price);
         result.put("openingHour", openingHour);
         result.put("closingHour", closingHour);
         result.put("heartsCount", heartsCount);
