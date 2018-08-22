@@ -130,7 +130,8 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
             @Override
             public void onClick(View v) {
                 // Write email to user
-                contactButtonClickListener.onContactButtonClick(finalReservationUserEmail);
+                contactButtonClickListener.onContactButtonClick(finalReservationUserEmail,
+                        holder.contactButton.getId());
             }
         });
         // TODO: get user information (so far you just print the userId)

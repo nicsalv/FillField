@@ -472,7 +472,7 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new MyReservationsFragment(), RESERVATIONS_FRAGMENT)
-                    .addToBackStack(null).commit();
+                    .commit();
         } else if (activeFragmentTag.equals(MY_FIELDS_FRAGMENT)) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new ProfileFragment(), PROFILE_FRAGMENT);
@@ -485,9 +485,6 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new MyFieldsFragment(), MY_FIELDS_FRAGMENT)
                     .addToBackStack(null);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new ReservationsFragment(), RESERVATIONS_FRAGMENT)
-                    .addToBackStack(null).commit();
         }else if(activeFragmentTag.equals(HOME_FRAGMENT)) {
             HomeFragment homeFragment
                     = HomeFragment.newInstance(lastKnownLat, lastKnownLng);
@@ -899,8 +896,18 @@ public class MainActivity extends AppCompatActivity
         }
 
     @Override
-    public void onContactButtonClick(String userEmail) {
+    public void onContactButtonClick(String userEmail, int viewId) {
         // Open email app
+        switch (viewId) {
+            case R.id.my_res_contact_button:
+                activeFragmentTag = MY_RESERVATIONS_FRAGMENT;
+                break;
+            case R.id.contact_button:
+                activeFragmentTag = RESERVATIONS_FRAGMENT;
+                break;
+            default: break;
+
+        }
         Intent contactIntent = new Intent(Intent.ACTION_SENDTO,
                 Uri.fromParts("mailto", userEmail, null));
 
@@ -911,6 +918,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onShareImageClick(String fieldName, String reservationDate, String reservationTime) {
         //TODO get correct position of the field
+        activeFragmentTag = MY_RESERVATIONS_FRAGMENT;
         Double latitude = 44.054932231450536;
         Double longitude = 8.212966918945312;
         String string = "Aquila D'Arroscia";

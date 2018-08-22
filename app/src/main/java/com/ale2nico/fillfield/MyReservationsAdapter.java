@@ -167,7 +167,8 @@ public class MyReservationsAdapter
         holder.contactOwnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                contactButtonClickListener.onContactButtonClick(reservationOwnerEmails.get(fieldKey));
+                contactButtonClickListener.onContactButtonClick(reservationOwnerEmails.get(fieldKey),
+                        holder.contactOwnerButton.getId());
             }
         });
         holder.myResShareImageView.setOnClickListener(new View.OnClickListener() {

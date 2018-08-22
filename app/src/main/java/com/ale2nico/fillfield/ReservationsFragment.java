@@ -205,7 +205,7 @@ public class ReservationsFragment extends Fragment
 
     public interface OnContactButtonClickListener {
 
-        public void onContactButtonClick(String userEmail);
+        public void onContactButtonClick(String userEmail, int viewId);
     }
 
     public interface ShareImageClickListener {
