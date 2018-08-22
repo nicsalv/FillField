@@ -24,12 +24,17 @@ public class Field implements SortedListAdapter.ViewModel {
     private double latitude;
     private double longitude;
 
-    //stimated address from coordinates
-    private Address address;
+    // Geographical address of the field
+    private String address;
 
     // Working hours of the field. See TimeTable about why we use String.
     private String openingHour;
     private String closingHour;
+
+    // Field features
+    private String surface;
+    private String size;
+    private String price;
 
     // Hearts put by users
     private int heartsCount = 0;
@@ -43,7 +48,8 @@ public class Field implements SortedListAdapter.ViewModel {
 
 
     public Field(String userId, String name, double latitude, double longitude,
-                 String openingHour, String closingHour, Address address) {
+                 String openingHour, String closingHour, String address,
+                 String surface, String size, String price) {
 
         // Set field's owner and name
         this.userId = userId;
@@ -61,7 +67,9 @@ public class Field implements SortedListAdapter.ViewModel {
 
     }
 
-    public Address getAddress() { return address; }
+    public String getAddress() {
+        return address;
+    }
 
     public String getUserId() {
         return userId;
@@ -79,9 +87,25 @@ public class Field implements SortedListAdapter.ViewModel {
         return longitude;
     }
 
-    public String getOpeningHour() { return openingHour; }
+    public String getOpeningHour() {
+        return openingHour;
+    }
 
-    public String getClosingHour() { return closingHour; }
+    public String getClosingHour() {
+        return closingHour;
+    }
+
+    public String getSurface() {
+        return surface;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public String getPrice() {
+        return price;
+    }
 
     public void setHeartsCount(int heartsCount) {
         this.heartsCount = heartsCount;
@@ -103,6 +127,7 @@ public class Field implements SortedListAdapter.ViewModel {
         result.put("name", name);
         result.put("latitude", latitude);
         result.put("longitude", longitude);
+        result.put("address", address);
         result.put("openingHour", openingHour);
         result.put("closingHour", closingHour);
         result.put("heartsCount", heartsCount);

@@ -93,7 +93,6 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
     public void onBindViewHolder(@NonNull final FieldViewHolder holder, final int position) {
         final String fieldKey = mFieldsIds.get(position);
         Field field = mFields.get(position);
-        //final String fieldKey = fieldKeyMap.get(field);
 
 
         // Determine if the current user has liked this field and set UI accordingly
@@ -248,8 +247,10 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
         public final TextView heartsCountTextView;
         public final TextView fieldAddressTextView;
         public final TextView fieldNameTextView;
+        public final TextView fieldSurfaceTextView;
+        public final TextView fieldSizeTextView;
+        public final TextView fieldPriceTextView;
         public final ImageView fieldImageView;
-        // TODO: rename these buttons
         public final Button action1Button;
         public final Button action2Button;
 
@@ -262,6 +263,9 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             fieldAddressTextView = (TextView) view.findViewById(R.id.card_field_address);
             fieldNameTextView = (TextView) view.findViewById(R.id.card_field_name);
             fieldImageView = (ImageView) view.findViewById(R.id.card_field_image);
+            fieldSurfaceTextView = (TextView) view.findViewById(R.id.field_surface);
+            fieldSizeTextView = (TextView) view.findViewById(R.id.field_dimen);
+            fieldPriceTextView = (TextView) view.findViewById(R.id.field_price);
             action1Button = (Button) view.findViewById(R.id.action_1_button);
             action2Button = (Button) view.findViewById(R.id.action_2_button);
         }
@@ -270,20 +274,24 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             // Download and set the picture of the field (done at first because it can take much time).
             downloadAndSetFieldImage(fieldKey);
 
+            // Setting all field features
             fieldNameTextView.setText(field.getName());
+            fieldAddressTextView.setText(field.getAddress());
+            fieldSurfaceTextView.setText(field.getSurface());
+            fieldSizeTextView.setText(field.getSize());
+            fieldPriceTextView.setText(field.getPrice());
 
             //TODO: substitute this AsyncTask with the address obtained from db (field.getAddress)
-            new DiscoverAddress().execute(field.getLatitude(), field.getLongitude());
+            // new DiscoverAddress().execute(field.getLatitude(), field.getLongitude());
 
-            fieldAddressTextView.setText(String
-                    .format(Locale.getDefault(), "%f", field.getLatitude()));
+            // fieldAddressTextView.setText(String
+            //        .format(Locale.getDefault(), "%f", field.getLatitude()));
 
             // Show hearts count only if it's greater than zero.
             if (field.getHeartsCount() > 0) {
                 heartsCountTextView.setText(String
                         .format(Locale.getDefault(), "%d", field.getHeartsCount()));
             }
-            // TODO: set all the field's fields
 
             heartImageView.setOnClickListener(heartClickListener);
         }
@@ -343,38 +351,38 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
 
         class DiscoverAddress extends AsyncTask<Double, Void, String>{
 
-                        Double lat;
-                        Double lon;
+            Double lat;
+            Double lon;
 
-                        @Override
-                        protected String doInBackground(Double... params) {
+            @Override
+            protected String doInBackground(Double... params) {
 
-                            lat = params[0];
-                            lon = params[1];
+                lat = params[0];
+                lon = params[1];
 
-                            //A complete address -> addresses[0]
-                            String addressLine = null;
+                //A complete address -> addresses[0]
+                String addressLine = null;
 
-                            //obtained by splitting addressLine
-                            String address = null;
+                //obtained by splitting addressLine
+                String address = null;
 
-                            //Long vector filled by geocoder Object
-                            Address locality = null;
+                //Long vector filled by geocoder Object
+                Address locality = null;
 
-                            //A list of possible addresses
-                            List<Address> addresses = null;
+                //A list of possible addresses
+                List<Address> addresses = null;
 
-                            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
 
-                            //try to get the location from lat e lon
-                            try {
-                                addresses = geocoder.getFromLocation(lat, lon, 1);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                //try to get the location from lat e lon
+                try {
+                    addresses = geocoder.getFromLocation(lat, lon, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                            if (addresses.size() > 0) {
-                                locality = addresses.get(0);
+                if (addresses.size() > 0) {
+                    locality = addresses.get(0);
                     addressLine = locality.getAddressLine(0);
                     String[] addressLineSplitted = addressLine.split(",");
                     address = addressLineSplitted[2];
@@ -385,7 +393,7 @@ public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHol
             }
 
             @Override
-            protected void onPostExecute(String result){
+            protected void onPostExecute(String result) {
                 fieldAddressTextView.setText(result);
             }
         }

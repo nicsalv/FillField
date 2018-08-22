@@ -134,7 +134,6 @@ public class ReservationsAdapter extends RecyclerView.Adapter<ReservationsAdapte
                         holder.contactButton.getId());
             }
         });
-        // TODO: get user information (so far you just print the userId)
     }
 
     @Override
